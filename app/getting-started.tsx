@@ -1,0 +1,137 @@
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { Pressable, View } from 'react-native';
+
+import { Button, ButtonText } from '@/components/ui/button';
+import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
+import { Text } from '@/components/ui/text';
+
+const ACTIVITIES = [
+  '🏃‍♂️  Running', '🚴‍♀️  Cycling', '🥾  Hiking',
+  '🧗  Rock Climbing', '🛶  Kayaking', '⛵️  Sailing',
+  '🏄‍♂️  Surfing', '🪁  Kitesurfing', '🌬️  Windsurfing', '⚽️  Generic / Others',
+];
+
+export default function GettingStarted() {
+  const router = useRouter();
+  const [step, setStep] = useState<0 | 1 | 2>(0);
+
+  // Step 0 state (Activities)
+  const [selected, setSelected] = useState<string[]>([]);
+  const toggle = (label: string) =>
+    setSelected((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
+
+  // Step 1 state (Preferences)
+  const [pref, setPref] = useState<'recommended' | 'detailed' | null>('recommended');
+
+  const progress = useMemo(() => ((step + 1) / 3) * 100, [step]);
+
+  const next = () => {
+    if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
+    else router.replace('/home'); // or push to your main app route
+  };
+
+  return (
+    <View className="flex-1 bg-[#FFAE00] overflow-hidden">
+      <View className="flex-[0.1]" />
+
+      <View className="flex-1 bg-white rounded-t-[30px] p-10">
+        {/* Header + progress */}
+        <View className="mb-4">
+          <Text className="text-[16px] text-typography-600">Getting Started</Text>
+          <Text className="text-[12px] text-typography-500">{step + 1} of 3</Text>
+
+          <View className="mt-2">
+            <Progress value={progress} size='xs'>
+              <ProgressFilledTrack />
+            </Progress>
+          </View>
+        </View>
+
+        {/* STEP CONTENT */}
+        {step === 0 && (
+          <View className="flex-1 mt-5 gap-2">
+            <Text size="2xl" className="font-roboto-bold mb-2">Activities</Text>
+            <Text className="mb-4" size="lg">
+              Begin by selecting your activities <br></br>get weather forecast tailored to your preferences.
+            </Text>
+
+            <View className="flex-row flex-wrap gap-3">
+              {ACTIVITIES.map((label) => {
+                const isActive = selected.includes(label);
+                return (
+                  <Button
+                    key={label}
+                    variant={isActive ? 'solid' : 'outline'}
+                    size="sm"
+                    className={`${isActive ? 'bg-tertiary-400 ' : ''} rounded-3xl`}
+                    onPress={() => toggle(label)}
+                  >
+                    <ButtonText className="font-roboto">{label}</ButtonText>
+                  </Button>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {step === 1 && (
+          <View className="flex-1 mt-5">
+            <Text size="2xl" className="font-roboto-bold mb-3">Preferences</Text>
+            <Text className="mb-6" size="lg">How detailed do you check for weather forecasts?</Text>
+
+            {/* Card 1 */}
+            <Pressable
+              onPress={() => setPref('recommended')}
+              className={`rounded-2xl border p-4 mb-3 ${
+                pref === 'recommended' ? 'border-tertiary-400' : 'border-outline-200'
+              }`}
+            >
+              <Text className="font-roboto-medium mb-1">Recommended</Text>
+              <Text className="text-typography-600">
+                Show essential parameters and general overview
+              </Text>
+            </Pressable>
+
+            {/* Card 2 */}
+            <Pressable
+              onPress={() => setPref('detailed')}
+              className={`rounded-2xl border p-4 ${
+                pref === 'detailed' ? 'border-tertiary-400' : 'border-outline-200'
+              }`}
+            >
+              <Text className="font-roboto-medium mb-1">Detailed</Text>
+              <Text className="text-typography-600">
+                Gives all parameters used by the application
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
+        {step === 2 && (
+          <View className="flex-1 mt-5 gap-2">
+            <Text size="2xl" className="font-roboto-bold mb-2">Allow Location</Text>
+            <Text className="mb-4" size='lg'>
+              Allow application to view your current location for accurate reading.
+            </Text>
+            {/* Placeholder box */}
+            <View className="rounded-2xl border border-outline-200 h-40" />
+          </View>
+        )}
+
+        {/* Footer buttons */}
+        <View className="mt-6">
+          <Button
+            variant="solid"
+            size="md"
+            action="primary"
+            className="bg-tertiary-400 rounded-lg"
+            onPress={next}
+          >
+            <ButtonText>{step < 2 ? 'Next' : 'Finish'}</ButtonText>
+          </Button>
+        </View>
+      </View>
+    </View>
+  );
+}
