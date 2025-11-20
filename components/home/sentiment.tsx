@@ -1,29 +1,29 @@
+import {
+  Angry,
+  Frown,
+  Laugh,
+  Meh,
+  Smile,
+} from 'lucide-react-native';
 import React from 'react';
 import { View } from 'react-native';
-import {
-  Laugh,
-  Smile,
-  Meh,
-  Frown,
-  Angry,
-} from 'lucide-react-native';
 
-export type Sentiment = 'IDEAL' | 'GREAT' | 'GOOD' | 'FAIR' | 'BAD';
+export type Sentiment = 'GREAT' | 'GOOD' | 'FAIR' | 'BAD' | 'POOR';
 
 const COLORS: Record<Sentiment, string> = {
-  IDEAL: '#43B92C',       // bright green
-  GREAT: '#92C433',       // yellow-green
-  GOOD:  '#E8C22B',       // yellow
-  FAIR:  '#F39F40',       // orange
-  BAD:   '#D96500',       // red
+  GREAT: '#43B92C',       // bright green
+  GOOD: '#92C433',       // yellow-green
+  FAIR:  '#E8C22B',       // yellow
+  BAD:  '#F39F40',       // orange
+  POOR:   '#D96500',       // red
 };
 
 const ICONS: Record<Sentiment, any> = {
-  IDEAL: Laugh,
-  GREAT: Smile,
-  GOOD: Meh,
-  FAIR: Frown,
-  BAD:  Angry,
+  GREAT: Laugh,
+  GOOD: Smile,
+  FAIR: Meh,
+  BAD: Frown,
+  POOR:  Angry,
 };
 
 export function SentimentIcon({ value }: { value: Sentiment }) {

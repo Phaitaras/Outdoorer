@@ -1,70 +1,111 @@
-import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Text } from '@/components/ui/text';
+import React, { useMemo, useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
-import { MapPin, SlidersHorizontal, X } from 'lucide-react-native';
+import { Text } from '@/components/ui/text';
+import {
+  ArrowRight as LucideArrowRight,
+  MapPin,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react-native';
+
 import { Sentiment, SentimentIcon } from '@/components/home/sentiment';
 import { StatusBadge } from '@/components/home/statusBadge';
-import { ArrowRight } from 'lucide-react-native';
 
-// dummy graph data
-const HOURS = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'] as const;
-const ROWS: Sentiment[] = ['IDEAL', 'GREAT', 'GOOD', 'FAIR', 'BAD'];
+// ---- graph config ----------------------------------------------------------
 
-type HourBar = {
-  hour: string;
-  sentiment: Sentiment;
-};
+const ROWS: Sentiment[] = ['GREAT', 'GOOD', 'FAIR', 'BAD', 'POOR'];
+
+type HourBar = { hour: string; sentiment: Sentiment };
 
 const GRAPH_DATA: HourBar[] = [
-  { hour: '9:00', sentiment: 'GREAT' },
-  { hour: '10:00', sentiment: 'IDEAL' },
-  { hour: '11:00', sentiment: 'IDEAL' },
-  { hour: '12:00', sentiment: 'IDEAL' },
-  { hour: '13:00', sentiment: 'IDEAL' },
-  { hour: '14:00', sentiment: 'IDEAL' },
-  { hour: '15:00', sentiment: 'GREAT' },
+  { hour: '9:00', sentiment: 'GOOD' },
+  { hour: '10:00', sentiment: 'GREAT' },
+  { hour: '11:00', sentiment: 'GREAT' },
+  { hour: '12:00', sentiment: 'GREAT' },
+  { hour: '13:00', sentiment: 'GREAT' },
+  { hour: '14:00', sentiment: 'GREAT' },
+  { hour: '15:00', sentiment: 'GOOD' },
+  { hour: '16:00', sentiment: 'FAIR' },
+  { hour: '17:00', sentiment: 'FAIR' },
+  { hour: '18:00', sentiment: 'FAIR' },
+  { hour: '19:00', sentiment: 'BAD' },
+  { hour: '20:00', sentiment: 'BAD' },
+  { hour: '21:00', sentiment: 'POOR' },
+  { hour: '22:00', sentiment: 'POOR' },
+  { hour: '23:00', sentiment: 'POOR' },
+  { hour: '00:00', sentiment: 'POOR' },
 ];
 
 const SENTIMENT_COLOR: Record<Sentiment, string> = {
-  IDEAL: '#7FD36E',
-  GREAT: '#AFDF55',
-  GOOD: '#FFD166',
-  FAIR: '#FF914D',
-  BAD: '#FF5C5C',
+  GREAT: '#7FD36E',
+  GOOD: '#AFDF55',
+  FAIR: '#FFD166',
+  BAD: '#FF914D',
+  POOR: '#FF5C5C',
 };
+
+const BAR_HEIGHT_CLASS: Record<Sentiment, string> = {
+  POOR: 'h-[2.4rem]',
+  BAD: 'h-[4.8rem]',
+  FAIR: 'h-[7.2rem]',
+  GOOD: 'h-[9.6rem]',
+  GREAT: 'h-[12rem]',
+};
+
+const BAR_FILL_COLOR: Record<Sentiment, string> = {
+  GREAT: '#CFE8C4',
+  GOOD: '#DDECBD',
+  FAIR: '#F4E9C3',
+  BAD: '#F8D1BC',
+  POOR: '#F8BCBC',
+};
+
 
 export default function ActivityDetailScreen() {
   const params = useLocalSearchParams<{ activity?: string; status?: Sentiment }>();
   const activity = params.activity ?? 'Running';
-  const status = (params.status as Sentiment) ?? 'GREAT';
+  const status = (params.status as Sentiment) ?? 'GOOD';
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showFigures, setShowFigures] = useState(false);
 
   const selectedBar = useMemo(
     () => GRAPH_DATA[selectedIndex],
-    [selectedIndex]
+    [selectedIndex],
   );
+
+  // recommended = contiguous block of "GOOD or better"
+  const recommendedIndices = GRAPH_DATA
+    .map((b, i) =>
+      (b.sentiment === 'GREAT' || b.sentiment === 'GOOD') ? i : null,
+    )
+    .filter((i) => i !== null) as number[];
+
+  const recommendedStart = recommendedIndices[0] ?? 0;
+  const recommendedEnd = recommendedIndices[recommendedIndices.length - 1] ?? 0;
+  const recommendedCount = recommendedEnd - recommendedStart + 1;
+
 
   return (
     <View className="flex-1 bg-[#F6F6F7]">
-      <ScrollView
-        className="flex-1 px-8 mt-6 flex-col"
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
+        {/* location */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center gap-2">
             <MapPin size={18} />
-            <Text className="font-roboto-medium text-[20px]">Glasgow, United Kingdom</Text>
+            <Text className="font-roboto-medium text-[20px]">
+              Glasgow, United Kingdom
+            </Text>
           </View>
           <Button variant="solid" size="xs" className="px-2 rounded-md">
             <ButtonIcon as={SlidersHorizontal} />
           </Button>
         </View>
 
-        {/* header: activity + badge + action button */}
+        {/* activity header */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center gap-2">
             <Text className="text-lg font-roboto-medium">🏃‍♂️  {activity}</Text>
@@ -75,103 +116,111 @@ export default function ActivityDetailScreen() {
           </Button>
         </View>
 
-        {/* graph section */}
-        <Text className="text-xs text-typography-600 mb-1">Recommended</Text>
+        <Text className="text-xs text-typography-600 mb-1 text-center">
+          Recommended
+        </Text>
 
-        {/* hour tabs row (can scroll horizontally if needed) */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-2"
-          contentContainerStyle={{ paddingRight: 24 }}
-        >
-          {GRAPH_DATA.map((bar, index) => {
-            const isActive = index === selectedIndex;
-            return (
-              <Pressable
-                key={bar.hour}
-                onPress={() => setSelectedIndex(index)}
-                className={`px-3 py-1 rounded-full mr-2 border ${isActive ? 'bg-[#FFAE00] border-[#FFAE00]' : 'border-outline-200'
-                  }`}
+        {/* graph wrapper */}
+        <View className="flex-row mt-1 mb-3 mx-1">
+          {/* y axis */}
+          <View className="mr-2 justify-between pt-[1.9rem]">
+            {ROWS.map((s) => (
+              <View
+                key={s}
+                className="h-[2.4rem] justify-center"
               >
-                <Text
-                  className={`text-xs font-roboto-medium ${isActive ? 'text-white' : 'text-typography-800'
-                    }`}
-                >
-                  {bar.hour}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        {/* bar chart */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mt-1 mb-3"
-        >
-          <View className="flex-row">
-            {/* y-axis labels */}
-            <View className="justify-between mr-2 py-2">
-              {ROWS.map((s) => (
-                <Text
-                  key={s}
-                  className="text-[11px] text-typography-600 mb-2"
-                >
+                <Text className="text-[11px] text-center text-typography-600">
                   {s.charAt(0) + s.slice(1).toLowerCase()}
                 </Text>
-              ))}
-            </View>
-
-            {/* bars */}
-            <View className="flex-row items-end gap-2 py-2">
-              {GRAPH_DATA.map((bar, index) => {
-                const sentiment = bar.sentiment;
-                const color = SENTIMENT_COLOR[sentiment];
-
-                // map sentiment -> bar height
-                const heightBySentiment: Record<Sentiment, number> = {
-                  BAD: 60,
-                  FAIR: 90,
-                  GOOD: 120,
-                  GREAT: 150,
-                  IDEAL: 180,
-                };
-
-                const isActive = index === selectedIndex;
-
-                return (
-                  <Pressable
-                    key={bar.hour}
-                    onPress={() => setSelectedIndex(index)}
-                    className="items-center"
-                  >
-                    <View
-                      style={{
-                        height: heightBySentiment[sentiment],
-                        width: 40,
-                        backgroundColor: color + '70', // translucent fill
-                        borderRadius: 6,
-                        borderWidth: isActive ? 2 : 1,
-                        borderColor: isActive ? '#FFAE00' : color,
-                        justifyContent: 'flex-start',
-                        alignItems: 'center',
-                        paddingTop: 6,
-                      }}
-                    >
-                      <SentimentIcon value={sentiment} />
-                    </View>
-                    <Text className="text-[11px] mt-1 text-typography-600">
-                      {bar.hour}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+              </View>
+            ))}
           </View>
-        </ScrollView>
 
+          {/* graph */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 24 }}
+          >
+            <View>
+              {/* hours */}
+              <View className="flex-row mb-2">
+                {GRAPH_DATA.map((bar, index) => {
+                  const isActive = index === selectedIndex;
+                  const isRecommended =
+                    index >= recommendedStart && index <= recommendedEnd;
+
+                  return (
+                    <Pressable
+                      key={bar.hour}
+                      onPress={() => setSelectedIndex(index)}
+                      className={`mx-1 w-[2.4rem] rounded-lg py-1 ${isActive
+                        ? 'bg-[#FFAE00]'
+                        : isRecommended
+                          ? 'bg-gray-200'
+                          : ''
+                        }`}
+                    >
+                      <Text
+                        className={`text-2xs text-center ${isActive ? 'text-white' : 'text-typography-800'
+                          }`}
+                      >
+                        {bar.hour}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {/* bars */}
+              <View className="relative">
+                {/* grid behind bars */}
+                <View
+                  pointerEvents="none"
+                  style={{ position: 'absolute', left: 0, right: 0, top: 0, zIndex: 0 }}
+                >
+                  {ROWS.map((_, idx) => (
+                    <View
+                      key={idx}
+                      className="h-[2.4rem] border-b border-outline-200"
+                    />
+                  ))}
+                </View>
+
+                {/* each bar */}
+                <View className="flex-row items-end" style={{ zIndex: 1 }}>
+                  {GRAPH_DATA.map((bar, index) => {
+                    const sentiment = bar.sentiment;
+                    const color = SENTIMENT_COLOR[sentiment];
+                    const isActive = index === selectedIndex;
+
+                    return (
+                      <Pressable
+                        key={bar.hour}
+                        onPress={() => setSelectedIndex(index)}
+                        className="items-center mx-1"
+                      >
+                        <View
+                          className={`w-[2.4rem] rounded-lg justify-start items-center pt-2 ${BAR_HEIGHT_CLASS[sentiment]}`}
+                          style={{
+                            backgroundColor: BAR_FILL_COLOR[sentiment],
+                            borderColor: isActive ? '#FFAE00' : color,
+                            borderWidth: isActive ? 2 : 1,
+                          }}
+                        >
+                          <SentimentIcon value={sentiment} />
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* whats this */}
         <Pressable
           onPress={() => setShowFigures(true)}
           className="self-end mb-4"
@@ -181,7 +230,7 @@ export default function ActivityDetailScreen() {
           </Text>
         </Pressable>
 
-        {/* date + recommended window summary (simple mock) */}
+        {/* recommended window text */}
         <Text className="text-sm font-roboto-medium mb-2">
           Thursday, October 16
         </Text>
@@ -190,15 +239,17 @@ export default function ActivityDetailScreen() {
           <Text className="text-sm text-typography-700">Recommended Window</Text>
           <View className="flex-row items-center gap-1">
             <Text className="text-sm font-roboto-medium">10:00 - 15:00</Text>
-            <ArrowRight size={16} className="text-typography-700" />
+            <LucideArrowRight size={16} />
           </View>
         </View>
 
-        {/* Hourly window table mock */}
-        <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-4">
+        {/* hourly table */}
+        <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-8">
           <View className="flex-row items-center justify-between mb-2">
             <Text className="font-roboto-medium text-sm">Hourly Window</Text>
-            <Text className="text-sm text-typography-600">{selectedBar.hour}</Text>
+            <Text className="text-sm text-typography-600">
+              {selectedBar.hour}
+            </Text>
           </View>
 
           {[
@@ -223,54 +274,79 @@ export default function ActivityDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Graph Figures modal */}
+      {/* graph figures modal (unchanged from before, except sentiment set) */}
       {showFigures && (
         <View className="absolute inset-0 bg-black/40 items-center justify-center px-6">
-          <View className="bg-white rounded-2xl w-full px-4 py-4">
-            <View className="flex-row items-center justify-between mb-2">
+          <View className="bg-[#F6F6F7] rounded-2xl w-full px-4 py-4">
+            <View className="flex-row items-center justify-between mb-4">
               <Text className="font-roboto-medium text-md">Graph Figures</Text>
               <Pressable onPress={() => setShowFigures(false)}>
                 <X size={20} />
               </Pressable>
             </View>
 
-            {/* top tabs */}
-            <View className="flex-row mb-3">
-              <View className="px-3 py-1 rounded-full bg-[#FFAE00] mr-2">
-                <Text className="text-xs text-white font-roboto-medium">
-                  Selected {selectedBar.hour}
-                </Text>
+            <View className="flex-row justify-center gap-4">
+              <View className="flex flex-col items-center gap-1">
+                <View className="px-2 py-1 rounded-lg bg-[#FFAE00]">
+                  <Text className="text-xs text-white font-roboto-medium">
+                    9:00
+                  </Text>
+                </View>
+                <Text className="text-xs text-typography-700">Selected</Text>
               </View>
-              <View className="px-3 py-1 rounded-full bg-outline-100 mr-2">
+              <View className="flex flex-col items-center gap-1">
+                <View className="px-2 py-1 rounded-lg bg-[#ffd987]">
+                  <Text className="text-xs text-typography-700">10:00</Text>
+                </View>
                 <Text className="text-xs text-typography-700">Your Window</Text>
               </View>
-              <View className="px-3 py-1 rounded-full bg-outline-100">
+              <View className="flex flex-col items-center gap-1">
+                <View className="px-2 py-1 rounded-lg bg-gray-200">
+                  <Text className="text-xs text-typography-700">11:00</Text>
+                </View>
                 <Text className="text-xs text-typography-700">Recommended</Text>
               </View>
             </View>
 
-            {/* mini bar chart summary */}
-            <View className="flex-row justify-between items-end mt-2 mb-3">
-              {(['BAD', 'FAIR', 'GOOD', 'GREAT', 'IDEAL'] as Sentiment[]).map(
-                (s, idx) => (
+            {/* MINI GRAPH – matches main grid look */}
+            <View className="flex-row items-end justify-center mt-4 mb-2">
+              {(['POOR', 'BAD', 'FAIR', 'GOOD', 'GREAT'] as Sentiment[]).map((s, idx) => {
+                const barHeight = {
+                  POOR: '2.4rem',
+                  BAD: '4.8rem',
+                  FAIR: '7.2rem',
+                  GOOD: '9.6rem',
+                  GREAT: '12rem',
+                }[s];
+
+                return (
                   <View key={s} className="items-center mx-1">
+
+                    {/* mini bar */}
                     <View
+                      className="w-[2.4rem] rounded-lg justify-start items-center pt-2"
                       style={{
-                        height: 40 + idx * 18,
-                        width: 32,
-                        backgroundColor: SENTIMENT_COLOR[s] + '55',
-                        borderRadius: 6,
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        height: barHeight,
+                        backgroundColor: BAR_FILL_COLOR[s],
+                        borderColor: SENTIMENT_COLOR[s],
+                        borderWidth: 1,
                       }}
                     >
+                      {/* icon at the top of the bar */}
                       <SentimentIcon value={s} />
                     </View>
-                    <Text className="text-[10px] mt-1">{s}</Text>
+
+                    {/* Label under mini bar */}
+                    <Text
+                      className="mt-1 text-[10px] font-roboto-medium text-typography-700"
+                    >
+                      {s}
+                    </Text>
                   </View>
-                )
-              )}
+                );
+              })}
             </View>
+
           </View>
         </View>
       )}

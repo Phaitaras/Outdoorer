@@ -1,14 +1,14 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
-import { Text } from '@/components/ui/text';
-import { Input, InputField } from '@/components/ui/input';
-import { Button, ButtonIcon } from '@/components/ui/button';
-import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import { ActivityCard } from '@/components/home/activityCard';
-import { MapPin, SlidersHorizontal, Search } from 'lucide-react-native';
+import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import type { Sentiment } from '@/components/home/sentiment';
+import { Button, ButtonIcon } from '@/components/ui/button';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
+import { MapPin, Search, SlidersHorizontal } from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, View } from 'react-native';
 
 export default function Home() {
   const headerH = useHeaderHeight();
@@ -56,35 +56,35 @@ export default function Home() {
           <ActivityCard
             emoji="🏃‍♂️"
             title="Running"
-            status="GREAT"
-            next6={['IDEAL', 'GREAT', 'GREAT', 'GREAT', 'GREAT', 'GREAT'] as Sentiment[]}
+            status="GOOD"
+            next6={['GREAT', 'GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD'] as Sentiment[]}
             windowText="9:00 - 15:00"
             onPress={() =>
               router.push({
                 pathname: '/activity',
-                params: { activity: 'Running', status: 'GREAT' },
+                params: { activity: 'Running', status: 'GOOD' },
               })
             }
           />
           <ActivityCard
             emoji="🥾"
             title="Hiking"
-            status="FAIR"
-            next6={['GOOD', 'GOOD', 'FAIR', 'GOOD', 'GOOD', 'GOOD'] as Sentiment[]}
+            status="BAD"
+            next6={['FAIR', 'FAIR', 'BAD', 'FAIR', 'FAIR', 'FAIR'] as Sentiment[]}
             windowText="10:00 - 14:00"
           />
           <ActivityCard
             emoji="🏄‍♂️"
             title="Surfing"
-            status="BAD"
-            next6={['BAD', 'BAD', 'FAIR', 'GOOD', 'GOOD', 'GOOD'] as Sentiment[]}
+            status="POOR"
+            next6={['POOR', 'POOR', 'BAD', 'FAIR', 'FAIR', 'FAIR'] as Sentiment[]}
             windowText="13:00 - 17:00"
           />
           <ActivityCard
             emoji="🪁"
             title="Kitesurfing"
-            status="BAD"
-            next6={['BAD', 'BAD', 'BAD', 'FAIR', 'GOOD', 'GOOD'] as Sentiment[]}
+            status="POOR"
+            next6={['POOR', 'POOR', 'POOR', 'BAD', 'FAIR', 'FAIR'] as Sentiment[]}
             windowText="—"
           />
         </View>

@@ -1,10 +1,10 @@
 // components/home/activityCard.tsx
-import React from 'react';
-import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { ArrowRight } from 'lucide-react-native';
+import React from 'react';
+import { Pressable, View } from 'react-native';
+import { Sentiment, SentimentRow } from './sentiment';
 import { StatusBadge } from './statusBadge';
-import { SentimentRow, Sentiment } from './sentiment';
 
 export function ActivityCard({
   emoji,
@@ -44,7 +44,7 @@ export function ActivityCard({
       </View>
 
       <Text className="text-sm text-typography-700 mt-1">
-        Ideal Window: {windowText}
+        Great Window: {windowText}
       </Text>
     </Container>
   );
