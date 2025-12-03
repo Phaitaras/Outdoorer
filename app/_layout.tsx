@@ -1,8 +1,9 @@
-import { Stack, SplashScreen } from 'expo-router';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
 import { useFonts } from 'expo-font';
+import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,8 +31,10 @@ export default function RootLayout() {
 
   // 4. Render the app
   return (
-    <GluestackUIProvider>
-      <Stack />
-    </GluestackUIProvider>
+    <SafeAreaProvider>
+      <GluestackUIProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </GluestackUIProvider>
+    </SafeAreaProvider>
   );
 }

@@ -90,7 +90,7 @@ export default function ActivityDetailScreen() {
 
 
   return (
-    <View className="flex-1 bg-[#F6F6F7]">
+    <View className="flex-1 bg-[#F6F6F7] mb-[10%]">
       <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
         {/* location */}
         <View className="flex-row items-center justify-between mb-3">
@@ -322,8 +322,6 @@ export default function ActivityDetailScreen() {
 
                 return (
                   <View key={s} className="items-center mx-1">
-
-                    {/* mini bar */}
                     <View
                       className="w-[2.4rem] rounded-lg justify-start items-center pt-2"
                       style={{
@@ -333,11 +331,9 @@ export default function ActivityDetailScreen() {
                         borderWidth: 1,
                       }}
                     >
-                      {/* icon at the top of the bar */}
                       <SentimentIcon value={s} />
                     </View>
 
-                    {/* Label under mini bar */}
                     <Text
                       className="mt-1 text-[10px] text-typography-700"
                       style={{fontFamily: 'Roboto-Medium'}}

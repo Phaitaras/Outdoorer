@@ -4,7 +4,6 @@ import type { Sentiment } from '@/components/home/sentiment';
 import { Button, ButtonIcon } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 import { MapPin, Search, SlidersHorizontal } from 'lucide-react-native';
 import React from 'react';
@@ -14,7 +13,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-[#F6F6F7]">
+    <View className="flex-1 bg-[#F6F6F7] mb-[20%]">
 
       <ScrollView
         className="flex-1 p-8"
@@ -40,13 +39,11 @@ export default function Home() {
           </View>
         </View>
 
-        {/* WEATHER */}
         <Text className="mt-2 mb-2 text-[18px] text-typography-800" style={{fontFamily: 'Roboto-Bold'}}>
           Hourly Weather
         </Text>
         <CurrentWeatherCard />
 
-        {/* ACTIVITIES */}
         <Text className="mt-5 mb-2 text-[18px] text-typography-800" style={{fontFamily: 'Roboto-Bold'}}>
           Activities
         </Text>
@@ -59,7 +56,7 @@ export default function Home() {
             windowText="9:00 - 15:00"
             onPress={() =>
               router.push({
-                pathname: '/activity',
+                pathname: '/home/activity',
                 params: { activity: 'Running', status: 'GOOD' },
               })
             }
