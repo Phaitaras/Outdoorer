@@ -19,19 +19,19 @@ export function CurrentWeatherCard() {
         <View className="flex-row items-center gap-4 flex-1">
           <CloudDrizzle size={32} />
           <View>
-            <Text className="text-sm text-typography-600 font-roboto-medium">Current</Text>
-            <Text className="text-lg text-typography-600 font-roboto-semibold">Drizzle</Text>
+            <Text className="text-sm text-typography-600" style={{fontFamily: 'Roboto-Medium'}}>Current</Text>
+            <Text className="text-lg text-typography-600" style={{fontFamily: 'Roboto-SemiBold'}}>Drizzle</Text>
           </View>
         </View>
-        <Text className="text-4xl font-roboto-medium">10°c</Text>
+        <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>10°c</Text>
       </View>
 
       <View className="flex-row items-center gap-4 mt-4 justify-between">
         {hours.map(({ h, I, t }, i) => (
           <View key={i} className="items-center">
-            <Text className="text-sm text-typography-500">{h}</Text>
+            <Text className="text-sm text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>{h}</Text>
             <I size={18} />
-            <Text className="text-sm text-typography-600 mt-1">{t}</Text>
+            <Text className="text-sm text-typography-600 mt-1" style={{fontFamily: 'Roboto-Regular'}}>{t}</Text>
           </View>
         ))}
       </View>

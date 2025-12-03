@@ -38,8 +38,8 @@ export default function GettingStarted() {
       <View className="flex-1 bg-white rounded-t-[30px] p-10">
         {/* Header + progress */}
         <View className="mb-4">
-          <Text className="text-[16px] text-typography-600">Getting Started</Text>
-          <Text className="text-[12px] text-typography-500">{step + 1} of 3</Text>
+          <Text className="text-[16px] text-typography-600 mb-1" style={{fontFamily: 'Roboto-Medium'}}>Getting Started</Text>
+          <Text className="text-[12px] text-typography-500" style={{fontFamily: 'Roboto-Light'}}>{step + 1} of 3</Text>
 
           <View className="mt-2">
             <Progress value={progress} size='xs'>
@@ -51,9 +51,9 @@ export default function GettingStarted() {
         {/* STEP CONTENT */}
         {step === 0 && (
           <View className="flex-1 mt-5 gap-2">
-            <Text size="2xl" className="font-roboto-bold mb-2">Activities</Text>
-            <Text className="mb-4" size="lg">
-              Begin by selecting your activities <br></br>get weather forecast tailored to your preferences.
+            <Text size="2xl" className="mb-2" style={{fontFamily: 'Roboto-Bold'}}>Activities</Text>
+            <Text className="mb-4" size="lg" style={{fontFamily: 'Roboto-Regular'}}>
+              Begin by selecting your activities get weather forecast tailored to your preferences.
             </Text>
 
             <View className="flex-row flex-wrap gap-3">
@@ -67,7 +67,7 @@ export default function GettingStarted() {
                     className={`${isActive ? 'bg-tertiary-400 ' : ''} rounded-3xl`}
                     onPress={() => toggle(label)}
                   >
-                    <ButtonText className="font-roboto">{label}</ButtonText>
+                    <ButtonText style={{fontFamily: 'Roboto-Regular'}}>{label}</ButtonText>
                   </Button>
                 );
               })}
@@ -77,8 +77,8 @@ export default function GettingStarted() {
 
         {step === 1 && (
           <View className="flex-1 mt-5">
-            <Text size="2xl" className="font-roboto-bold mb-3">Preferences</Text>
-            <Text className="mb-6" size="lg">How detailed do you check for weather forecasts?</Text>
+            <Text size="2xl" style={{fontFamily: 'Roboto-Bold'}} className="mb-3">Preferences</Text>
+            <Text className="mb-6" size="lg" style={{fontFamily: 'Roboto-Regular'}}>How detailed do you check for weather forecasts?</Text>
 
             {/* Card 1 */}
             <Pressable
@@ -87,8 +87,8 @@ export default function GettingStarted() {
                 pref === 'recommended' ? 'border-tertiary-400' : 'border-outline-200'
               }`}
             >
-              <Text className="font-roboto-medium mb-1">Recommended</Text>
-              <Text className="text-typography-600">
+              <Text style={{fontFamily: 'Roboto-Medium'}} className="mb-1">Recommended</Text>
+              <Text className="text-typography-600" style={{fontFamily: 'Roboto-Regular'}}>
                 Show essential parameters and general overview
               </Text>
             </Pressable>
@@ -100,8 +100,8 @@ export default function GettingStarted() {
                 pref === 'detailed' ? 'border-tertiary-400' : 'border-outline-200'
               }`}
             >
-              <Text className="font-roboto-medium mb-1">Detailed</Text>
-              <Text className="text-typography-600">
+              <Text style={{fontFamily: 'Roboto-Medium'}} className="mb-1">Detailed</Text>
+              <Text className="text-typography-600" style={{fontFamily: 'Roboto-Regular'}}>
                 Gives all parameters used by the application
               </Text>
             </Pressable>
@@ -110,8 +110,8 @@ export default function GettingStarted() {
 
         {step === 2 && (
           <View className="flex-1 mt-5 gap-2">
-            <Text size="2xl" className="font-roboto-bold mb-2">Allow Location</Text>
-            <Text className="mb-4" size='lg'>
+            <Text size="2xl" style={{fontFamily: 'Roboto-Bold'}} className="mb-2">Allow Location</Text>
+            <Text className="mb-4" size='lg' style={{fontFamily: 'Roboto-Regular'}}>
               Allow application to view your current location for accurate reading.
             </Text>
             {/* Placeholder box */}

@@ -11,22 +11,20 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 
 export default function Home() {
-  const headerH = useHeaderHeight();
   const router = useRouter();
 
   return (
     <View className="flex-1 bg-[#F6F6F7]">
 
       <ScrollView
-        className="flex-1 px-8"
-        contentContainerStyle={{ paddingTop: headerH, paddingBottom: 96 }}
+        className="flex-1 p-8"
         showsVerticalScrollIndicator={false}
       >
-        <View className="rounded-2xl mt-[-40px] mb-3">
+        <View className="rounded-2xl mb-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               <MapPin size={18} />
-              <Text className="font-roboto-medium text-[20px]">Glasgow, United Kingdom</Text>
+              <Text className="text-[20px]" style={{fontFamily: 'Roboto-Medium'}}>Glasgow, United Kingdom</Text>
             </View>
             <Button variant="solid" size="xs" className="px-2 rounded-md">
               <ButtonIcon as={SlidersHorizontal} />
@@ -43,13 +41,13 @@ export default function Home() {
         </View>
 
         {/* WEATHER */}
-        <Text className="mt-2 mb-2 text-[18px] font-roboto-bold text-typography-800">
+        <Text className="mt-2 mb-2 text-[18px] text-typography-800" style={{fontFamily: 'Roboto-Bold'}}>
           Hourly Weather
         </Text>
         <CurrentWeatherCard />
 
         {/* ACTIVITIES */}
-        <Text className="mt-5 mb-2 text-[18px] font-roboto-bold text-typography-800">
+        <Text className="mt-5 mb-2 text-[18px] text-typography-800" style={{fontFamily: 'Roboto-Bold'}}>
           Activities
         </Text>
         <View className="gap-3 mb-4">

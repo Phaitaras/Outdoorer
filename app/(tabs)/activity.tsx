@@ -96,7 +96,7 @@ export default function ActivityDetailScreen() {
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center gap-2">
             <MapPin size={18} />
-            <Text className="font-roboto-medium text-[20px]">
+            <Text className="text-[20px]" style={{fontFamily: 'Roboto-Medium'}}>
               Glasgow, United Kingdom
             </Text>
           </View>
@@ -108,15 +108,15 @@ export default function ActivityDetailScreen() {
         {/* activity header */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center gap-2">
-            <Text className="text-lg font-roboto-medium">🏃‍♂️  {activity}</Text>
+            <Text className="text-lg" style={{fontFamily: 'Roboto-Medium'}}>🏃‍♂️  {activity}</Text>
             <StatusBadge value={status} />
           </View>
           <Button size="sm" variant="solid" className="rounded-full">
-            <ButtonText className="text-white">Plan Activity</ButtonText>
+            <ButtonText className="text-white" style={{fontFamily: 'Roboto-Regular'}}>Plan Activity</ButtonText>
           </Button>
         </View>
 
-        <Text className="text-xs text-typography-600 mb-1 text-center">
+        <Text className="text-xs text-typography-600 mb-1 text-center" style={{fontFamily: 'Roboto-Regular'}}>
           Recommended
         </Text>
 
@@ -129,7 +129,7 @@ export default function ActivityDetailScreen() {
                 key={s}
                 className="h-[2.4rem] justify-center"
               >
-                <Text className="text-[11px] text-center text-typography-600">
+                <Text className="text-[11px] text-center text-typography-600" style={{fontFamily: 'Roboto-Regular'}}>
                   {s.charAt(0) + s.slice(1).toLowerCase()}
                 </Text>
               </View>
@@ -164,6 +164,7 @@ export default function ActivityDetailScreen() {
                       <Text
                         className={`text-2xs text-center ${isActive ? 'text-white' : 'text-typography-800'
                           }`}
+                        style={{fontFamily: 'Roboto-Regular'}}
                       >
                         {bar.hour}
                       </Text>
@@ -225,20 +226,20 @@ export default function ActivityDetailScreen() {
           onPress={() => setShowFigures(true)}
           className="self-end mb-4"
         >
-          <Text className="text-[11px] text-typography-500 underline">
+          <Text className="text-[11px] text-typography-500 underline" style={{fontFamily: 'Roboto-Regular'}}>
             What is this?
           </Text>
         </Pressable>
 
         {/* recommended window text */}
-        <Text className="text-sm font-roboto-medium mb-2">
+        <Text className="text-sm mb-2" style={{fontFamily: 'Roboto-Medium'}}>
           Thursday, October 16
         </Text>
 
         <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-3 flex-row items-center justify-between">
-          <Text className="text-sm text-typography-700">Recommended Window</Text>
+          <Text className="text-sm text-typography-700" style={{fontFamily: 'Roboto-Medium'}}>Recommended Window</Text>
           <View className="flex-row items-center gap-1">
-            <Text className="text-sm font-roboto-medium">10:00 - 15:00</Text>
+            <Text className="text-sm" style={{fontFamily: 'Roboto-Medium'}}>10:00 - 15:00</Text>
             <LucideArrowRight size={16} />
           </View>
         </View>
@@ -246,8 +247,8 @@ export default function ActivityDetailScreen() {
         {/* hourly table */}
         <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-8">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-roboto-medium text-sm">Hourly Window</Text>
-            <Text className="text-sm text-typography-600">
+            <Text className="text-sm" style={{fontFamily: 'Roboto-Medium'}}>Hourly Window</Text>
+            <Text className="text-sm text-typography-600" style={{fontFamily: 'Roboto-Regular'}}>
               {selectedBar.hour}
             </Text>
           </View>
@@ -262,12 +263,12 @@ export default function ActivityDetailScreen() {
               className="flex-row justify-between py-2 border-b border-outline-100 last:border-b-0"
             >
               <View className="w-1/2 pr-2">
-                <Text className="text-[11px] text-typography-500">{k1}</Text>
-                <Text className="text-[13px] text-typography-800">{v1}</Text>
+                <Text className="text-[11px] text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>{k1}</Text>
+                <Text className="text-[13px] text-typography-800" style={{fontFamily: 'Roboto-Regular'}}>{v1}</Text>
               </View>
               <View className="w-1/2 pl-2 items-end">
-                <Text className="text-[11px] text-typography-500">{k2}</Text>
-                <Text className="text-[13px] text-typography-800">{v2}</Text>
+                <Text className="text-[11px] text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>{k2}</Text>
+                <Text className="text-[13px] text-typography-800" style={{fontFamily: 'Roboto-Regular'}}>{v2}</Text>
               </View>
             </View>
           ))}
@@ -279,7 +280,7 @@ export default function ActivityDetailScreen() {
         <View className="absolute inset-0 bg-black/40 items-center justify-center px-6">
           <View className="bg-[#F6F6F7] rounded-2xl w-full px-4 py-4">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="font-roboto-medium text-md">Graph Figures</Text>
+              <Text className="text-md" style={{fontFamily: 'Roboto-Medium'}}>Graph Figures</Text>
               <Pressable onPress={() => setShowFigures(false)}>
                 <X size={20} />
               </Pressable>
@@ -288,23 +289,23 @@ export default function ActivityDetailScreen() {
             <View className="flex-row justify-center gap-4">
               <View className="flex flex-col items-center gap-1">
                 <View className="px-2 py-1 rounded-lg bg-[#FFAE00]">
-                  <Text className="text-xs text-white font-roboto-medium">
+                  <Text className="text-xs text-white" style={{fontFamily: 'Roboto-Medium'}}>
                     9:00
                   </Text>
                 </View>
-                <Text className="text-xs text-typography-700">Selected</Text>
+                <Text className="text-xs text-typography-700" style={{fontFamily: 'Roboto-Regular'}}>Selected</Text>
               </View>
               <View className="flex flex-col items-center gap-1">
                 <View className="px-2 py-1 rounded-lg bg-[#ffd987]">
-                  <Text className="text-xs text-typography-700">10:00</Text>
+                  <Text className="text-xs text-typography-700" style={{fontFamily: 'Roboto-Regular'}}>10:00</Text>
                 </View>
-                <Text className="text-xs text-typography-700">Your Window</Text>
+                <Text className="text-xs text-typography-700" style={{fontFamily: 'Roboto-Regular'}}>Your Window</Text>
               </View>
               <View className="flex flex-col items-center gap-1">
                 <View className="px-2 py-1 rounded-lg bg-gray-200">
-                  <Text className="text-xs text-typography-700">11:00</Text>
+                  <Text className="text-xs text-typography-700" style={{fontFamily: 'Roboto-Regular'}}>11:00</Text>
                 </View>
-                <Text className="text-xs text-typography-700">Recommended</Text>
+                <Text className="text-xs text-typography-700" style={{fontFamily: 'Roboto-Regular'}}>Recommended</Text>
               </View>
             </View>
 
@@ -338,7 +339,8 @@ export default function ActivityDetailScreen() {
 
                     {/* Label under mini bar */}
                     <Text
-                      className="mt-1 text-[10px] font-roboto-medium text-typography-700"
+                      className="mt-1 text-[10px] text-typography-700"
+                      style={{fontFamily: 'Roboto-Medium'}}
                     >
                       {s}
                     </Text>

@@ -16,7 +16,7 @@ const TXT: Record<Sentiment, string> = {
 export function StatusBadge({ value }: { value: Sentiment }) {
   return (
     <Badge size="sm" className={`rounded-md border-0 ${BG[value]}`}>
-      <BadgeText className={` ${TXT[value]}`}>{value}</BadgeText>
+      <BadgeText className={` ${TXT[value]}`} style={{fontFamily: 'Roboto-Regular'}}>{value}</BadgeText>
     </Badge>
   );
 }

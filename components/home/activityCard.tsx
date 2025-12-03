@@ -30,7 +30,7 @@ export function ActivityCard({
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <Text className="text-md font-roboto-medium">
+          <Text className="text-md" style={{fontFamily: 'Roboto-Medium'}}>
             {emoji}  {title}
           </Text>
           <StatusBadge value={status} />
@@ -39,11 +39,11 @@ export function ActivityCard({
       </View>
 
       <View className="mt-2 flex-row items-center gap-2">
-        <Text className="text-sm text-typography-700 pt-1">Next 6h:</Text>
+        <Text className="text-sm text-typography-700 pt-1" style={{fontFamily: 'Roboto-Regular'}}>Next 6h:</Text>
         <SentimentRow items={next6} />
       </View>
 
-      <Text className="text-sm text-typography-700 mt-1">
+      <Text className="text-sm text-typography-700 mt-1" style={{fontFamily: 'Roboto-Regular'}}>
         Great Window: {windowText}
       </Text>
     </Container>
