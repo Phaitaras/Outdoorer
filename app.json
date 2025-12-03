@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.phaitaras.outdoorer",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs your location to provide location-based services while you are using the app.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs your location to track your movements even in the background."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +24,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.phaitaras.outdoorer"
     },
     "web": {
       "output": "static",

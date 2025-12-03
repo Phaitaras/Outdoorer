@@ -28,7 +28,7 @@ export default function GettingStarted() {
 
   const next = () => {
     if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
-    else router.replace('/home'); // or push to your main app route
+    else router.replace('/home'); 
   };
 
   return (
@@ -36,7 +36,6 @@ export default function GettingStarted() {
       <View className="flex-[0.1]" />
 
       <View className="flex-1 bg-white rounded-t-[30px] p-10">
-        {/* Header + progress */}
         <View className="mb-4">
           <Text className="text-[16px] text-typography-600 mb-1" style={{fontFamily: 'Roboto-Medium'}}>Getting Started</Text>
           <Text className="text-[12px] text-typography-500" style={{fontFamily: 'Roboto-Light'}}>{step + 1} of 3</Text>
@@ -48,7 +47,6 @@ export default function GettingStarted() {
           </View>
         </View>
 
-        {/* STEP CONTENT */}
         {step === 0 && (
           <View className="flex-1 mt-5 gap-2">
             <Text size="2xl" className="mb-2" style={{fontFamily: 'Roboto-Bold'}}>Activities</Text>
@@ -80,7 +78,6 @@ export default function GettingStarted() {
             <Text size="2xl" style={{fontFamily: 'Roboto-Bold'}} className="mb-3">Preferences</Text>
             <Text className="mb-6" size="lg" style={{fontFamily: 'Roboto-Regular'}}>How detailed do you check for weather forecasts?</Text>
 
-            {/* Card 1 */}
             <Pressable
               onPress={() => setPref('recommended')}
               className={`rounded-2xl border p-4 mb-3 ${
@@ -93,7 +90,6 @@ export default function GettingStarted() {
               </Text>
             </Pressable>
 
-            {/* Card 2 */}
             <Pressable
               onPress={() => setPref('detailed')}
               className={`rounded-2xl border p-4 ${
@@ -114,12 +110,10 @@ export default function GettingStarted() {
             <Text className="mb-4" size='lg' style={{fontFamily: 'Roboto-Regular'}}>
               Allow application to view your current location for accurate reading.
             </Text>
-            {/* Placeholder box */}
             <View className="rounded-2xl border border-outline-200 h-40" />
           </View>
         )}
 
-        {/* Footer buttons */}
         <View className="mt-6">
           <Button
             variant="solid"

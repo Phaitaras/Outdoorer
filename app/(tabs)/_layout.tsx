@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
-import { HomeIcon, MapIcon, FlagIcon, UserIcon } from 'lucide-react-native';
+import { HomeIcon, MapIcon, LandPlot, UserIcon } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
@@ -18,6 +18,7 @@ export default function TabLayout() {
           height: '10%',
           paddingTop: 10,
           paddingHorizontal: 10,
+          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
         },
         tabBarLabelStyle: {
           marginTop: 1,
@@ -49,7 +50,7 @@ export default function TabLayout() {
         options={{
           title: 'Plan',
           tabBarIcon: ({ color, size }) => (
-            <FlagIcon size={size} color={color} />
+            <LandPlot size={size} color={color} />
           ),
         }}
       />
