@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { Button } from '@/components/ui/button';
 import MapView from 'react-native-map-clustering';
-import { Marker } from 'react-native-maps';
+import { Marker, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { SearchIcon } from '@/components/ui/icon';
-import { HistoryIcon } from 'lucide-react-native';
+import { HistoryIcon, UsersIcon } from 'lucide-react-native';
 
 const INITIAL_REGION = {
     latitude: 55.863873,
@@ -26,6 +28,11 @@ const locations = [
 
 export default function Map() {
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
+    const handleMarkerPress = (loc: any) => {
+        setSelectedLocation(loc);
+    };
 
     useEffect(() => {
         (async () => {
@@ -51,7 +58,11 @@ export default function Map() {
                 clusterTextColor="#FFFFFF"
                 showsUserLocation={true}
                 showsMyLocationButton={true}
-            >
+                
+                onPress={(e) => {
+                    if (e.nativeEvent.action === "press") {setSelectedLocation(null);}}}
+                onPanDrag={() => setSelectedLocation(null)}
+                >
                 {locations.map((loc) => (
                     <Marker
                         key={loc.id}
@@ -59,6 +70,7 @@ export default function Map() {
                             latitude: parseFloat(loc.latitude),
                             longitude: parseFloat(loc.longitude),
                         }}
+                        onPress={() => handleMarkerPress(loc)}
                     />
                 ))}
             </MapView>
@@ -76,10 +88,35 @@ export default function Map() {
                 />
             </Input>
 
-            <View className="absolute bottom-4 right-4 bg-white rounded-full p-2 shadow-soft-2">
+            <View className="absolute bottom-[1rem] right-[1rem] bg-white rounded-full p-2 shadow-soft-2">
                 <HistoryIcon color="#444444" />
             </View>
 
-        </View>
+            <View className="absolute bottom-[4.5rem] right-[1rem] bg-white rounded-full p-2 shadow-soft-2">
+                <UsersIcon color="#444444" />
+            </View>
+
+            {
+        selectedLocation && (
+            <View className="flex-column absolute bottom-0 left-0 right-0 bg-white p-8 shadow-lg rounded-t-3xl">
+                <Text size="xl" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">Placeholder Location {selectedLocation.id}</Text>
+                <Text size="lg" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">Rating</Text>
+                <Text size="sm" style={{ fontFamily: 'Roboto-Regular' }} className="color-typography-800 mt-1">Place Description</Text>
+                <View className="flex-row justify-between mt-6">
+                    <Button variant="solid" size="sm" className="px-4 rounded-full">
+                        <Text style={{ fontFamily: 'Roboto-Medium', color: '#FFFFFF' }}>Plan Activity</Text>
+                    </Button>
+                    <Button variant="outline" size="sm" className="px-4 rounded-full">
+                        <Text style={{ fontFamily: 'Roboto-Medium' }}>See Review</Text>
+                    </Button>
+                    <Button variant="outline" size="sm" className="px-4 rounded-full">
+                        <Text style={{ fontFamily: 'Roboto-Medium' }}>Leave Review</Text>
+                    </Button>
+                </View>
+            </View>
+        )
+    }
+
+        </View >
     );
 }
