@@ -14,7 +14,11 @@ export function CurrentWeatherCard() {
   ];
 
   return (
-    <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1 border border-outline-100">
+    <View>
+      <Text className="mt-2 mb-2 text-[18px] text-typography-800" style={{fontFamily: 'Roboto-Bold'}}>
+        Hourly Weather
+      </Text>
+      <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1 border border-outline-100">
       <View className="flex-row items-center">
         <View className="flex-row items-center gap-4 flex-1">
           <CloudDrizzle size={32} />
@@ -35,6 +39,7 @@ export function CurrentWeatherCard() {
           </View>
         ))}
       </View>
+    </View>
     </View>
   );
 }

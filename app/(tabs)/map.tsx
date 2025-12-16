@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
-import { Button } from '@/components/ui/button';
-import MapView from 'react-native-map-clustering';
-import { Marker, Callout } from 'react-native-maps';
-import * as Location from 'expo-location';
+import { LocationModal } from '@/components/map/locationModal';
 import { SearchIcon } from '@/components/ui/icon';
+import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
+import * as Location from 'expo-location';
 import { HistoryIcon, UsersIcon } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import MapView from 'react-native-map-clustering';
+import { Marker } from 'react-native-maps';
 
 const INITIAL_REGION = {
     latitude: 55.863873,
@@ -96,26 +95,7 @@ export default function Map() {
                 <UsersIcon color="#444444" />
             </View>
 
-            {
-        selectedLocation && (
-            <View className="flex-column absolute bottom-0 left-0 right-0 bg-white p-8 shadow-lg rounded-t-3xl">
-                <Text size="xl" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">Placeholder Location {selectedLocation.id}</Text>
-                <Text size="lg" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">Rating</Text>
-                <Text size="sm" style={{ fontFamily: 'Roboto-Regular' }} className="color-typography-800 mt-1">Place Description</Text>
-                <View className="flex-row justify-between mt-6">
-                    <Button variant="solid" size="sm" className="px-4 rounded-full">
-                        <Text style={{ fontFamily: 'Roboto-Medium', color: '#FFFFFF' }}>Plan Activity</Text>
-                    </Button>
-                    <Button variant="outline" size="sm" className="px-4 rounded-full">
-                        <Text style={{ fontFamily: 'Roboto-Medium' }}>See Review</Text>
-                    </Button>
-                    <Button variant="outline" size="sm" className="px-4 rounded-full">
-                        <Text style={{ fontFamily: 'Roboto-Medium' }}>Leave Review</Text>
-                    </Button>
-                </View>
-            </View>
-        )
-    }
+            <LocationModal location={selectedLocation} />
 
         </View >
     );
