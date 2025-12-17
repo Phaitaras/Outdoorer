@@ -1,26 +1,38 @@
 import { Button, ButtonIcon } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { MapPin, Search, SlidersHorizontal } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { ArrowLeftIcon, MapPin, Search, SlidersHorizontal } from 'lucide-react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 export function LocationHeader({
   locationLabel,
   onFiltersPress,
   onSearchPress,
   className,
+  displayArrow = false,
 }: {
   locationLabel: string;
   onFiltersPress?: () => void;
   onSearchPress?: () => void;
   className?: string;
+  displayArrow?: boolean;
 }) {
+  const router = useRouter();
+
   return (
     <View className={className ?? 'rounded-2xl mb-3'}>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <MapPin size={18} />
+          {displayArrow ? (
+            <Pressable onPress={() => router.back()}>
+              <ArrowLeftIcon size={18} />
+            </Pressable>
+          ) : (
+            <MapPin size={18} />
+          )}
+
           <Text className="text-[20px]" style={{ fontFamily: 'Roboto-Medium' }}>
             {locationLabel}
           </Text>

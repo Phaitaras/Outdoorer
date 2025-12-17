@@ -26,7 +26,7 @@ export function ActivityCard({
   return (
     <Container
       onPress={onPress}
-      className="bg-white rounded-2xl px-4 py-4 shadow-soft-1 border border-outline-100"
+      className="bg-white rounded-2xl px-4 py-4 shadow-soft-1"
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">

@@ -15,11 +15,11 @@ export type ActivityItem = {
 export function ActivityList({ items, className }: { items: ActivityItem[]; className?: string }) {
     return (
         <View>
-            <Text className="mt-5 mb-2 text-[18px] text-typography-800" style={{ fontFamily: 'Roboto-Bold' }}>
+            <Text className="mt-6 mb-4 text-xl text-typography-700" style={{ fontFamily: 'Roboto-Medium' }}>
                 Activities
             </Text>
 
-            <View className={className ?? 'gap-3 mb-4'}>
+            <View className={className ?? 'gap-4 mb-4'}>
                 {items.map((item, idx) => (
                     <ActivityCard
                         key={`${item.title}-${idx}`}

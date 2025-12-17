@@ -40,7 +40,7 @@ export default function ActivityDetailScreen() {
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[10%]">
       <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
-        <LocationHeader locationLabel="Glasgow, United Kingdom" className='mb-6'/>
+        <LocationHeader locationLabel="Glasgow, United Kingdom" displayArrow={true} className='mb-6'/>
         <ActivityHeader activity={activity} status={status} />
 
         <Text className="text-xs text-typography-600 mb-1 text-center" style={{fontFamily: 'Roboto-Regular'}}>
