@@ -6,14 +6,16 @@ import {
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
+import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
 import { SettingsIcon } from 'lucide-react-native';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 export interface ProfileCardProps {
   name: string;
   title: string;
   avatarUri?: string;
+  avatarColor?: AvatarColor;
   activities: string[];
   friendsCount: number;
   activitiesCount: number;
@@ -23,12 +25,15 @@ export interface ProfileCardProps {
   onSettingsPress?: () => void;
   onAddFriendPress?: () => void;
   onViewBookmarksPress?: () => void;
+  onFriendsPress?: () => void;
+  onActivitiesPress?: () => void;
 }
 
 export function ProfileCard({
   name,
   title,
   avatarUri = '',
+  avatarColor = 'blue',
   activities,
   friendsCount = 0,
   activitiesCount = 0,
@@ -38,13 +43,17 @@ export function ProfileCard({
   onSettingsPress,
   onAddFriendPress,
   onViewBookmarksPress,
+  onFriendsPress,
+  onActivitiesPress,
 }: ProfileCardProps) {
+  const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
+
   return (
     <View className="bg-white p-6 rounded-2xl shadow-soft-1">
       {/* header */}
       <View className="flex-row justify-between items-center mb-6">
         <View className='flex-row gap-6 items-center'>
-          <Avatar size='lg'>
+          <Avatar size='lg' style={{ backgroundColor: color }}>
             <AvatarFallbackText>{name}</AvatarFallbackText>
             <AvatarImage
               source={{
@@ -87,23 +96,23 @@ export function ProfileCard({
 
       {/* stats count */}
       <View className="flex-row gap-6">
-        <View className="flex-col gap-1">
+        <Pressable onPress={onFriendsPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
             {friendsCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Friends
           </Text>
-        </View>
+        </Pressable>
         <Divider orientation="vertical" />
-        <View className="flex-col gap-1">
+        <Pressable onPress={onActivitiesPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
             {activitiesCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Activities
           </Text>
-        </View>
+        </Pressable>
         <Divider orientation="vertical" />
         <View className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>

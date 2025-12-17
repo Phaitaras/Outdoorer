@@ -2,24 +2,17 @@ import { Button, ButtonIcon } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { ProfileCard } from '@/components/user/profileCard';
-import { useRouter } from 'expo-router';
-import { ArrowLeftIcon, Search } from 'lucide-react-native';
+import { UserHeader } from '@/components/user/userHeader';
+import { MOCK_ADD_FRIEND_ACCOUNT } from '@/constants/user';
+import { Search } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 export default function AddFriendScreen() {
-    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [showResult, setShowResult] = useState(false);
 
-    const mockAccount = {
-        name: 'John123',
-        title: 'Novice Outdoorer',
-        activities: ['🏃‍♂️  Running', '🚴‍♀️  Cycling', '🥾  Hiking'],
-        friendsCount: 15,
-        activitiesCount: 42,
-        reviewsCount: 5,
-    };
+    const mockAccount = MOCK_ADD_FRIEND_ACCOUNT;
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
@@ -29,18 +22,7 @@ export default function AddFriendScreen() {
 
     return (
         <View className="flex-1 bg-[#F6F6F7]">
-
-            <View className="bg-white px-6 py-4 border-b border-outline-100">
-                <View className="flex-row items-center justify-between">
-                    <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-                        <ArrowLeftIcon className="w-6 h-6 text-typography-700" />
-                    </Pressable>
-                    <Text className="text-xl" style={{ fontFamily: 'Roboto-Medium' }}>
-                        Add Friend
-                    </Text>
-                    <View className="w-10" />
-                </View>
-            </View>
+            <UserHeader title="Add Friend" />
 
             <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 <View className="p-6 gap-6">
@@ -72,6 +54,7 @@ export default function AddFriendScreen() {
                             <ProfileCard
                                 name={mockAccount.name}
                                 title={mockAccount.title}
+                                avatarColor={mockAccount.avatarColor}
                                 activities={mockAccount.activities}
                                 friendsCount={mockAccount.friendsCount}
                                 activitiesCount={mockAccount.activitiesCount}
