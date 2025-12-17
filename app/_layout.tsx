@@ -33,7 +33,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GluestackUIProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#FFAE00' },
+          }}
+        />
       </GluestackUIProvider>
     </SafeAreaProvider>
   );

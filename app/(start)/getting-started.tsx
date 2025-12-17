@@ -5,12 +5,7 @@ import { Pressable, View } from 'react-native';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
-
-const ACTIVITIES = [
-  '🏃‍♂️  Running', '🚴‍♀️  Cycling', '🥾  Hiking',
-  '🧗  Rock Climbing', '🛶  Kayaking', '⛵️  Sailing',
-  '🏄‍♂️  Surfing', '🪁  Kitesurfing', '🌬️  Windsurfing', '⚽️  Generic / Others',
-];
+import { ACTIVITIES } from '@/constants/activities';
 
 export default function GettingStarted() {
   const router = useRouter();
