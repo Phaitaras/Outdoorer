@@ -1,6 +1,7 @@
 import { ActivityListItem } from '@/components/user/activityListItem';
 import { GroupedActivityList } from '@/components/user/groupedActivityList';
 import { UserHeader } from '@/components/user/userHeader';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 
@@ -14,6 +15,7 @@ interface Activity {
 }
 
 export default function PreviousActivitiesScreen() {
+  const router = useRouter();
   const activities: Activity[] = [
     { id: '1', activity: 'Running', emoji: '🏃‍♂️', date: 'Dec 15', month: 'December 2025', timeWindow: '9:00 - 11:00' },
     { id: '2', activity: 'Surfing', emoji: '🏄‍♂️', date: 'Dec 12', month: 'December 2025', timeWindow: '13:00 - 17:00' },
@@ -31,7 +33,7 @@ export default function PreviousActivitiesScreen() {
       subtitle={`${activity.date} • ${activity.timeWindow}`}
       isLast={isLast}
       onPress={() => {
-        // TODO: Navigate to activity details
+        router.push({ pathname: '/(tabs)/activity', params: { activity: activity.activity } });
       }}
     />
   );

@@ -1,7 +1,6 @@
-import React from 'react';
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
-import { HomeIcon, MapIcon, LandPlot, UserIcon } from 'lucide-react-native';
+import { HomeIcon, LandPlot, MapIcon, UserIcon } from 'lucide-react-native';
+import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
@@ -61,6 +60,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <UserIcon size={size} color={color} />
           ),
+        }}
+      />
+      {/* Hidden tab for activity detail so all tabs can push to it without adding per-tab routes */}
+      <Tabs.Screen
+        name="activity"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

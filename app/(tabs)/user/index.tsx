@@ -57,7 +57,7 @@ export default function User() {
               { id: '2', activity: 'Cycling', emoji: '🚴‍♀️', date: 'Dec 18', timeWindow: '10:00 - 12:00' },
               { id: '3', activity: 'Hiking', emoji: '🥾', date: 'Dec 19', timeWindow: '13:00 - 17:00' },
             ]}
-            onCardPress={() => {}}
+            onCardPress={(card) => router.push({ pathname: '/(tabs)/activity', params: { activity: card.activity } })}
             emptyMessage="No upcoming plans"
           />
 
@@ -76,7 +76,7 @@ export default function User() {
               { id: '2', activity: 'Surfing', emoji: '🏄‍♂️', date: 'Dec 12', timeWindow: '13:00 - 17:00' },
               { id: '3', activity: 'Kayaking', emoji: '🛶', date: 'Dec 11', timeWindow: '10:00 - 12:00' },
             ]}
-            onCardPress={() => {}}
+            onCardPress={(card) => router.push({ pathname: '/(tabs)/activity', params: { activity: card.activity } })}
             emptyMessage="No recent activities"
           />
           

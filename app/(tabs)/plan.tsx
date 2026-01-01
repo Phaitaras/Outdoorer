@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 
@@ -19,6 +20,7 @@ import { Text } from '@/components/ui/text';
 type TempPickerMode = 'min' | 'max' | null;
 
 export default function Plan() {
+  const router = useRouter();
   const [activity, setActivity] = useState<string>('Running');
   const [location, setLocation] = useState('Kelvinhaugh, Glasgow');
 
@@ -143,17 +145,10 @@ export default function Plan() {
           action="primary"
           className="mt-4 mb-4 rounded-lg bg-tertiary-400"
           onPress={() => {
-            console.log({
-              activity,
-              location,
-              date,
-              timeStart,
-              timeEnd,
-              useWeatherPrefs,
-              rainTolerance,
-              tempMin,
-              tempMax,
-              windLevel,
+            // Navigate to activity detail with selected activity
+            router.push({
+              pathname: '/(tabs)/activity',
+              params: { activity },
             });
           }}
         >

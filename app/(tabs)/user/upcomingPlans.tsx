@@ -1,6 +1,7 @@
 import { ActivityListItem } from '@/components/user/activityListItem';
 import { GroupedActivityList } from '@/components/user/groupedActivityList';
 import { UserHeader } from '@/components/user/userHeader';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 
@@ -14,6 +15,7 @@ interface Plan {
 }
 
 export default function UpcomingPlansScreen() {
+  const router = useRouter();
   const plans: Plan[] = [
     { id: '1', activity: 'Running', emoji: '🏃‍♂️', date: 'Dec 17', month: 'December 2025', timeWindow: '9:00 - 11:00' },
     { id: '2', activity: 'Cycling', emoji: '🚴‍♀️', date: 'Dec 18', month: 'December 2025', timeWindow: '10:00 - 12:00' },
@@ -31,7 +33,7 @@ export default function UpcomingPlansScreen() {
       subtitle={`${plan.date} • ${plan.timeWindow}`}
       isLast={isLast}
       onPress={() => {
-        // TODO: Navigate to plan details
+        router.push({ pathname: '/(tabs)/activity', params: { activity: plan.activity } });
       }}
     />
   );
