@@ -22,7 +22,7 @@ export function LocationHeader({
   const router = useRouter();
 
   return (
-    <View className={className ?? 'rounded-2xl mb-3'}>
+    <View className={className ?? 'rounded-2xl mb-5'}>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           {displayArrow ? (

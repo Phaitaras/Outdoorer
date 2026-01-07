@@ -7,14 +7,12 @@ import { Sentiment, SentimentRow } from './sentiment';
 import { StatusBadge } from './statusBadge';
 
 export function ActivityCard({
-  emoji,
   title,
   status,
   next6,
   windowText,
   onPress,
 }: {
-  emoji: string;
   title: string;
   status: Sentiment;
   next6: Sentiment[];
@@ -31,7 +29,7 @@ export function ActivityCard({
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           <Text className="text-md" style={{fontFamily: 'Roboto-Medium'}}>
-            {emoji}  {title}
+            {title}
           </Text>
           <StatusBadge value={status} />
         </View>

@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import { Button, ButtonText } from '@/components/ui/button';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
-import { ACTIVITIES } from '@/constants/activities';
+import { ACTIVITIES, ACTIVITY_MAP } from '@/constants/activities';
+import { supabase } from '@/lib/supabase';
 
 export default function GettingStarted() {
   const router = useRouter();
@@ -17,13 +18,44 @@ export default function GettingStarted() {
     setSelected((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
   // Step 1 state (Preferences)
-  const [pref, setPref] = useState<'recommended' | 'detailed' | null>('recommended');
+  // const [pref, setPref] = useState<'recommended' | 'detailed' | null>('recommended');
 
-  const progress = useMemo(() => ((step + 1) / 3) * 100, [step]);
+  const progress = useMemo(() => ((step + 1) / 2) * 100, [step]);
+
+  const saveActivitiesAndFinish = async () => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        Alert.alert('Error', 'No user found');
+        return;
+      }
+      const activityEnums = selected.map(label => ACTIVITY_MAP[label]).filter(Boolean);
+
+      const { error } = await supabase
+        .from('profile')
+        .update({
+          activity_types: activityEnums,
+          onboarded: true,
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        Alert.alert('Error', error.message);
+        console.error("Supabase Error:", JSON.stringify(error, null, 2));
+        return;
+      }
+
+      router.replace('/(tabs)/home');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save activities');
+      console.error(error);
+    }
+  };
 
   const next = () => {
-    if (step < 2) setStep((s) => (s + 1) as 0 | 1 | 2);
-    else router.replace('/home'); 
+    if (step < 1) setStep((s) => (s + 1) as 0 | 1);
+    else saveActivitiesAndFinish();
   };
 
   return (
@@ -68,7 +100,7 @@ export default function GettingStarted() {
           </View>
         )}
 
-        {step === 1 && (
+        {/* {step === 1 && (
           <View className="flex-1 mt-5">
             <Text size="2xl" style={{fontFamily: 'Roboto-Bold'}} className="mb-3">Preferences</Text>
             <Text className="mb-6" size="lg" style={{fontFamily: 'Roboto-Regular'}}>How detailed do you check for weather forecasts?</Text>
@@ -97,9 +129,9 @@ export default function GettingStarted() {
               </Text>
             </Pressable>
           </View>
-        )}
+        )} */}
 
-        {step === 2 && (
+        {step === 1 && (
           <View className="flex-1 mt-5 gap-2">
             <Text size="2xl" style={{fontFamily: 'Roboto-Bold'}} className="mb-2">Allow Location</Text>
             <Text className="mb-4" size='lg' style={{fontFamily: 'Roboto-Regular'}}>
@@ -117,7 +149,7 @@ export default function GettingStarted() {
             className="bg-tertiary-400 rounded-lg"
             onPress={next}
           >
-            <ButtonText>{step < 2 ? 'Next' : 'Finish'}</ButtonText>
+            <ButtonText>{step < 1 ? 'Next' : 'Finish'}</ButtonText>
           </Button>
         </View>
       </View>

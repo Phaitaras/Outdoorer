@@ -1,45 +1,87 @@
-import React from 'react';
-import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { CloudDrizzle, Sun, Cloud } from 'lucide-react-native';
+import { WEATHER_CODE_TO_DESCRIPTION, WEATHER_CODE_TO_ICON } from '@/constants/weather';
+import * as LucideIcons from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { View } from 'react-native';
 
-export function CurrentWeatherCard() {
-  const hours = [
-    { h: '10', I: Cloud,  t: '11°' },
-    { h: '11', I: Cloud,  t: '12°' },
-    { h: '12', I: Sun,    t: '13°' },
-    { h: '13', I: Sun,    t: '14°' },
-    { h: '14', I: Sun,    t: '15°' },
-    { h: '15', I: Sun,    t: '15°' },
-  ];
+export type WeatherData = {
+  current: {
+    code: number;
+    temp: number;
+    time: string;
+  };
+  hours: Array<{
+    temperature_2m: number;
+    time: string;
+    weathercode: number;
+  }>;
+};
+
+export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
+  if (!weather) {
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">Fetching Weather Data...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const getIconComponent = (iconName: string) => {
+    const iconMap: Record<string, React.ComponentType<{ size: number }>> = {
+      'sun': LucideIcons.Sun,
+      'cloud': LucideIcons.Cloud,
+      'cloud-sun': LucideIcons.CloudSun,
+      'cloud-drizzle': LucideIcons.CloudDrizzle,
+      'cloud-fog': LucideIcons.CloudFog,
+      'cloud-rain': LucideIcons.CloudRain,
+      'cloud-snow': LucideIcons.CloudSnow,
+      'cloud-lightning': LucideIcons.CloudLightning,
+    };
+    return iconMap[iconName] || LucideIcons.Cloud;
+  };
+
+  const currentIcon = WEATHER_CODE_TO_ICON[weather.current.code] || 'cloud';
+  const CurrentIcon = getIconComponent(currentIcon);
+  const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.code] || 'Unknown';
+
+  // Format hours for display
+  const hourlyData = useMemo(() => {
+    return (weather.hours ?? []).slice(0, 6).map((hour) => {
+      const time = new Date(hour.time);
+      const h = time.getHours().toString().padStart(2, '0');
+      const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
+      const Icon = getIconComponent(iconName);
+      const t = `${Math.round(hour.temperature_2m)}°`;
+      return { h, Icon, t };
+    });
+  }, [weather.hours]);
 
   return (
     <View>
-      <Text className="mt-2 mb-4 text-xl text-typography-700" style={{fontFamily: 'Roboto-Medium'}}>
-        Hourly Weather
-      </Text>
       <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
-      <View className="flex-row items-center">
-        <View className="flex-row items-center gap-4 flex-1">
-          <CloudDrizzle size={32} />
-          <View>
-            <Text className="text-sm text-typography-600" style={{fontFamily: 'Roboto-Medium'}}>Current</Text>
-            <Text className="text-lg text-typography-600" style={{fontFamily: 'Roboto-SemiBold'}}>Drizzle</Text>
+        <View className="flex-row items-center">
+          <View className="flex-row items-center gap-4 flex-1">
+            <CurrentIcon size={32} />
+            <View>
+              <Text className="text-sm text-typography-600" style={{fontFamily: 'Roboto-Medium'}}>Current</Text>
+              <Text className="text-lg text-typography-600" style={{fontFamily: 'Roboto-SemiBold'}}>{currentDescription}</Text>
+            </View>
           </View>
+          <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>{Math.round(weather.current.temp)}°c</Text>
         </View>
-        <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>10°c</Text>
-      </View>
 
-      <View className="flex-row items-center gap-4 mt-4 justify-between">
-        {hours.map(({ h, I, t }, i) => (
-          <View key={i} className="items-center">
-            <Text className="text-sm text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>{h}</Text>
-            <I size={18} />
-            <Text className="text-sm text-typography-600 mt-1" style={{fontFamily: 'Roboto-Regular'}}>{t}</Text>
-          </View>
-        ))}
+        <View className="flex-row items-center gap-4 mt-4 justify-between">
+          {hourlyData.map(({ h, Icon, t }, i) => (
+            <View key={i} className="items-center">
+              <Text className="text-sm text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>{h}</Text>
+              <Icon size={18} />
+              <Text className="text-sm text-typography-600 mt-1" style={{fontFamily: 'Roboto-Regular'}}>{t}</Text>
+            </View>
+          ))}
+        </View>
       </View>
-    </View>
     </View>
   );
 }
