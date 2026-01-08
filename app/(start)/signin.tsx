@@ -9,8 +9,9 @@ import { Image } from '@/components/ui/image';
 import { Input, InputField /*, InputIcon, InputSlot*/ } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Alert, View } from 'react-native';
 
 export default function SignIn() {
@@ -21,6 +22,16 @@ export default function SignIn() {
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [passwordError, setPasswordError] = React.useState('');
+
+  // Configure Google Sign-In once
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      offlineAccess: true,
+      forceCodeForRefreshToken: true,
+    });
+  }, []);
 
   async function checkOnboardingStatus(userId: string) {
     const { data, error } = await supabase
@@ -90,6 +101,70 @@ export default function SignIn() {
 
         await checkOnboardingStatus(user.id);
       }
+    }
+  }
+
+  async function ensureProfile(userId: string, defaultUsername?: string | null) {
+    // check if profile exists
+    const { data, error } = await supabase
+      .from('profile')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (!error && data) return;
+
+    // create if missing
+    const { error: insertError } = await supabase
+      .from('profile')
+      .insert({
+        id: userId,
+        username: defaultUsername ?? '',
+        onboarded: false,
+      });
+
+    if (insertError) {
+      Alert.alert('Profile Error', insertError.message);
+      throw insertError;
+    }
+  }
+
+  async function signInWithGoogle() {
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const response = await GoogleSignin.signIn();
+      const idToken = response.data?.idToken;
+      const user = response.data?.user;
+
+      if (!idToken) {
+        Alert.alert('Google Sign-In Error', 'No ID token returned from Google.');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+
+      if (error) {
+        Alert.alert('Google Sign-In Error', error.message);
+        console.log(error.message);
+        return;
+      }
+
+      const authedUser = data.user ?? data.session?.user;
+      if (!authedUser) {
+        Alert.alert('Google Sign-In Error', 'No user returned from Supabase.');
+        return;
+      }
+
+      await ensureProfile(authedUser.id, user?.name ?? authedUser.email ?? null);
+      await checkOnboardingStatus(authedUser.id);
+    } catch (err: any) {
+      if (err?.code === statusCodes.SIGN_IN_CANCELLED) return;
+      if (err?.code === statusCodes.IN_PROGRESS) return;
+      Alert.alert('Google Sign-In Error', err?.message || 'Unable to sign in with Google');
+      console.log(err.message);
     }
   }
 
@@ -255,7 +330,7 @@ export default function SignIn() {
             </Button>
           </View>
 
-          <Button variant="outline" size="md" className="rounded-lg">
+          <Button variant="outline" size="md" className="rounded-lg" onPress={signInWithGoogle}>
             <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>Sign In With Google</ButtonText>
           </Button>
 
