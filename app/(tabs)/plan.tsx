@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 
 import { ActivitySelect } from '@/components/plan/activitySelect';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { useLocationContext } from '@/providers/location';
 
 type TempPickerMode = 'min' | 'max' | null;
 
@@ -23,6 +24,8 @@ export default function Plan() {
   const router = useRouter();
   const [activity, setActivity] = useState<string>('Running');
   const [location, setLocation] = useState('Kelvinhaugh, Glasgow');
+  const [locationEdited, setLocationEdited] = useState(false);
+  const { location: currentLocation } = useLocationContext();
 
   const [date, setDate] = useState<Date>(new Date());
   const [timeStart, setTimeStart] = useState<Date>(new Date());
@@ -45,6 +48,11 @@ export default function Plan() {
   const [tempPicker, setTempPicker] = useState<TempPickerMode>(null);
 
   const [windLevel, setWindLevel] = useState<number>(1); // 0 - 2
+
+  useEffect(() => {
+    if (!currentLocation || locationEdited) return;
+    setLocation(`${currentLocation.latitude.toFixed(3)}, ${currentLocation.longitude.toFixed(3)}`);
+  }, [currentLocation, locationEdited]);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-GB', {
@@ -104,7 +112,13 @@ export default function Plan() {
 
         <ActivitySelect value={activity} onChange={setActivity} />
 
-        <LocationInput value={location} onChange={setLocation} />
+        <LocationInput
+          value={location}
+          onChange={(val) => {
+            setLocationEdited(true);
+            setLocation(val);
+          }}
+        />
 
         <DateTimePickers
           date={formatDate(date)}

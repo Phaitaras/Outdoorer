@@ -1,21 +1,9 @@
 import { Text } from '@/components/ui/text';
 import { WEATHER_CODE_TO_DESCRIPTION, WEATHER_CODE_TO_ICON } from '@/constants/weather';
+import { type WeatherData } from '@/features/weather';
 import * as LucideIcons from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
-
-export type WeatherData = {
-  current: {
-    code: number;
-    temp: number;
-    time: string;
-  };
-  hours: Array<{
-    temperature_2m: number;
-    time: string;
-    weathercode: number;
-  }>;
-};
 
 export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
   if (!weather) {

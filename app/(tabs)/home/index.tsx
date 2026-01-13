@@ -1,54 +1,24 @@
 import { ActivityList, type ActivityItem } from '@/components/home/activityList';
-import { CurrentWeatherCard, type WeatherData } from '@/components/home/currentWeatherCard';
+import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import { LocationHeader } from '@/components/home/locationHeader';
 import type { Sentiment } from '@/components/home/sentiment';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
-import * as Location from 'expo-location';
+import { useLocationContext } from '@/providers/location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 export default function Home() {
   const router = useRouter();
-
-  const fetchWeather6h = async (latitude: number, longitude: number) => {
-  try {
-    const { data, error } = await supabase.functions.invoke('get-weather-6h', {
-      body: { lat: latitude, lon: longitude },
-    });
-    console.log(latitude, longitude);
-
-    if (error) throw error;
-    setWeatherData(data);
-    return data;
-  } catch (err) {
-    console.error('Weather fetch failed:', err);
-    Alert.alert('Error', 'Could not fetch weather');
-  }
-};
+  const { location } = useLocationContext();
+  const { data: weatherData, isLoading: weatherLoading, error: weatherError } = useWeather(
+    location?.latitude ?? null,
+    location?.longitude ?? null
+  );
 
   const [items, setItems] = useState<ActivityItem[]>([]);
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [weatherData, setWeatherData] = useState<WeatherData | undefined>(undefined);
-
-  // Request location and store user's coordinates
-  useEffect(() => {
-    (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Location permission denied');
-        return;
-      }
-      const loc = await Location.getCurrentPositionAsync({});
-      setUserLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (!userLocation) return;
-    fetchWeather6h(userLocation.latitude, userLocation.longitude);
-  }, [userLocation]);
 
   useEffect(() => {
     const load = async () => {

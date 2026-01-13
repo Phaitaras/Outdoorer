@@ -27,7 +27,9 @@ export function ActivityListItem({
         className="flex-row items-center justify-between p-5 active:bg-background-50"
       >
         <View className="flex-row items-center gap-4 flex-1">
-          <Text className="text-2xl">{emoji}</Text>
+          {emoji ? (
+            <Text className="text-2xl">{emoji}</Text>
+          ) : null}
           <View className="flex-col flex-1">
             <Text className="text-base text-typography-900" style={{ fontFamily: 'Roboto-Medium' }}>
               {title}

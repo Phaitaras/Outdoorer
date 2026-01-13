@@ -1,5 +1,7 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
+import { LocationProvider } from '@/providers/location';
+import { QueryProvider } from '@/providers/query';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -29,17 +31,20 @@ export default function RootLayout() {
     return null;
   }
 
-  // 4. Render the app
   return (
     <SafeAreaProvider>
-      <GluestackUIProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#FFAE00' },
-          }}
-        />
-      </GluestackUIProvider>
+      <QueryProvider>
+        <LocationProvider>
+          <GluestackUIProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: '#FFAE00' },
+              }}
+            />
+          </GluestackUIProvider>
+        </LocationProvider>
+      </QueryProvider>
     </SafeAreaProvider>
   );
 }

@@ -9,7 +9,7 @@ export function ActivityHeader({ activity, status, onPlan }: { activity: string;
   return (
     <View className="flex-row items-center justify-between mb-3">
       <View className="flex-row items-center gap-2">
-        <Text className="text-lg" style={{ fontFamily: 'Roboto-Medium' }}>🏃‍♂️  {activity}</Text>
+        <Text className="text-lg" style={{ fontFamily: 'Roboto-Medium' }}>{activity}</Text>
         <StatusBadge value={status} />
       </View>
       <Button size="sm" variant="solid" className="rounded-full" onPress={onPlan}>

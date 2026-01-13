@@ -1,0 +1,33 @@
+import { ActivityCardsScroll } from '@/components/home/activityCardsScroll';
+import { Text } from '@/components/ui/text';
+import type { Activity } from '@/features/profile/types';
+import { activityToCard } from '@/features/profile/utils';
+import { ChevronRightIcon } from 'lucide-react-native';
+import React from 'react';
+import { Pressable, View } from 'react-native';
+
+interface UpcomingActivitiesProps {
+  activities: Activity[] | undefined;
+  onViewAll: () => void;
+  onCardPress: (activityName: string) => void;
+}
+
+export function UpcomingActivities({ activities, onViewAll, onCardPress }: UpcomingActivitiesProps) {
+  return (
+    <View>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-typography-800 text-lg" style={{ fontFamily: 'Roboto-Medium' }}>
+          Upcoming Activities
+        </Text>
+        <Pressable onPress={onViewAll} className="flex-row items-center gap-2">
+          <ChevronRightIcon className="w-6 h-6 text-typography-400" />
+        </Pressable>
+      </View>
+      <ActivityCardsScroll
+        cards={activities?.map(activityToCard) ?? []}
+        onCardPress={(card) => onCardPress(card.activity)}
+        emptyMessage="No upcoming plans"
+      />
+    </View>
+  );
+}

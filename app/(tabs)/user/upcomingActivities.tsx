@@ -17,7 +17,7 @@ interface ActivityItem {
   timeWindow: string;
 }
 
-export default function PreviousActivitiesScreen() {
+export default function UpcomingActivitiesScreen() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -30,8 +30,8 @@ export default function PreviousActivitiesScreen() {
 
   const { data: activities = [] } = useUserActivities({
     userId: userId ?? '',
-    type: 'previous',
-    limit: 200,
+    type: 'upcoming',
+    limit: 100,
   });
 
   const activityItems: ActivityItem[] = (activities || []).map((activity) => {
@@ -65,7 +65,7 @@ export default function PreviousActivitiesScreen() {
 
   return (
     <View className="flex-1 bg-[#F6F6F7]">
-      <UserHeader title="Previous Activities" />
+      <UserHeader title="Upcoming Activities" />
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-6">
@@ -73,8 +73,8 @@ export default function PreviousActivitiesScreen() {
             items={activityItems}
             groupBy="month"
             renderItem={renderActivityItem}
-            emptyMessage="No previous activities"
-            sortOrder="desc"
+            emptyMessage="No upcoming activities"
+            sortOrder="asc"
           />
         </View>
       </ScrollView>

@@ -1,9 +1,9 @@
 import { LocationModal } from '@/components/map/locationModal';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import * as Location from 'expo-location';
+import { useLocationContext } from '@/providers/location';
 import { HistoryIcon, UsersIcon } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
 import { Marker } from 'react-native-maps';
@@ -26,26 +26,12 @@ const locations = [
 ];
 
 export default function Map() {
-    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const { location } = useLocationContext();
     const [selectedLocation, setSelectedLocation] = useState(null);
 
     const handleMarkerPress = (loc: any) => {
         setSelectedLocation(loc);
     };
-
-    useEffect(() => {
-        (async () => {
-            // Request permission
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.log('Location permission denied');
-                return;
-            }
-            // Get current position
-            const loc = await Location.getCurrentPositionAsync({});
-            setUserLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
-        })();
-    }, []);
 
     return (
         <View className="flex-1 mb-[20%]">

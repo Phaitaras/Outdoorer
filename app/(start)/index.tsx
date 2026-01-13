@@ -1,13 +1,41 @@
 import { Button, ButtonText } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
   const router = useRouter();
+
+  async function checkOnboardingStatus(userId: string) {
+    const { data, error } = await supabase
+      .from('profile')
+      .select('onboarded')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      router.replace('/getting-started');
+      return;
+    }
+
+    if (data.onboarded) {
+      router.replace('/(tabs)/home');
+    } else {
+      router.replace('/getting-started');
+    }
+  }
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await checkOnboardingStatus(user.id);
+      }
+    })();
+  }, []);
 
   return (
     <View className="flex-1 bg-[#FFAE00]">

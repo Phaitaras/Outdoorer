@@ -1,27 +1,18 @@
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarImage
-} from '@/components/ui/avatar';
+import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
+import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
-import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
+import { type ProfileWithStats } from '@/features/profile';
 import { SettingsIcon } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 
 export interface ProfileCardProps {
-  name: string;
-  title: string;
-  avatarUri?: string;
+  profile: ProfileWithStats;
   avatarColor?: AvatarColor;
-  activities: string[];
-  friendsCount: number;
-  activitiesCount: number;
-  reviewsCount?: number;
-  showButtons?: boolean;
-  showSettings?: boolean;
+  avatarUri?: string;
   onSettingsPress?: () => void;
   onAddFriendPress?: () => void;
   onViewBookmarksPress?: () => void;
@@ -30,16 +21,9 @@ export interface ProfileCardProps {
 }
 
 export function ProfileCard({
-  name,
-  title,
-  avatarUri = '',
+  profile,
   avatarColor = 'blue',
-  activities,
-  friendsCount = 0,
-  activitiesCount = 0,
-  reviewsCount = 0,
-  showButtons = true,
-  showSettings = true,
+  avatarUri = '',
   onSettingsPress,
   onAddFriendPress,
   onViewBookmarksPress,
@@ -47,6 +31,9 @@ export function ProfileCard({
   onActivitiesPress,
 }: ProfileCardProps) {
   const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
+  const activityLabels = profile.activity_types
+    .map(type => LABEL_TO_ACTIVITY[type])
+    .filter(Boolean);
 
   return (
     <View className="bg-white p-6 rounded-2xl shadow-soft-1">
@@ -54,7 +41,7 @@ export function ProfileCard({
       <View className="flex-row justify-between items-center mb-6">
         <View className='flex-row gap-6 items-center'>
           <Avatar size='lg' style={{ backgroundColor: color }}>
-            <AvatarFallbackText>{name}</AvatarFallbackText>
+            <AvatarFallbackText>{profile.username}</AvatarFallbackText>
             <AvatarImage
               source={{
                 uri: avatarUri,
@@ -63,14 +50,14 @@ export function ProfileCard({
           </Avatar>
           <View className='flex-col gap-[0.2rem]'>
             <Text className="text-[20px]" style={{ fontFamily: 'Roboto-Medium' }}>
-              {name}
+              {profile.username}
             </Text>
             <Text className="text-md text-typography-700" style={{ fontFamily: 'Roboto-Medium' }}>
-              {title}
+              {profile.title}
             </Text>
           </View>
         </View>
-        {showSettings && (
+        {onSettingsPress && (
           <Button variant="link" className="px-2 self-start" onPress={onSettingsPress}>
             <ButtonIcon as={SettingsIcon} className='w-6 h-6 text-typography-600' />
           </Button>
@@ -79,7 +66,7 @@ export function ProfileCard({
 
       {/* tags */}
       <View className="flex-row flex-wrap mb-6 gap-3">
-        {activities.map((label) => (
+        {activityLabels.map((label) => (
           <Button
             key={label}
             variant="outline"
@@ -98,7 +85,7 @@ export function ProfileCard({
       <View className="flex-row gap-6">
         <Pressable onPress={onFriendsPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
-            {friendsCount}
+            {profile.friendCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Friends
@@ -107,7 +94,7 @@ export function ProfileCard({
         <Divider orientation="vertical" />
         <Pressable onPress={onActivitiesPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
-            {activitiesCount}
+            {profile.activityCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Activities
@@ -116,7 +103,7 @@ export function ProfileCard({
         <Divider orientation="vertical" />
         <View className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
-            {reviewsCount}
+            {profile.reviewCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Reviews
@@ -125,22 +112,22 @@ export function ProfileCard({
       </View>
 
       {/* buttons */}
-      {showButtons && (
-        <View className="mt-6 flex-row justify-evenly gap-4">
+      <View className="mt-6 flex-row justify-evenly gap-4">
+        {onAddFriendPress && (
           <Button variant="solid" className="rounded-full" onPress={onAddFriendPress}>
             <ButtonText className="text-white" style={{ fontFamily: 'Roboto-Medium' }}>
-              {showButtons ? `Add New Friend` : `Add Friend`}
+              Add New Friend
             </ButtonText>
           </Button>
-          {onViewBookmarksPress && (
-            <Button variant="solid" className="rounded-full" onPress={onViewBookmarksPress}>
-              <ButtonText className="text-white" style={{ fontFamily: 'Roboto-Medium' }}>
-                View Bookmarks
-              </ButtonText>
-            </Button>
-          )}
-        </View>
-      )}
+        )}
+        {onViewBookmarksPress && (
+          <Button variant="solid" className="rounded-full" onPress={onViewBookmarksPress}>
+            <ButtonText className="text-white" style={{ fontFamily: 'Roboto-Medium' }}>
+              View Bookmarks
+            </ButtonText>
+          </Button>
+        )}
+      </View>
     </View>
   );
 }
