@@ -3,66 +3,53 @@ import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import { LocationHeader } from '@/components/home/locationHeader';
 import type { Sentiment } from '@/components/home/sentiment';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { useProfile } from '@/features/profile';
 import { useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 export default function Home() {
   const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
   const { location } = useLocationContext();
+  const { data: profile } = useProfile(userId);
   const { data: weatherData, isLoading: weatherLoading, error: weatherError } = useWeather(
     location?.latitude ?? null,
     location?.longitude ?? null
   );
 
-  const [items, setItems] = useState<ActivityItem[]>([]);
-
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setItems([]);
-        return;
-      }
+      if (user) setUserId(user.id);
+    })();
+  }, []);
 
-      const { data, error } = await supabase
-        .from('profile')
-        .select('activity_types')
-        .eq('id', user.id)
-        .single();
+  const items = useMemo<ActivityItem[]>(() => {
+    if (!profile) return [];
 
-      if (error || !data) {
-        setItems([]);
-        return;
-      }
+    const next6: Sentiment[] = ['GREAT', 'GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD'];
+    const windowText = '9:00 - 15:00';
 
-      const next6: Sentiment[] = ['GREAT', 'GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD'];
-      const windowText = '9:00 - 15:00';
-
-      const built: ActivityItem[] = (data.activity_types ?? [])
-        .map((enumVal: string) => {
-          const title = LABEL_TO_ACTIVITY[enumVal];
-          if (!title) return null;
-          return {
-            emoji: '',
-            title,
-            status: 'GOOD' as Sentiment,
-            next6,
-            windowText,
-            onPress: () =>
-              router.push({ pathname: '/home/activity', params: { activity: title, status: 'GOOD' } }),
-          } as ActivityItem;
-        })
-        .filter(Boolean) as ActivityItem[];
-
-      setItems(built);
-    };
-
-    load();
-  }, [LABEL_TO_ACTIVITY, router]);
+    return (profile.activity_types ?? [])
+      .map((enumVal: string) => {
+        const title = LABEL_TO_ACTIVITY[enumVal];
+        if (!title) return null;
+        return {
+          emoji: '',
+          title,
+          status: 'GOOD' as Sentiment,
+          next6,
+          windowText,
+          onPress: () =>
+            router.push({ pathname: '/home/activity', params: { activity: title, status: 'GOOD' } }),
+        } as ActivityItem;
+      })
+      .filter(Boolean) as ActivityItem[];
+  }, [profile, router]);
 
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[20%]">

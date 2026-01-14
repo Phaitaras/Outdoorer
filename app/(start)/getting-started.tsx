@@ -2,10 +2,11 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Alert, View } from 'react-native';
 
+import { ActivitySelector } from '@/components/onboarding';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
-import { ACTIVITIES, ACTIVITY_MAP } from '@/constants/activities';
+import { ACTIVITY_MAP } from '@/constants/activities';
 import { supabase } from '@/lib/supabase';
 
 export default function GettingStarted() {
@@ -81,22 +82,7 @@ export default function GettingStarted() {
               Begin by selecting your activities get weather forecast tailored to your preferences.
             </Text>
 
-            <View className="flex-row flex-wrap gap-3">
-              {ACTIVITIES.map((label) => {
-                const isActive = selected.includes(label);
-                return (
-                  <Button
-                    key={label}
-                    variant={isActive ? 'solid' : 'outline'}
-                    size="sm"
-                    className={`${isActive ? 'bg-tertiary-400 ' : ''} rounded-3xl`}
-                    onPress={() => toggle(label)}
-                  >
-                    <ButtonText style={{fontFamily: 'Roboto-Regular'}}>{label}</ButtonText>
-                  </Button>
-                );
-              })}
-            </View>
+            <ActivitySelector selected={selected} onToggle={toggle} />
           </View>
         )}
 

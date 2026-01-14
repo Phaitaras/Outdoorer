@@ -1,14 +1,35 @@
 import { Button, ButtonText } from '@/components/ui/button';
 import { Radio, RadioGroup, RadioIcon, RadioIndicator, RadioLabel } from '@/components/ui/radio';
 import { Text } from '@/components/ui/text';
+import { useProfile } from '@/features/profile';
+import { supabase } from '@/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { ArrowLeftIcon, CircleIcon } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 export default function PreferencesSettingsScreen() {
     const router = useRouter();
+    const queryClient = useQueryClient();
+    const [userId, setUserId] = useState<string | null>(null);
     const [unitSystem, setUnitSystem] = useState('metric');
+    const [loading, setLoading] = useState(false);
+
+    const { data: profile } = useProfile(userId);
+
+    useEffect(() => {
+        (async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) setUserId(user.id);
+        })();
+    }, []);
+
+    useEffect(() => {
+        if (profile) {
+            setUnitSystem(profile.metric || 'metric');
+        }
+    }, [profile]);
 
     return (
         <View className="flex-1 bg-[#F6F6F7]">
@@ -58,15 +79,29 @@ export default function PreferencesSettingsScreen() {
 
                     <Button
                         variant="solid"
-                        size="lg"
-                        className="rounded-full"
-                        onPress={() => {
-                            // TODO: Save settings
-                            router.back();
+                        className="mb-4 rounded-lg bg-tertiary-400"
+                        disabled={loading}
+                        onPress={async () => {
+                            if (!userId) return;
+                            setLoading(true);
+                            try {
+                                const { error } = await supabase
+                                    .from('profile')
+                                    .update({ metric: unitSystem as 'metric' | 'imperial' })
+                                    .eq('id', userId);
+
+                                if (error) throw error;
+                                await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+                                router.back();
+                            } catch (error) {
+                                console.error('Error updating preferences:', error);
+                            } finally {
+                                setLoading(false);
+                            }
                         }}
                     >
                         <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>
-                            Save Changes
+                            {loading ? 'Saving...' : 'Save Changes'}
                         </ButtonText>
                     </Button>
                 </View>
