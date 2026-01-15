@@ -6,7 +6,16 @@ export const ROWS = SENTIMENT_ROWS;
 export type HourBar = { hour: string; sentiment: Sentiment };
 
 export const GRAPH_DATA: HourBar[] = [
-  { hour: '9:00', sentiment: 'GOOD' },
+  { hour: '00:00', sentiment: 'POOR' },
+  { hour: '01:00', sentiment: 'POOR' },
+  { hour: '02:00', sentiment: 'POOR' },
+  { hour: '03:00', sentiment: 'POOR' },
+  { hour: '04:00', sentiment: 'POOR' },
+  { hour: '05:00', sentiment: 'POOR' },
+  { hour: '06:00', sentiment: 'POOR' },
+  { hour: '07:00', sentiment: 'POOR' },
+  { hour: '08:00', sentiment: 'BAD' },
+  { hour: '09:00', sentiment: 'GOOD' },
   { hour: '10:00', sentiment: 'GREAT' },
   { hour: '11:00', sentiment: 'GREAT' },
   { hour: '12:00', sentiment: 'GREAT' },
@@ -21,7 +30,6 @@ export const GRAPH_DATA: HourBar[] = [
   { hour: '21:00', sentiment: 'POOR' },
   { hour: '22:00', sentiment: 'POOR' },
   { hour: '23:00', sentiment: 'POOR' },
-  { hour: '00:00', sentiment: 'POOR' },
 ];
 
 export { SENTIMENT_COLORS } from '@/constants/sentiment';

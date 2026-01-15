@@ -1,6 +1,6 @@
 import { SentimentIcon, type Sentiment } from '@/components/home/sentiment';
 import { Text } from '@/components/ui/text';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { BAR_FILL_COLOR, BAR_HEIGHT_CLASS, GRAPH_DATA, ROWS, SENTIMENT_COLORS } from './constants';
 
@@ -10,6 +10,17 @@ export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStar
   recommendedStart: number;
   recommendedEnd: number;
 }) {
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    const itemWidth = 2.4 * 16 + 8; // w-[2.4rem] + mx-1 (4px each side) in pixels
+    const scrollOffset = currentHour * itemWidth - 73; // center it with some padding
+    
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ x: Math.max(0, scrollOffset), animated: false });
+    }, 0);
+  }, []);
   return (
     <View className="flex-row mt-1 mb-3 mx-1">
       {/* y axis */}
@@ -24,7 +35,7 @@ export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStar
       </View>
 
       {/* graph */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 24 }}>
+      <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 24 }}>
         <View>
           {/* hours */}
           <View className="flex-row mb-2">

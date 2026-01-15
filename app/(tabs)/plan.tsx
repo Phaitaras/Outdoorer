@@ -1,14 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
 
 import { ActivitySelect } from '@/components/plan/activitySelect';
 import { type RainValue } from '@/components/plan/constants';
 import { DatePickerModal } from '@/components/plan/datePickerModal';
-import { DateTimePickers } from '@/components/plan/dateTimePickers';
 import { LocationInput } from '@/components/plan/locationInput';
 import { TemperaturePickerModal } from '@/components/plan/temperaturePickerModal';
-import { TimePickerModal } from '@/components/plan/timePickerModal';
 import { WeatherPreferencesCard } from '@/components/plan/weatherPreferencesCard';
 import {
   Button,
@@ -28,16 +26,8 @@ export default function Plan() {
   const { location: currentLocation } = useLocationContext();
 
   const [date, setDate] = useState<Date>(new Date());
-  const [timeStart, setTimeStart] = useState<Date>(new Date());
-  const [timeEnd, setTimeEnd] = useState<Date>(
-    new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
-  );
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [timePickerTarget, setTimePickerTarget] = useState<'start' | 'end'>(
-    'start',
-  );
 
   const [useWeatherPrefs, setUseWeatherPrefs] = useState(true);
 
@@ -61,39 +51,13 @@ export default function Plan() {
       year: 'numeric',
     });
 
-  const formatTime = (d: Date) =>
-    d.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-  const timeRangeLabel = `${formatTime(timeStart)} - ${formatTime(timeEnd)}`;
-
   const handleDateChange = (_: any, selected?: Date) => {
     if (Platform.OS === 'android') setShowDatePicker(false);
     if (selected) setDate(selected);
   };
 
-  const handleTimeChange = (_: any, selected?: Date) => {
-    if (Platform.OS === 'android') setShowTimePicker(false);
-    if (selected) {
-      if (timePickerTarget === 'start') {
-        setTimeStart(selected);
-        if (selected >= timeEnd) {
-          setTimeEnd(new Date(selected.getTime() + 60 * 60 * 1000));
-        }
-      } else {
-        setTimeEnd(selected);
-      }
-    }
-  };
-
   const openDatePicker = () => setShowDatePicker(true);
 
-  const openTimePicker = (target: 'start' | 'end') => {
-    setTimePickerTarget(target);
-    setShowTimePicker(true);
-  };
 
 
   return (
@@ -120,12 +84,22 @@ export default function Plan() {
           }}
         />
 
-        <DateTimePickers
-          date={formatDate(date)}
-          timeRangeLabel={timeRangeLabel}
-          onDatePress={openDatePicker}
-          onTimePress={() => openTimePicker('start')}
-        />
+        <View className="mb-4">
+          <Text
+            className="mb-1 text-[14px] text-typography-700"
+            style={{ fontFamily: 'Roboto-Medium' }}
+          >
+            Date <Text className="text-error-500">*</Text>
+          </Text>
+          <Pressable
+            onPress={openDatePicker}
+            className="rounded-lg border border-outline-200 bg-white px-4 py-3"
+          >
+            <Text className="text-[14px] text-typography-900" style={{ fontFamily: 'Roboto-Regular' }}>
+              {formatDate(date)}
+            </Text>
+          </Pressable>
+        </View>
 
         <View className="flex-row items-center justify-between mb-2 mt-2">
           <Text
@@ -159,10 +133,10 @@ export default function Plan() {
           action="primary"
           className="mt-4 mb-4 rounded-lg bg-tertiary-400"
           onPress={() => {
-            // Navigate to activity detail with selected activity
+            const dateIso = date.toISOString();
             router.push({
               pathname: '/(tabs)/activity',
-              params: { activity },
+              params: { activity, openPlanModal: 'true', date: dateIso },
             });
           }}
         >
@@ -177,13 +151,6 @@ export default function Plan() {
         value={date}
         onChange={handleDateChange}
         onClose={() => setShowDatePicker(false)}
-      />
-
-      <TimePickerModal
-        visible={showTimePicker}
-        value={timePickerTarget === 'start' ? timeStart : timeEnd}
-        onChange={handleTimeChange}
-        onClose={() => setShowTimePicker(false)}
       />
 
       <TemperaturePickerModal

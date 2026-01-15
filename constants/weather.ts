@@ -37,6 +37,13 @@ export const WEATHER_CODE_TO_ICON: Record<number, string> = {
   99: 'cloud-lightning', // Thunderstorm with hail
 };
 
+// Hourly weather data for the activity detail view
+export const HOURLY_WEATHER_ROWS: [string, string, string, string][] = [
+  ['Temperature', '10° C', 'Wind Speed', '9.4 km/h'],
+  ['Weather Code', 'Drizzle', 'Wind Direction', '312°'],
+  ['Precipitation', '0.2 mm', 'Wind Gust', '22.7 km/h'],
+];
+
 // Get description for weather code
 export const WEATHER_CODE_TO_DESCRIPTION: Record<number, string> = {
   0: 'Clear sky',

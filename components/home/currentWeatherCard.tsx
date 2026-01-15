@@ -30,13 +30,14 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
     return iconMap[iconName] || LucideIcons.Cloud;
   };
 
-  const currentIcon = WEATHER_CODE_TO_ICON[weather.current.code] || 'cloud';
+  const currentIcon = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
   const CurrentIcon = getIconComponent(currentIcon);
-  const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.code] || 'Unknown';
+  const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
 
-  // Format hours for display
+  // Format 6 hours starting from current hour for display (from 24h data)
   const hourlyData = useMemo(() => {
-    return (weather.hours ?? []).slice(0, 6).map((hour) => {
+    const currentHour = new Date().getHours();
+    return (weather.hours ?? []).slice(currentHour, currentHour + 6).map((hour) => {
       const time = new Date(hour.time);
       const h = time.getHours().toString().padStart(2, '0');
       const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
@@ -57,7 +58,7 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
               <Text className="text-lg text-typography-600" style={{fontFamily: 'Roboto-SemiBold'}}>{currentDescription}</Text>
             </View>
           </View>
-          <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>{Math.round(weather.current.temp)}°c</Text>
+          <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>{Math.round(weather.current.temperature_2m)}°c</Text>
         </View>
 
         <View className="flex-row items-center gap-4 mt-4 justify-between">

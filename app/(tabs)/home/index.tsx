@@ -45,7 +45,7 @@ export default function Home() {
           next6,
           windowText,
           onPress: () =>
-            router.push({ pathname: '/home/activity', params: { activity: title, status: 'GOOD' } }),
+            router.push({ pathname: '/(tabs)/activity', params: { activity: title, status: 'GOOD' } }),
         } as ActivityItem;
       })
       .filter(Boolean) as ActivityItem[];

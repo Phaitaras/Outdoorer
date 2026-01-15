@@ -7,6 +7,7 @@ export default function TabLayout() {
   return (
     <SafeAreaView className="flex-1 bg-[#FFAE00]" edges={['top']}>
     <Tabs
+      backBehavior='history'
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,

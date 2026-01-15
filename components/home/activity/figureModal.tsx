@@ -3,7 +3,7 @@ import { Text } from '@/components/ui/text';
 import { X } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { BAR_FILL_COLOR, SENTIMENT_COLORS } from './constants';
+import { BAR_FILL_COLOR, BAR_HEIGHT_CLASS, SENTIMENT_COLORS } from './constants';
 
 export function FigureModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   if (!visible) return null;
@@ -42,20 +42,11 @@ export function FigureModal({ visible, onClose }: { visible: boolean; onClose: (
 
         <View className="flex-row items-end justify-center mt-4 mb-2">
           {(['POOR', 'BAD', 'FAIR', 'GOOD', 'GREAT'] as Sentiment[]).map((s) => {
-            const barHeight = {
-              POOR: '2.4rem',
-              BAD: '4.8rem',
-              FAIR: '7.2rem',
-              GOOD: '9.6rem',
-              GREAT: '12rem',
-            }[s];
-
             return (
               <View key={s} className="items-center mx-1">
                 <View
-                  className="w-[2.4rem] rounded-lg justify-start items-center pt-2"
+                  className={`w-[2.4rem] rounded-lg justify-start items-center pt-2 ${BAR_HEIGHT_CLASS[s]}`}
                   style={{
-                    height: barHeight,
                     backgroundColor: BAR_FILL_COLOR[s],
                     borderColor: SENTIMENT_COLORS[s],
                     borderWidth: 1,
