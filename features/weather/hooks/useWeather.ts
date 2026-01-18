@@ -12,7 +12,25 @@ export type WeatherData = {
     wind_gusts_10m: number;
     precipitation: number;
   };
-  hours: Array<{
+  dayHours: Array<{
+    time: string;
+    temperature_2m: number;
+    weathercode: number;
+    wind_speed_10m: number;
+    wind_direction_10m: number;
+    wind_gusts_10m: number;
+    precipitation: number;
+  }>;
+  next6: Array<{
+    time: string;
+    temperature_2m: number;
+    weathercode: number;
+    wind_speed_10m: number;
+    wind_direction_10m: number;
+    wind_gusts_10m: number;
+    precipitation: number;
+  }>;
+  hours?: Array<{
     time: string;
     temperature_2m: number;
     weathercode: number;
@@ -34,7 +52,11 @@ async function fetchWeather24h(
 
   if (error) throw error;
   console.log('Weather data fetched:', data);
-  return data as WeatherData;
+  const shaped = {
+    ...data,
+    hours: data.dayHours,
+  } as WeatherData;
+  return shaped;
 }
 
 // Round coordinates to 0.01 (~1.1km precision)

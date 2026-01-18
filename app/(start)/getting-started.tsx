@@ -6,7 +6,7 @@ import { ActivitySelector } from '@/components/onboarding';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
-import { ACTIVITY_MAP } from '@/constants/activities';
+import { ACTIVITY_TO_LABEL } from '@/constants/activities';
 import { supabase } from '@/lib/supabase';
 
 export default function GettingStarted() {
@@ -31,7 +31,7 @@ export default function GettingStarted() {
         Alert.alert('Error', 'No user found');
         return;
       }
-      const activityEnums = selected.map(label => ACTIVITY_MAP[label]).filter(Boolean);
+      const activityEnums = selected.map(label => ACTIVITY_TO_LABEL[label]).filter(Boolean);
 
       const { error } = await supabase
         .from('profile')

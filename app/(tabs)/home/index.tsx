@@ -29,6 +29,7 @@ export default function Home() {
   }, []);
 
   const items = useMemo<ActivityItem[]>(() => {
+    console.log(profile);
     if (!profile) return [];
 
     const next6: Sentiment[] = ['GREAT', 'GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD'];

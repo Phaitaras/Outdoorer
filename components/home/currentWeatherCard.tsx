@@ -34,18 +34,37 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
   const CurrentIcon = getIconComponent(currentIcon);
   const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
 
-  // Format 6 hours starting from current hour for display (from 24h data)
+  // Prefer API-provided next6 hours; fallback to slicing dayHours from current time
   const hourlyData = useMemo(() => {
-    const currentHour = new Date().getHours();
-    return (weather.hours ?? []).slice(currentHour, currentHour + 6).map((hour) => {
+    const source = (weather.next6 && weather.next6.length > 0)
+      ? weather.next6
+      : (weather.dayHours ?? []);
+
+    // If using dayHours, find next 6 based on current time
+    const list = (source === weather.dayHours)
+      ? (() => {
+          const now = Date.now();
+          const out: typeof weather.dayHours = [];
+          for (const h of weather.dayHours) {
+            const t = new Date(h.time).getTime();
+            if (t >= now - 30 * 60 * 1000) {
+              out.push(h);
+              if (out.length >= 6) break;
+            }
+          }
+          return out;
+        })()
+      : source;
+
+    return list.map((hour) => {
       const time = new Date(hour.time);
       const h = time.getHours().toString().padStart(2, '0');
       const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
       const Icon = getIconComponent(iconName);
-      const t = `${Math.round(hour.temperature_2m)}°`;
+      const t = Math.round(hour.temperature_2m);
       return { h, Icon, t };
     });
-  }, [weather.hours]);
+  }, [weather.next6, weather.dayHours, weather.units]);
 
   return (
     <View>
@@ -58,7 +77,9 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
               <Text className="text-lg text-typography-600" style={{fontFamily: 'Roboto-SemiBold'}}>{currentDescription}</Text>
             </View>
           </View>
-          <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>{Math.round(weather.current.temperature_2m)}°c</Text>
+          <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>
+            {Math.round(weather.current.temperature_2m)}{weather.units === 'imperial' ? '°f' : '°c'}
+          </Text>
         </View>
 
         <View className="flex-row items-center gap-4 mt-4 justify-between">

@@ -184,6 +184,9 @@ export default function SignIn() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: { username },
+      },
     });
 
     if (error) {
@@ -193,21 +196,6 @@ export default function SignIn() {
         Alert.alert('Registration Error', error.message);
       }
       return;
-    }
-
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profile')
-        .insert({
-          id: data.user.id,
-          username: username,
-          onboarded: false,
-        });
-
-      if (profileError) {
-        Alert.alert('Profile Error', profileError.message);
-        return;
-      }
     }
 
     router.push({
