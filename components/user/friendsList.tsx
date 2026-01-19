@@ -13,15 +13,7 @@ interface FriendsListProps {
 }
 
 export function FriendsList({ friends, onViewProfile }: FriendsListProps) {
-  if (!friends || friends.length === 0) {
-    return (
-      <View className="items-center justify-center py-12">
-        <Text className="text-typography-400" style={{ fontFamily: 'Roboto-Regular' }}>
-          No friends yet
-        </Text>
-      </View>
-    );
-  }
+  if (!friends || friends.length === 0) return null;
 
   return (
     <View className="bg-white rounded-2xl shadow-soft-1 overflow-hidden">

@@ -20,6 +20,7 @@ export type Profile = {
   activity_types: ActivityType[];
   onboarded: boolean;
   created_at: string;
+  activity_visibility?: 'public' | 'friends' | 'private';
 };
 
 export type Activity = {

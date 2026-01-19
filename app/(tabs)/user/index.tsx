@@ -42,7 +42,7 @@ export default function User() {
               <ProfileCard
                 profile={profile}
                 onSettingsPress={() => router.push('/user/settings')}
-                onAddFriendPress={() => router.push('/user/addFriend')}
+                onAddFriendPress={() => router.push('/user/friends/add')}
                 onViewBookmarksPress={() => {
                   // TODO: Navigate to bookmarks
                 }}

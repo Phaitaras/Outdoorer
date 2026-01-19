@@ -1,8 +1,8 @@
+import { SearchBar } from '@/components/common/searchBar';
 import { Button, ButtonIcon } from '@/components/ui/button';
-import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
-import { ArrowLeftIcon, MapPin, Search, SlidersHorizontal } from 'lucide-react-native';
+import { ArrowLeftIcon, MapPin, SlidersHorizontal } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 
@@ -42,12 +42,11 @@ export function LocationHeader({
         </Button>
       </View>
       <View className="mt-3">
-        <Input className="rounded-xl" size="sm">
-          <InputField placeholder=" Specify a destination" className="pl-2 text-sm" />
-          <Button variant="link" size="sm" className="mr-2" onPress={onSearchPress}>
-            <ButtonIcon as={Search} />
-          </Button>
-        </Input>
+        <SearchBar
+          placeholder="Specify a destination"
+          onSearch={onSearchPress}
+          size="sm"
+        />
       </View>
     </View>
   );
