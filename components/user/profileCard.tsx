@@ -4,6 +4,7 @@ import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
 import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
+import { getAvatarColor } from '@/features/map';
 import { type ProfileWithStats } from '@/features/profile';
 import { SettingsIcon } from 'lucide-react-native';
 import React from 'react';
@@ -25,7 +26,7 @@ export interface ProfileCardProps {
 
 export function ProfileCard({
   profile,
-  avatarColor = 'blue',
+  avatarColor,
   avatarUri = '',
   onSettingsPress,
   onAddFriendPress,
@@ -36,7 +37,8 @@ export function ProfileCard({
   onFriendsPress,
   onActivitiesPress,
 }: ProfileCardProps) {
-  const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
+  const computedAvatarColor = avatarColor ?? getAvatarColor(profile.id);
+  const color = AVATAR_COLOR_HEX[computedAvatarColor] || AVATAR_COLOR_HEX['blue'];
   const activityLabels = profile.activity_types
     .map(type => LABEL_TO_ACTIVITY[type])
     .filter(Boolean);

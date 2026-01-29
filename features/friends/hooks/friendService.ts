@@ -46,6 +46,25 @@ export async function fetchPendingRequests(userId: string): Promise<Profile[]> {
   return (profiles ?? []) as Profile[];
 }
 
+export async function fetchFriendStatus(currentUserId: string, targetUserId: string) {
+  const { data, error } = await supabase
+    .from('friend')
+    .select('requester_id, receiver_id, status')
+    .or(
+      `and(requester_id.eq.${currentUserId},receiver_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},receiver_id.eq.${currentUserId})`
+    )
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return { status: 'none' as const };
+
+  return {
+    status: data.status as 'none' | 'pending' | 'accepted' | 'blocked',
+    requesterId: data.requester_id,
+    receiverId: data.receiver_id,
+  };
+}
+
 export async function acceptFriendRequest(currentUserId: string, requesterId: string) {
   const { error } = await supabase
     .from('friend')
@@ -74,6 +93,17 @@ export async function sendFriendRequest(currentUserId: string, targetUserId: str
     receiver_id: targetUserId,
     status: 'pending',
   });
+
+  if (error) throw error;
+}
+
+export async function cancelFriendRequest(currentUserId: string, targetUserId: string) {
+  const { error } = await supabase
+    .from('friend')
+    .delete()
+    .eq('requester_id', currentUserId)
+    .eq('receiver_id', targetUserId)
+    .eq('status', 'pending');
 
   if (error) throw error;
 }

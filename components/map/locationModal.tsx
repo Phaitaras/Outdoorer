@@ -1,43 +1,124 @@
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import React from 'react';
-import { View } from 'react-native';
+import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { AVATAR_COLOR_HEX } from '@/constants/user';
+import { getAvatarColor, LocationModalLocation, useLocationModalAnimation, useLocationModalData, useReviewSubmission } from '@/features/map';
+import { useProfile } from '@/features/profile';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, Animated, View } from 'react-native';
+import { LocationDetailView } from './locationDetailView';
+import { ReviewFormView } from './reviewFormView';
 
 export function LocationModal({
   location,
+  currentUserId,
   onPlanActivity,
   onSeeReview,
-  onLeaveReview,
+  onClose,
 }: {
-  location: { id: string; latitude: string; longitude: string } | null;
+  location: LocationModalLocation | null;
+  currentUserId: string | null;
   onPlanActivity?: () => void;
   onSeeReview?: () => void;
-  onLeaveReview?: () => void;
+  onClose?: () => void;
 }) {
-  if (!location) return null;
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  const {
+    slideAnim,
+    horizontalSlideAnim,
+    isVisible,
+    currentLocation,
+    openReviewForm,
+    closeReviewForm,
+  } = useLocationModalAnimation({ location });
+
+  const { currentActivity, review, isOwnActivity } = useLocationModalData({
+    currentLocation,
+    currentUserId,
+  });
+
+  const { data: userProfile, isLoading: profileLoading } = useProfile(
+    currentActivity?.user_id ?? null
+  );
+
+  const activityLabel = useMemo(() => {
+    if (!currentActivity?.activity_type) return null;
+    return LABEL_TO_ACTIVITY[currentActivity.activity_type];
+  }, [currentActivity?.activity_type]);
+
+  const handleOpenReviewForm = () => {
+    setShowReviewForm(true);
+    openReviewForm();
+  };
+
+  const handleSeeReview = () => {
+    setShowReviewForm(true);
+    openReviewForm();
+  };
+
+  const handleCloseReviewForm = () => {
+    closeReviewForm();
+    setTimeout(() => setShowReviewForm(false), 300);
+  };
+
+  const handleReviewSuccess = () => {
+    handleCloseReviewForm();
+    if (onClose) onClose();
+  };
+
+  const { submitReview, deleteReview, isSubmitting, isDeleting } = useReviewSubmission({
+    currentActivity,
+    currentUserId,
+    existingReview: review,
+    onSuccess: handleReviewSuccess,
+  });
+
+  if (!isVisible && !currentLocation) return null;
+
+  const avatarColor = getAvatarColor(currentActivity?.user_id);
+  const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
+
+  if (profileLoading) {
+    return (
+      <View className="flex-column absolute bottom-0 left-0 right-0 bg-white p-10 shadow-lg rounded-t-[2rem] items-center justify-center py-12">
+        <ActivityIndicator size="large" color={color} />
+      </View>
+    );
+  }
 
   return (
-    <View className="flex-column absolute bottom-0 left-0 right-0 bg-white p-8 shadow-lg rounded-t-3xl">
-      <Text size="xl" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">
-        Placeholder Location {location.id}
-      </Text>
-      <Text size="lg" style={{ fontFamily: 'Roboto-Medium' }} className="color-typography-800">
-        Rating
-      </Text>
-      <Text size="sm" style={{ fontFamily: 'Roboto-Regular' }} className="color-typography-800 mt-1">
-        Place Description
-      </Text>
-      <View className="flex-row justify-between mt-6">
-        <Button variant="solid" size="sm" className="px-4 rounded-full" onPress={onPlanActivity}>
-          <Text style={{ fontFamily: 'Roboto-Medium', color: '#FFFFFF' }}>Plan Activity</Text>
-        </Button>
-        <Button variant="outline" size="sm" className="px-4 rounded-full" onPress={onSeeReview}>
-          <Text style={{ fontFamily: 'Roboto-Medium' }}>See Review</Text>
-        </Button>
-        <Button variant="outline" size="sm" className="px-4 rounded-full" onPress={onLeaveReview}>
-          <Text style={{ fontFamily: 'Roboto-Medium' }}>Leave Review</Text>
-        </Button>
-      </View>
-    </View>
+    <Animated.View 
+      className="flex-column absolute bottom-0 left-0 right-0 bg-white shadow-lg rounded-t-[2rem] overflow-hidden"
+      style={{ transform: [{ translateY: slideAnim }] }}
+    >
+      <Animated.View
+        className="flex-row"
+        style={{ transform: [{ translateX: horizontalSlideAnim }] }}
+      >
+        <LocationDetailView
+          locationTitle={currentLocation?.title}
+          userProfile={userProfile}
+          currentActivity={currentActivity}
+          review={review}
+          isOwnActivity={isOwnActivity}
+          activityLabel={activityLabel}
+          onClose={onClose}
+          onPlanActivity={onPlanActivity}
+          onOpenReviewForm={handleOpenReviewForm}
+          onSeeReview={handleSeeReview}
+        />
+
+        <ReviewFormView
+          locationTitle={currentLocation?.title}
+          existingReview={review}
+          isOwnActivity={isOwnActivity}
+          isSubmitting={isSubmitting}
+          isDeleting={isDeleting}
+          onClose={handleCloseReviewForm}
+          onSubmit={submitReview}
+          onDelete={deleteReview}
+        />
+      </Animated.View>
+    </Animated.View>
   );
 }
+

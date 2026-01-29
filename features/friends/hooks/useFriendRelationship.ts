@@ -1,6 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     acceptFriendRequest,
+    cancelFriendRequest,
+    fetchFriendStatus,
     rejectFriendRequest,
     sendFriendRequest,
     unfriend,
@@ -15,6 +17,17 @@ const invalidateQueries = (queryClient: any, userId: string | null, targetId?: s
     }
   }
 };
+
+export function useFriendStatus(currentUserId: string | null, targetUserId: string | null) {
+  return useQuery({
+    queryKey: ['friend-status', currentUserId, targetUserId],
+    queryFn: () => {
+      if (!currentUserId || !targetUserId) throw new Error('User IDs are required');
+      return fetchFriendStatus(currentUserId, targetUserId);
+    },
+    enabled: !!currentUserId && !!targetUserId,
+  });
+}
 
 export function useAcceptFriendRequest(currentUserId: string | null) {
   const queryClient = useQueryClient();
@@ -52,6 +65,18 @@ export function useSendFriendRequest(currentUserId: string | null) {
   });
 }
 
+export function useCancelFriendRequest(currentUserId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (targetUserId: string) => {
+      if (!currentUserId || !targetUserId) throw new Error('User IDs are required');
+      return cancelFriendRequest(currentUserId, targetUserId);
+    },
+    onSuccess: (_, targetUserId) => invalidateQueries(queryClient, currentUserId, targetUserId),
+  });
+}
+
 export function useUnfriend(currentUserId: string | null) {
   const queryClient = useQueryClient();
 
@@ -62,4 +87,30 @@ export function useUnfriend(currentUserId: string | null) {
     },
     onSuccess: (_, targetUserId) => invalidateQueries(queryClient, currentUserId, targetUserId),
   });
+}
+
+export function useFriendActions(currentUserId: string | null, targetUserId: string | null) {
+  const request = useSendFriendRequest(currentUserId);
+  const cancel = useCancelFriendRequest(currentUserId);
+  const accept = useAcceptFriendRequest(currentUserId);
+  const unfriendMutation = useUnfriend(currentUserId);
+
+  return {
+    request: {
+      ...request,
+      mutate: () => targetUserId && request.mutate(targetUserId),
+    },
+    cancel: {
+      ...cancel,
+      mutate: () => targetUserId && cancel.mutate(targetUserId),
+    },
+    accept: {
+      ...accept,
+      mutate: () => targetUserId && accept.mutate(targetUserId),
+    },
+    unfriend: {
+      ...unfriendMutation,
+      mutate: () => targetUserId && unfriendMutation.mutate(targetUserId),
+    },
+  };
 }

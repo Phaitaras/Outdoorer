@@ -46,3 +46,15 @@ export function findRecommendedWindow(): { start: number; end: number } {
 export function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
+
+export function formatActivityDate(startTime: string): string {
+  return new Date(startTime).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+export function formatActivityTime(startTime: string, endTime: string): string {
+  return `${formatTime(new Date(startTime))} - ${formatTime(new Date(endTime))}`;
+}

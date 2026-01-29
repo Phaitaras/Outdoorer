@@ -13,7 +13,8 @@
       "bundleIdentifier": "com.phaitaras.outdoorer",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs your location to provide location-based services while you are using the app.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs your location to track your movements even in the background."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs your location to track your movements even in the background.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -63,6 +64,7 @@
       "eas": {
         "projectId": "80b2857c-7fc1-480e-b3e7-3a82ac945595"
       }
-    }
+    },
+    "owner": "phaitaras"
   }
 }
