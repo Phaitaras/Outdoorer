@@ -48,6 +48,7 @@ export default function User() {
                 }}
                 onFriendsPress={() => router.push('/user/friends')}
                 onActivitiesPress={() => router.push('/user/previousActivities')}
+                onReviewsPress={() => router.push('/user/reviews')}
               />
             )}
           </View>
@@ -57,16 +58,16 @@ export default function User() {
           <UpcomingActivities
             activities={upcomingActivities}
             onViewAll={() => router.push('/user/upcomingActivities')}
-            onCardPress={(activityName) =>
-              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName } })
+            onCardPress={(activityId, activityName) =>
+              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName, activityId } })
             }
           />
 
           <PreviousActivities
             activities={previousActivities}
             onViewAll={() => router.push('/user/previousActivities')}
-            onCardPress={(activityName) =>
-              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName } })
+            onCardPress={(activityId, activityName) =>
+              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName, activityId } })
             }
           />
         </View>

@@ -12,6 +12,7 @@ interface ReviewFormViewProps {
   isOwnActivity: boolean;
   isSubmitting: boolean;
   isDeleting?: boolean;
+  fullPage?: boolean;
   onClose: () => void;
   onSubmit: (rating: number, description: string) => Promise<void>;
   onDelete?: () => void;
@@ -23,6 +24,7 @@ export function ReviewFormView({
   isOwnActivity,
   isSubmitting,
   isDeleting,
+  fullPage = false,
   onClose,
   onSubmit,
   onDelete,
@@ -63,9 +65,11 @@ export function ReviewFormView({
               Review
             </Text>
           </View>
-          <Pressable onPress={onClose} className="p-2">
-            <X size={24} color="#666" />
-          </Pressable>
+          {!fullPage && (
+            <Pressable onPress={onClose} className="p-2">
+              <X size={24} color="#666" />
+            </Pressable>
+          )}
         </View>
 
         {/* no review message */}
@@ -85,12 +89,14 @@ export function ReviewFormView({
             <ChevronLeft size={28} color="#666" />
           </Pressable>
           <Text size="md" style={{ fontFamily: 'Roboto-Regular' }} className="ml-2">
-            {isOwnActivity ? (existingReview ? 'Edit Review' : 'Post') : 'Review'}
+            {isOwnActivity ? (existingReview ? 'Edit Review' : 'Leave Review') : 'Review'}
           </Text>
         </View>
-        <Pressable onPress={onClose}>
-          <X size={24} color="#666" />
-        </Pressable>
+        {!fullPage && (
+          <Pressable onPress={onClose}>
+            <X size={24} color="#666" />
+          </Pressable>
+        )}
       </View>
 
       {/* rating */}
@@ -109,12 +115,12 @@ export function ReviewFormView({
       </View>
 
       {/* description */}
-      <View className="mb-4">
+      <View className={fullPage ? "mb-6" : "mb-4"}>
         <Text className="text-typography-600 mb-2" style={{ fontFamily: 'Roboto-Medium' }}>
           Description
         </Text>
         {isOwnActivity ? (
-          <Textarea className="min-h-[100px] rounded-2xl">
+          <Textarea className={fullPage ? "h-[200px] rounded-2xl" : "min-h-[100px] rounded-2xl"}>
             <TextareaInput
               placeholder=" Share your experience"
               value={reviewDescription}
@@ -131,7 +137,7 @@ export function ReviewFormView({
 
       {/* action buttons */}
       {isOwnActivity && (
-        <View className={existingReview ? "flex-row gap-4" : ""}>
+        <View className={existingReview ? "flex-row gap-4 mt-2" : "mt-2"}>
           {existingReview && onDelete && (
             <Button
               variant="outline"
@@ -153,7 +159,7 @@ export function ReviewFormView({
             disabled={isSubmitting || isDeleting}
           >
             <Text style={{ fontFamily: 'Roboto-Medium', color: '#FFFFFF' }}>
-              {isSubmitting ? 'Posting...' : 'Post'}
+              {isSubmitting ? 'Posting' : 'Leave Review'}
             </Text>
           </Button>
         </View>

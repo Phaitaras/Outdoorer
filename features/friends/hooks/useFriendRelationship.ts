@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { FRIENDS_QUERY_KEYS } from '../constants';
 import {
     acceptFriendRequest,
     cancelFriendRequest,
@@ -10,17 +11,17 @@ import {
 
 const invalidateQueries = (queryClient: any, userId: string | null, targetId?: string) => {
   if (userId) {
-    queryClient.invalidateQueries({ queryKey: ['friends', userId] });
-    queryClient.invalidateQueries({ queryKey: ['pending-requests', userId] });
+    queryClient.invalidateQueries({ queryKey: [FRIENDS_QUERY_KEYS.FRIENDS, userId] });
+    queryClient.invalidateQueries({ queryKey: [FRIENDS_QUERY_KEYS.PENDING_REQUESTS, userId] });
     if (targetId) {
-      queryClient.invalidateQueries({ queryKey: ['friend-status', userId, targetId] });
+      queryClient.invalidateQueries({ queryKey: [FRIENDS_QUERY_KEYS.FRIEND_STATUS, userId, targetId] });
     }
   }
 };
 
 export function useFriendStatus(currentUserId: string | null, targetUserId: string | null) {
   return useQuery({
-    queryKey: ['friend-status', currentUserId, targetUserId],
+    queryKey: [FRIENDS_QUERY_KEYS.FRIEND_STATUS, currentUserId, targetUserId],
     queryFn: () => {
       if (!currentUserId || !targetUserId) throw new Error('User IDs are required');
       return fetchFriendStatus(currentUserId, targetUserId);

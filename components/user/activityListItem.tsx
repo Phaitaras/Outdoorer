@@ -6,16 +6,16 @@ import { Pressable, View } from 'react-native';
 
 export interface ActivityListItemProps {
   id: string;
-  emoji: string;
   title: string;
+  location?: string;
   subtitle: string;
   isLast: boolean;
   onPress?: () => void;
 }
 
 export function ActivityListItem({
-  emoji,
   title,
+  location,
   subtitle,
   isLast,
   onPress,
@@ -26,22 +26,22 @@ export function ActivityListItem({
         onPress={onPress}
         className="flex-row items-center justify-between p-5 active:bg-background-50"
       >
-        <View className="flex-row items-center gap-4 flex-1">
-          {emoji ? (
-            <Text className="text-2xl">{emoji}</Text>
-          ) : null}
-          <View className="flex-col flex-1">
-            <Text className="text-base text-typography-900" style={{ fontFamily: 'Roboto-Medium' }}>
-              {title}
-            </Text>
+        <View className="flex-col">
+          <Text className="text-base text-typography-900 mb-1" style={{ fontFamily: 'Roboto-Medium' }}>
+            {title}
+          </Text>
+          {location && (
             <Text className="text-sm text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
-              {subtitle}
+              {location}
             </Text>
-          </View>
+          )}
+          <Text className="text-sm text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
+            {subtitle}
+          </Text>
         </View>
         <ChevronRightIcon className="w-5 h-5 text-typography-400 ml-2" />
       </Pressable>
-      {!isLast && <Divider className="mx-5" />}
+      {!isLast && <Divider className="" />}
     </>
   );
 }

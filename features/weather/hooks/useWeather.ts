@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { WEATHER_QUERY_KEYS } from '../constants';
 
 export type WeatherData = {
   units: 'metric' | 'imperial';
@@ -69,7 +70,7 @@ export function useWeather(latitude: number | null, longitude: number | null) {
   const bucketedLon = longitude ? bucketCoordinate(longitude) : null;
 
   return useQuery({
-    queryKey: ['weather', bucketedLat, bucketedLon],
+    queryKey: [WEATHER_QUERY_KEYS.WEATHER, bucketedLat, bucketedLon],
     queryFn: () => {
       if (!bucketedLat || !bucketedLon) throw new Error('Missing coordinates');
       return fetchWeather24h(bucketedLat, bucketedLon);

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEYS } from '../constants';
+import { invalidateReviewQueries } from '../cache/reviewCache';
 
 export interface ReviewInput {
   activityId: string | number;
@@ -52,9 +52,7 @@ export function useCreateReview() {
   return useMutation({
     mutationFn: createReview,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_PLANS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_ACTIVITIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
+      invalidateReviewQueries(queryClient);
     },
   });
 }
@@ -65,9 +63,7 @@ export function useUpdateReview() {
   return useMutation({
     mutationFn: updateReview,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_PLANS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_ACTIVITIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
+      invalidateReviewQueries(queryClient);
     },
   });
 }
@@ -87,9 +83,7 @@ export function useDeleteReview() {
   return useMutation({
     mutationFn: deleteReview,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_PLANS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_ACTIVITIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
+      invalidateReviewQueries(queryClient);
     },
   });
 }

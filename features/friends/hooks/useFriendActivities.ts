@@ -1,6 +1,7 @@
 import type { Activity } from '@/features/profile/types';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { FRIENDS_QUERY_KEYS } from '../constants';
 
 async function fetchFriendActivities(userId: string, limit = 5): Promise<Activity[]> {
   const now = new Date().toISOString();
@@ -18,7 +19,7 @@ async function fetchFriendActivities(userId: string, limit = 5): Promise<Activit
 
 export function useFriendActivities(userId: string | null, enabled: boolean, limit = 5) {
   return useQuery({
-    queryKey: ['friend-activities', userId, limit],
+    queryKey: [FRIENDS_QUERY_KEYS.FRIEND_ACTIVITIES, userId, limit],
     queryFn: () => {
       if (!userId) throw new Error('User ID is required');
       return fetchFriendActivities(userId, limit);

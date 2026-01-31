@@ -46,6 +46,10 @@ export function LocationDetailView({
     ? formatActivityTime(currentActivity.start_time, currentActivity.end_time)
     : 'HH:MM - HH:MM';
 
+  const isPlan = currentActivity?.end_time 
+    ? new Date(currentActivity.end_time) > new Date()
+    : false;
+
   return (
     <View className="p-8 w-full">
       {/* avatar + header */}
@@ -137,16 +141,20 @@ export function LocationDetailView({
         <Button variant="solid" size="md" className="px-6 rounded-full" onPress={onPlanActivity}>
           <Text style={{ fontFamily: 'Roboto-Medium', color: '#FFFFFF' }}>Check Forecast</Text>
         </Button>
-        {isOwnActivity ? (
-          <Button variant="outline" size="md" className="px-6 rounded-full" onPress={onOpenReviewForm}>
-            <Text style={{ fontFamily: 'Roboto-Medium' }}>
-              {review ? 'Edit Review' : 'Leave a Review'}
-            </Text>
-          </Button>
-        ) : (
-          <Button variant="outline" size="md" className="px-6 rounded-full" onPress={onSeeReview}>
-            <Text style={{ fontFamily: 'Roboto-Medium' }}>See Review</Text>
-          </Button>
+        {!isPlan && (
+          <>
+            {isOwnActivity ? (
+              <Button variant="outline" size="md" className="px-6 rounded-full" onPress={onOpenReviewForm}>
+                <Text style={{ fontFamily: 'Roboto-Medium' }}>
+                  {review ? 'Edit Review' : 'Leave Review'}
+                </Text>
+              </Button>
+            ) : (
+              <Button variant="outline" size="md" className="px-6 rounded-full" onPress={onSeeReview}>
+                <Text style={{ fontFamily: 'Roboto-Medium' }}>See Review</Text>
+              </Button>
+            )}
+          </>
         )}
       </View>
     </View>

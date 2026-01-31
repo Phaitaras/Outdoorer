@@ -7,7 +7,7 @@ interface GroupedListProps {
   groupBy: string; // property name to group by
   renderItem: (item: any, isLast: boolean, onPress?: () => void) => React.ReactNode;
   emptyMessage: string;
-  sortOrder?: 'asc' | 'desc'; // 'asc' for upcoming (earliest first), 'desc' for past (most recent first)
+  sortOrder?: 'asc' | 'desc';
 }
 
 export function GroupedActivityList({
@@ -17,7 +17,7 @@ export function GroupedActivityList({
   emptyMessage,
   sortOrder = 'desc',
 }: GroupedListProps) {
-  // Group items
+  // group items
   const grouped = items.reduce((acc, item) => {
     const groupKey = item[groupBy];
     if (!acc[groupKey]) {
@@ -27,7 +27,7 @@ export function GroupedActivityList({
     return acc;
   }, {} as Record<string, any[]>);
 
-  // Sort groups
+  // sort groups
   const groups = Object.keys(grouped).sort((a, b) => {
     const dateA = new Date(a);
     const dateB = new Date(b);

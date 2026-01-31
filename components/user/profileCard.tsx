@@ -22,6 +22,7 @@ export interface ProfileCardProps {
   onViewBookmarksPress?: () => void;
   onFriendsPress?: () => void;
   onActivitiesPress?: () => void;
+  onReviewsPress?: () => void;
 }
 
 export function ProfileCard({
@@ -36,6 +37,7 @@ export function ProfileCard({
   onViewBookmarksPress,
   onFriendsPress,
   onActivitiesPress,
+  onReviewsPress,
 }: ProfileCardProps) {
   const computedAvatarColor = avatarColor ?? getAvatarColor(profile.id);
   const color = AVATAR_COLOR_HEX[computedAvatarColor] || AVATAR_COLOR_HEX['blue'];
@@ -113,14 +115,14 @@ export function ProfileCard({
           </Text>
         </Pressable>
         <Divider orientation="vertical" />
-        <View className="flex-col gap-1">
+        <Pressable onPress={onReviewsPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
             {profile.reviewCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Reviews
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* buttons */}

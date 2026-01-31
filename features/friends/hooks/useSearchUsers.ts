@@ -1,6 +1,7 @@
 import type { Profile } from '@/features/profile/types';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { FRIENDS_QUERY_KEYS } from '../constants';
 
 async function searchUsers(query: string): Promise<Profile[]> {
   const trimmed = query.trim();
@@ -18,7 +19,7 @@ async function searchUsers(query: string): Promise<Profile[]> {
 
 export function useSearchUsers(query: string) {
   return useQuery({
-    queryKey: ['search-users', query],
+    queryKey: [FRIENDS_QUERY_KEYS.SEARCH_USERS, query],
     queryFn: () => searchUsers(query),
     enabled: query.trim().length >= 2,
   });

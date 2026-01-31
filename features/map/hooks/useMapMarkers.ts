@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '../constants';
 
 export type MarkerType = 'plan' | 'activity' | 'friend';
 export type MapMarker = {
@@ -37,7 +38,7 @@ type Activity = {
 
 export function useUserPlans(userId: string | null) {
   return useQuery({
-    queryKey: ['map-user-plans', userId],
+    queryKey: [QUERY_KEYS.MAP_USER_PLANS, userId],
     enabled: !!userId,
     queryFn: async () => {
       const now = new Date().toISOString();
@@ -57,7 +58,7 @@ export function useUserPlans(userId: string | null) {
 
 export function useUserActivities(userId: string | null) {
   return useQuery({
-    queryKey: ['map-user-activities', userId],
+    queryKey: [QUERY_KEYS.MAP_USER_ACTIVITIES, userId],
     enabled: !!userId,
     queryFn: async () => {
       const now = new Date().toISOString();
@@ -77,7 +78,7 @@ export function useUserActivities(userId: string | null) {
 
 export function useFriendActivities(friendIds: string[]) {
   return useQuery({
-    queryKey: ['friend-activities-map', friendIds],
+    queryKey: [QUERY_KEYS.MAP_FRIEND_ACTIVITIES, friendIds],
     enabled: friendIds.length > 0,
     queryFn: async () => {
       const now = new Date().toISOString();

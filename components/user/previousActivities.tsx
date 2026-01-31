@@ -9,7 +9,7 @@ import { Pressable, View } from 'react-native';
 interface PreviousActivitiesProps {
   activities: Activity[] | undefined;
   onViewAll: () => void;
-  onCardPress: (activityName: string) => void;
+  onCardPress: (activityId: string, activityName: string) => void;
 }
 
 export function PreviousActivities({ activities, onViewAll, onCardPress }: PreviousActivitiesProps) {
@@ -25,7 +25,7 @@ export function PreviousActivities({ activities, onViewAll, onCardPress }: Previ
       </View>
       <ActivityCardsScroll
         cards={activities?.map(activityToCard) ?? []}
-        onCardPress={(card) => onCardPress(card.activity)}
+        onCardPress={(card) => onCardPress(card.id, card.activity)}
         emptyMessage="No recent activities"
       />
     </View>

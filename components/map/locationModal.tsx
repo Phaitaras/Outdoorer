@@ -2,7 +2,8 @@ import { LABEL_TO_ACTIVITY } from '@/constants/activities';
 import { AVATAR_COLOR_HEX } from '@/constants/user';
 import { getAvatarColor, LocationModalLocation, useLocationModalAnimation, useLocationModalData, useReviewSubmission } from '@/features/map';
 import { useProfile } from '@/features/profile';
-import React, { useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Animated, View } from 'react-native';
 import { LocationDetailView } from './locationDetailView';
 import { ReviewFormView } from './reviewFormView';
@@ -31,10 +32,18 @@ export function LocationModal({
     closeReviewForm,
   } = useLocationModalAnimation({ location });
 
-  const { currentActivity, review, isOwnActivity } = useLocationModalData({
+  const { currentActivity, review, isOwnActivity, refetchReview } = useLocationModalData({
     currentLocation,
     currentUserId,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isVisible && currentActivity?.id) {
+        refetchReview();
+      }
+    }, [isVisible, currentActivity?.id, refetchReview])
+  );
 
   const { data: userProfile, isLoading: profileLoading } = useProfile(
     currentActivity?.user_id ?? null

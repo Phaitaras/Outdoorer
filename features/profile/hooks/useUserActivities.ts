@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { PROFILE_QUERY_KEYS } from '../constants';
 import type { Activity, UserActivitiesParams } from '../types';
 
 async function fetchUserActivities({
@@ -11,7 +12,7 @@ async function fetchUserActivities({
   
   let query = supabase
     .from('activity')
-    .select('id, user_id, location_id, activity_type, start_time, end_time, created_at')
+    .select('id, user_id, location_id, activity_type, start_time, end_time, created_at, location:location_id(id, name)')
     .eq('user_id', userId)
     .order('start_time', { ascending: type === 'upcoming' })
     .limit(limit);
@@ -25,7 +26,12 @@ async function fetchUserActivities({
   const { data, error } = await query;
 
   if (error) throw error;
-  return (data ?? []) as Activity[];
+  
+  // Transform the data to properly handle location structure
+  return (data ?? []).map((activity: any) => ({
+    ...activity,
+    location: activity.location ? (Array.isArray(activity.location) ? activity.location[0] : activity.location) : null,
+  })) as Activity[];
 }
 
 export function useUserActivities({
@@ -34,7 +40,7 @@ export function useUserActivities({
   limit,
 }: UserActivitiesParams) {
   return useQuery({
-    queryKey: ['activities', userId, type, limit],
+    queryKey: [PROFILE_QUERY_KEYS.ACTIVITIES, userId, type, limit],
     queryFn: () => fetchUserActivities({ userId, type, limit }),
     enabled: !!userId,
   });
