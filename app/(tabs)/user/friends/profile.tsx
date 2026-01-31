@@ -1,0 +1,120 @@
+import { ActivityCardsScroll } from '@/components/home/activityCardsScroll';
+import { Divider } from '@/components/ui/divider';
+import { Text } from '@/components/ui/text';
+import { ProfileCard } from '@/components/user/profileCard';
+import { UserHeader } from '@/components/user/userHeader';
+import { useFriendActions, useFriendActivities, useFriendStatus } from '@/features/friends';
+import { useProfile } from '@/features/profile';
+import { activityToCard } from '@/features/profile/utils/activityToCard';
+import { supabase } from '@/lib/supabase';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ScrollView, View } from 'react-native';
+
+export default function FriendProfileScreen() {
+  const params = useLocalSearchParams();
+  const friendId = (params.id as string) || null;
+  const friendColor = (params.color as string) || 'blue';
+
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) setCurrentUserId(data.user.id);
+    })();
+  }, []);
+
+  const { data: profile, isLoading: profileLoading } = useProfile(friendId);
+  const { data: status } = useFriendStatus(currentUserId, friendId);
+  const { request, cancel, accept, unfriend } = useFriendActions(currentUserId, friendId);
+
+  const isFriend = status?.status === 'accepted';
+  const isPending = status?.status === 'pending';
+  const isUserSide = status?.requesterId === currentUserId;
+  const isOwner = !!currentUserId && !!friendId && currentUserId === friendId;
+  const isActing = request.isPending || cancel.isPending || accept.isPending || unfriend.isPending;
+
+  const actionButton = useMemo(() => {
+    if (!friendId || !currentUserId || isOwner) return null;
+
+    if (isFriend) {
+      return { label: 'Unfriend', variant: 'outline', onPress: () => unfriend.mutate() };
+    }
+
+    if (isPending) {
+      return isUserSide
+        ? { label: 'Cancel Request', variant: 'outline', onPress: () => cancel.mutate() }
+        : { label: 'Accept Request', variant: 'solid', onPress: () => accept.mutate() };
+    }
+
+    return { label: 'Request Friend', variant: 'solid', onPress: () => request.mutate() };
+  }, [accept, cancel, unfriend, friendId, currentUserId, isOwner, isFriend, isPending, isUserSide, request, status?.status]);
+
+  const activityVisibility = profile?.activity_visibility ?? 'friends';
+  const canViewActivities = !!friendId && (activityVisibility === 'public' || isOwner || (activityVisibility === 'friends' && isFriend));
+  const activitiesMessage = canViewActivities
+    ? null
+    : activityVisibility === 'private'
+      ? 'Their activities are private.'
+      : 'Activities are visible to friends only.';
+
+  const { data: activities = [], isLoading: activitiesLoading } = useFriendActivities(friendId, canViewActivities, 5);
+
+  const activityCards = useMemo(() => activities.map(activityToCard), [activities]);
+
+  return (
+    <View className="flex-1 bg-[#F6F6F7]">
+      <UserHeader title="Profile" />
+
+      <ScrollView className="flex-1 p-8" showsVerticalScrollIndicator={false}>
+        <View className="flex-col">
+          <View className="mb-6">
+            {profileLoading || !profile ? (
+              <Text className="text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
+                Loading profile...
+              </Text>
+            ) : (
+              <ProfileCard
+                profile={profile}
+                avatarColor={friendColor as any}
+                onAddFriendPress={actionButton?.onPress}
+                addFriendLabel={actionButton?.label}
+                addFriendVariant={actionButton?.variant as any}
+                addFriendDisabled={isActing}
+              />
+            )}
+          </View>
+
+          <Divider className="mb-4" />
+
+          <Text className="text-typography-800 text-lg mb-2" style={{ fontFamily: 'Roboto-Medium' }}>
+            Recent Activities
+          </Text>
+
+          {!canViewActivities && (
+            <Text className="text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
+              {activitiesMessage}
+            </Text>
+          )}
+
+          {canViewActivities && (
+            <>
+              {activitiesLoading ? (
+                <Text className="text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
+                  Loading activities...
+                </Text>
+              ) : (
+                <ActivityCardsScroll
+                  cards={activityCards}
+                  onCardPress={() => {}}
+                  emptyMessage="No recent activities"
+                />
+              )}
+            </>
+          )}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}

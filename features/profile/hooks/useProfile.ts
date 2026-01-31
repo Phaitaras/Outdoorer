@@ -1,11 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { PROFILE_QUERY_KEYS } from '../constants';
 import type { ProfileWithStats } from '../types';
 
 async function fetchProfile(userId: string): Promise<ProfileWithStats> {
   const { data: profile, error: profileError } = await supabase
     .from('profile')
-    .select('id, username, title, metric, activity_types, onboarded, created_at')
+    .select('id, username, title, metric, activity_types, onboarded, created_at, activity_visibility')
     .eq('id', userId)
     .single();
 
@@ -39,6 +40,7 @@ async function fetchProfile(userId: string): Promise<ProfileWithStats> {
 
   return {
     ...profile,
+    activity_visibility: profile.activity_visibility ?? 'friends',
     friendCount: friendCount ?? 0,
     activityCount: activityCount ?? 0,
     reviewCount: reviewCount ?? 0,
@@ -47,7 +49,7 @@ async function fetchProfile(userId: string): Promise<ProfileWithStats> {
 
 export function useProfile(userId: string | null) {
   return useQuery({
-    queryKey: ['profile', userId],
+    queryKey: [PROFILE_QUERY_KEYS.PROFILE, userId],
     queryFn: () => {
       if (!userId) throw new Error('User ID is required');
       return fetchProfile(userId);

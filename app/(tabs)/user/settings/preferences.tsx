@@ -1,7 +1,7 @@
 import { Button, ButtonText } from '@/components/ui/button';
 import { Radio, RadioGroup, RadioIcon, RadioIndicator, RadioLabel } from '@/components/ui/radio';
 import { Text } from '@/components/ui/text';
-import { useProfile } from '@/features/profile';
+import { PROFILE_QUERY_KEYS, useProfile } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -91,7 +91,7 @@ export default function PreferencesSettingsScreen() {
                                     .eq('id', userId);
 
                                 if (error) throw error;
-                                await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+                                await queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.PROFILE, userId] });
                                 router.back();
                             } catch (error) {
                                 console.error('Error updating preferences:', error);

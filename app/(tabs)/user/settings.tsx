@@ -1,11 +1,11 @@
 import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
-import { UserHeader } from '@/components/user/userHeader';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import { ChevronRightIcon } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+import { UserHeader } from '@/components/user';
 
 export default function SettingsScreen() {
     const router = useRouter();

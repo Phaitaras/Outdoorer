@@ -1,9 +1,10 @@
-import { LABEL_TO_ACTIVITY } from '@/constants/activities';
-import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
+import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
+import { getAvatarColor } from '@/features/map';
 import { type ProfileWithStats } from '@/features/profile';
 import { SettingsIcon } from 'lucide-react-native';
 import React from 'react';
@@ -15,25 +16,38 @@ export interface ProfileCardProps {
   avatarUri?: string;
   onSettingsPress?: () => void;
   onAddFriendPress?: () => void;
+  addFriendLabel?: string;
+  addFriendVariant?: 'solid' | 'outline' | 'link';
+  addFriendDisabled?: boolean;
   onViewBookmarksPress?: () => void;
   onFriendsPress?: () => void;
   onActivitiesPress?: () => void;
+  onReviewsPress?: () => void;
 }
 
 export function ProfileCard({
   profile,
-  avatarColor = 'blue',
+  avatarColor,
   avatarUri = '',
   onSettingsPress,
   onAddFriendPress,
+  addFriendLabel,
+  addFriendVariant = 'solid',
+  addFriendDisabled = false,
   onViewBookmarksPress,
   onFriendsPress,
   onActivitiesPress,
+  onReviewsPress,
 }: ProfileCardProps) {
-  const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
+  const computedAvatarColor = avatarColor ?? getAvatarColor(profile.id);
+  const color = AVATAR_COLOR_HEX[computedAvatarColor] || AVATAR_COLOR_HEX['blue'];
   const activityLabels = profile.activity_types
     .map(type => LABEL_TO_ACTIVITY[type])
     .filter(Boolean);
+
+  const friendButtonTextClass = addFriendVariant === 'outline'
+    ? 'text-typography-700'
+    : 'text-white';
 
   return (
     <View className="bg-white p-6 rounded-2xl shadow-soft-1">
@@ -101,22 +115,27 @@ export function ProfileCard({
           </Text>
         </Pressable>
         <Divider orientation="vertical" />
-        <View className="flex-col gap-1">
+        <Pressable onPress={onReviewsPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
             {profile.reviewCount}
           </Text>
           <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
             Reviews
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* buttons */}
       <View className="mt-6 flex-row justify-evenly gap-4">
         {onAddFriendPress && (
-          <Button variant="solid" className="rounded-full" onPress={onAddFriendPress}>
-            <ButtonText className="text-white" style={{ fontFamily: 'Roboto-Medium' }}>
-              Add New Friend
+          <Button
+            variant={addFriendVariant}
+            className="rounded-full"
+            onPress={onAddFriendPress}
+            disabled={addFriendDisabled}
+          >
+            <ButtonText className={friendButtonTextClass} style={{ fontFamily: 'Roboto-Medium' }}>
+              {addFriendLabel || 'Add New Friend'}
             </ButtonText>
           </Button>
         )}

@@ -20,6 +20,7 @@ export type Profile = {
   activity_types: ActivityType[];
   onboarded: boolean;
   created_at: string;
+  activity_visibility?: 'public' | 'friends' | 'private';
 };
 
 export type Activity = {
@@ -30,6 +31,30 @@ export type Activity = {
   start_time: string;
   end_time: string;
   created_at: string;
+  location?: {
+    id: number;
+    name: string;
+  } | null;
+};
+
+export type ReviewDetail = {
+  id: number;
+  user_id: string;
+  activity_id: number;
+  rating: number;
+  description: string;
+  created_at: string;
+  activity: {
+    id: number;
+    user_id: string;
+    activity_type: ActivityType;
+    start_time: string;
+    end_time: string;
+    location?: {
+      id: number;
+      name: string;
+    } | null;
+  } | null;
 };
 
 export type FriendStatus = 'pending' | 'accepted' | 'blocked';

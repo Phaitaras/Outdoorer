@@ -42,12 +42,13 @@ export default function User() {
               <ProfileCard
                 profile={profile}
                 onSettingsPress={() => router.push('/user/settings')}
-                onAddFriendPress={() => router.push('/user/addFriend')}
+                onAddFriendPress={() => router.push('/user/friends/add')}
                 onViewBookmarksPress={() => {
                   // TODO: Navigate to bookmarks
                 }}
                 onFriendsPress={() => router.push('/user/friends')}
                 onActivitiesPress={() => router.push('/user/previousActivities')}
+                onReviewsPress={() => router.push('/user/reviews')}
               />
             )}
           </View>
@@ -57,16 +58,16 @@ export default function User() {
           <UpcomingActivities
             activities={upcomingActivities}
             onViewAll={() => router.push('/user/upcomingActivities')}
-            onCardPress={(activityName) =>
-              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName } })
+            onCardPress={(activityId, activityName) =>
+              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName, activityId } })
             }
           />
 
           <PreviousActivities
             activities={previousActivities}
             onViewAll={() => router.push('/user/previousActivities')}
-            onCardPress={(activityName) =>
-              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName } })
+            onCardPress={(activityId, activityName) =>
+              router.push({ pathname: '/(tabs)/activity', params: { activity: activityName, activityId } })
             }
           />
         </View>

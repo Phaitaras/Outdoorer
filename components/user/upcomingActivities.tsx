@@ -9,7 +9,7 @@ import { Pressable, View } from 'react-native';
 interface UpcomingActivitiesProps {
   activities: Activity[] | undefined;
   onViewAll: () => void;
-  onCardPress: (activityName: string) => void;
+  onCardPress: (activityId: string, activityName: string) => void;
 }
 
 export function UpcomingActivities({ activities, onViewAll, onCardPress }: UpcomingActivitiesProps) {
@@ -25,7 +25,7 @@ export function UpcomingActivities({ activities, onViewAll, onCardPress }: Upcom
       </View>
       <ActivityCardsScroll
         cards={activities?.map(activityToCard) ?? []}
-        onCardPress={(card) => onCardPress(card.activity)}
+        onCardPress={(card) => onCardPress(card.id, card.activity)}
         emptyMessage="No upcoming plans"
       />
     </View>

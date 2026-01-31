@@ -1,88 +1,180 @@
+import { CustomMarker, getActivityEmoji } from '@/components/map/customMarker';
 import { LocationModal } from '@/components/map/locationModal';
+import { ToggleButton } from '@/components/map/toggleButton';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
+import { INITIAL_REGION } from '@/constants/mapMarkers';
+import { useFriends } from '@/features/friends';
+import { toMarker, useFriendActivities, useUserActivities, useUserPlans } from '@/features/map/hooks/useMapMarkers';
+import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
-import { HistoryIcon, UsersIcon } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
 import { Marker } from 'react-native-maps';
 
-const INITIAL_REGION = {
-    latitude: 55.863873,
-    longitude: -4.292994,
-    latitudeDelta: 0.2,
-    longitudeDelta: 0.2,
-};
-
-const locations = [
-    { id: '1', latitude: '55.869730', longitude: '-4.283822' },
-    { id: '2', latitude: '55.867539', longitude: '-4.281505' },
-    { id: '4', latitude: '55.852826', longitude: '-4.240569' },
-    { id: '5', latitude: '55.874898', longitude: '-4.242221' },
-    { id: '6', latitude: '55.866085', longitude: '-4.207760' },
-    { id: '7', latitude: '55.872785', longitude: '-4.308439' },
-    { id: '8', latitude: '55.859657', longitude: '-4.290839' },
-];
+type FilterType = 'plans' | 'activities' | 'friends';
 
 export default function Map() {
-    const { location } = useLocationContext();
-    const [selectedLocation, setSelectedLocation] = useState(null);
+  const { location } = useLocationContext();
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('plans');
+  const noMarkersAnim = useRef(new Animated.Value(0)).current;
 
-    const handleMarkerPress = (loc: any) => {
-        setSelectedLocation(loc);
-    };
+  const initialRegion = location
+    ? {
+      latitude: location.latitude,
+      longitude: location.longitude,
+      latitudeDelta: 0.2,
+      longitudeDelta: 0.2,
+    }
+    : INITIAL_REGION;
 
-    return (
-        <View className="flex-1 mb-[20%]">
-            <MapView
-                initialRegion={INITIAL_REGION}
-                style={StyleSheet.absoluteFill}
-                clusteringEnabled
-                clusterColor="#FFAE00"
-                clusterTextColor="#FFFFFF"
-                showsUserLocation={true}
-                showsMyLocationButton={true}
-                
-                onPress={(e) => {
-                    if (e.nativeEvent.action === "press") {setSelectedLocation(null);}}}
-                onPanDrag={() => setSelectedLocation(null)}
-                >
-                {locations.map((loc) => (
-                    <Marker
-                        key={loc.id}
-                        coordinate={{
-                            latitude: parseFloat(loc.latitude),
-                            longitude: parseFloat(loc.longitude),
-                        }}
-                        onPress={() => handleMarkerPress(loc)}
-                    />
-                ))}
-            </MapView>
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) setUserId(data.user.id);
+    })();
+  }, []);
 
-            <Input
-                variant="rounded"
-                className="absolute top-4 left-[18%] right-[18%] bg-white rounded-full px-4 shadow-soft-2 flex-row items-center"
+  const { data: friends = [] } = useFriends(userId);
+  const friendIds = useMemo(() => friends.map((f) => f.id), [friends]);
+
+  const { data: userPlans = [] } = useUserPlans(userId);
+  const { data: userActivities = [] } = useUserActivities(userId);
+  const { data: friendActivities = [] } = useFriendActivities(friendIds);
+
+  const markers = useMemo(() => {
+    const planMarkers = userPlans.map((a) => toMarker(a, 'plan')).filter(Boolean);
+    const activityMarkers = userActivities.map((a) => toMarker(a, 'activity')).filter(Boolean);
+    const friendMarkers = friendActivities.map((a) => toMarker(a, 'friend')).filter(Boolean);
+
+    return [
+      ...(activeFilter === 'plans' ? planMarkers : []),
+      ...(activeFilter === 'activities' ? activityMarkers : []),
+      ...(activeFilter === 'friends' ? friendMarkers : []),
+    ];
+  }, [userPlans, userActivities, friendActivities, activeFilter]);
+
+  const handleMarkerPress = (loc: any) => {
+    setSelectedLocation(loc);
+  };
+
+  useEffect(() => {
+    if (markers.length === 0) {
+      Animated.spring(noMarkersAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 7,
+      }).start();
+    } else {
+      // Delay the disappear animation slightly for smoother transition
+      const timer = setTimeout(() => {
+        Animated.timing(noMarkersAnim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [markers.length, noMarkersAnim]);
+
+  return (
+    <View className="flex-1 mb-[20%]">
+      <MapView
+        initialRegion={initialRegion}
+        style={StyleSheet.absoluteFill}
+        clusteringEnabled
+        clusterColor="#FFAE00"
+        clusterTextColor="#FFFFFF"
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        onPress={(e) => {
+          if (e.nativeEvent.action === 'press') setSelectedLocation(null);
+        }}
+        onPanDrag={() => setSelectedLocation(null)}
+      >
+        {markers.map((loc) => {
+          if (!loc) return null;
+          const emoji = getActivityEmoji(loc.activity.activity_type || '');
+
+          return (
+            <Marker
+              key={`${loc.type}-${loc.activity.id}`}
+              coordinate={{
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+              }}
+              onPress={() => handleMarkerPress(loc)}
             >
-                <InputSlot>
-                    <InputIcon as={SearchIcon} />
-                </InputSlot>
+              <CustomMarker emoji={emoji} />
+            </Marker>
+          );
+        })}
+      </MapView>
 
-                <InputField
-                    placeholder="Search a location"
-                />
-            </Input>
+      {markers.length === 0 && (
+        <Animated.View
+          className="absolute bottom-[6.5rem] left-[1rem] right-[1rem] items-center"
+          style={{
+            transform: [
+              {
+                translateY: noMarkersAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+            opacity: noMarkersAnim,
+          }}
+        >
+          <View className="bg-white rounded-full p-3 px-5 shadow-soft-1 flex-row gap-2">
+            <Text className="text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
+              No Markers Found
+            </Text>
+          </View>
+        </Animated.View>
+      )}
 
-            <View className="absolute bottom-[1rem] right-[1rem] bg-white rounded-full p-2 shadow-soft-2">
-                <HistoryIcon color="#444444" />
-            </View>
+      <Input
+        variant="rounded"
+        className="absolute top-4 left-[18%] right-[18%] bg-white rounded-full px-4 shadow-soft-2 flex-row items-center"
+      >
+        <InputSlot>
+          <InputIcon as={SearchIcon} />
+        </InputSlot>
 
-            <View className="absolute bottom-[4.5rem] right-[1rem] bg-white rounded-full p-2 shadow-soft-2">
-                <UsersIcon color="#444444" />
-            </View>
+        <InputField placeholder="Search a location" />
+      </Input>
 
-            <LocationModal location={selectedLocation} />
+      <View className="absolute bottom-[2rem] left-[1rem] right-[1rem] items-center">
+        <View className="bg-white rounded-full px-2 py-2 shadow-soft-2 flex-row gap-2">
+          <ToggleButton
+            label="Plans"
+            active={activeFilter === 'plans'}
+            onPress={() => setActiveFilter('plans')}
+          />
+          <ToggleButton
+            label="History"
+            active={activeFilter === 'activities'}
+            onPress={() => setActiveFilter('activities')}
+          />
+          <ToggleButton
+            label="Friends"
+            active={activeFilter === 'friends'}
+            onPress={() => setActiveFilter('friends')}
+          />
+        </View>
+      </View>
 
-        </View >
-    );
+      <LocationModal
+        location={selectedLocation}
+        currentUserId={userId}
+        onClose={() => setSelectedLocation(null)}
+      />
+    </View>
+  );
 }

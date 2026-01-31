@@ -11,7 +11,7 @@ import { ScrollView, View } from 'react-native';
 interface ActivityItem {
   id: string;
   activity: string;
-  emoji: string;
+  location?: string;
   date: string;
   month: string;
   timeWindow: string;
@@ -42,7 +42,7 @@ export default function UpcomingActivitiesScreen() {
     return {
       id: card.id,
       activity: card.activity,
-      emoji: card.emoji,
+      location: activity.location?.name,
       date: card.date,
       month,
       timeWindow: card.timeWindow,
@@ -53,12 +53,18 @@ export default function UpcomingActivitiesScreen() {
     <ActivityListItem
       key={item.id}
       id={item.id}
-      emoji={item.emoji}
       title={item.activity}
+      location={item.location}
       subtitle={`${item.date} • ${item.timeWindow}`}
       isLast={isLast}
       onPress={() => {
-        router.push({ pathname: '/(tabs)/activity', params: { activity: item.activity } });
+        router.push({ 
+          pathname: '/(tabs)/activity', 
+          params: { 
+            activity: item.activity,
+            activityId: item.id,
+          } 
+        });
       }}
     />
   );

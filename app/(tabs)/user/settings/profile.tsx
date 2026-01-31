@@ -3,13 +3,35 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { ACTIVITY_TO_LABEL, LABEL_TO_ACTIVITY } from '@/constants/activities';
-import { useProfile } from '@/features/profile';
+import { PROFILE_QUERY_KEYS, useProfile } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { ArrowLeftIcon } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+
+function VisibilityOption({
+    label,
+    active,
+    onPress,
+}: {
+    label: string;
+    active: boolean;
+    onPress: () => void;
+}) {
+    return (
+        <Button
+            size="sm"
+            variant="outline"
+            action={active ? 'primary' : 'secondary'}
+            onPress={onPress}
+            className="rounded-full px-4"
+        >
+            <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>{label}</ButtonText>
+        </Button>
+    );
+}
 
 export default function ProfileSettingsScreen() {
     const router = useRouter();
@@ -18,6 +40,7 @@ export default function ProfileSettingsScreen() {
     const [name, setName] = useState('');
     const [title, setTitle] = useState('');
     const [selected, setSelected] = useState<string[]>([]);
+    const [activityVisibility, setActivityVisibility] = useState<'public' | 'friends' | 'private'>('friends');
     const [loading, setLoading] = useState(false);
 
     const { data: profile } = useProfile(userId);
@@ -35,6 +58,7 @@ export default function ProfileSettingsScreen() {
             setTitle(profile.title || '');
             const activityLabels = profile.activity_types.map(type => LABEL_TO_ACTIVITY[type]).filter(Boolean);
             setSelected(activityLabels);
+            setActivityVisibility(profile.activity_visibility ?? 'friends');
         }
     }, [profile]);
 
@@ -94,6 +118,26 @@ export default function ProfileSettingsScreen() {
                             </Text>
                             <ActivitySelector selected={selected} onToggle={toggle} />
                         </View>
+
+                        <View className="mt-6">
+                            <Text className="text-sm text-typography-700 mb-3" style={{ fontFamily: 'Roboto-Medium' }}>
+                                Activity Visibility
+                            </Text>
+                            <View className="flex-row gap-2">
+                                {[
+                                    { value: 'public', label: 'Public' },
+                                    { value: 'friends', label: 'Friends' },
+                                    { value: 'private', label: 'Private' },
+                                ].map((option) => (
+                                    <VisibilityOption
+                                        key={option.value}
+                                        label={option.label}
+                                        active={activityVisibility === option.value}
+                                        onPress={() => setActivityVisibility(option.value as 'public' | 'friends' | 'private')}
+                                    />
+                                ))}
+                            </View>
+                        </View>
                     </View>
 
                     <Button
@@ -114,11 +158,12 @@ export default function ProfileSettingsScreen() {
                                         username: name,
                                         title: title,
                                         activity_types: activityTypes,
+                                        activity_visibility: activityVisibility,
                                     })
                                     .eq('id', userId);
 
                                 if (error) throw error;
-                                await queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+                                await queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.PROFILE, userId] });
                                 router.back();
                             } catch (error) {
                                 console.error('Error updating profile:', error);

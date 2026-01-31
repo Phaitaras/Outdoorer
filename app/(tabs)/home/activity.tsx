@@ -1,6 +1,5 @@
 import { PlanTimeModal } from '@/components/home/activity/planTimeModal';
-import { useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
@@ -14,27 +13,41 @@ import { LocationHeader } from '@/components/home/locationHeader';
 import { Sentiment } from '@/components/home/sentiment';
 import { Text } from '@/components/ui/text';
 import { ACTIVITY_TO_LABEL } from '@/constants/activities';
-import { WEATHER_CODE_TO_DESCRIPTION } from '@/constants/weather';
-import { useWeather } from '@/features/weather';
+import { useActivityById, useCreateActivity } from '@/features/activity';
+import { getHourlyWeatherData, useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
 import { findRecommendedWindow } from '@/utils/activity';
 
 
 export default function ActivityDetailScreen() {
-  const params = useLocalSearchParams<{ activity?: string; status?: Sentiment; openPlanModal?: string; date?: string }>();
+  const params = useLocalSearchParams<{ activity?: string; status?: Sentiment; openPlanModal?: string; date?: string; activityId?: string }>();
+  const router = useRouter();
   const activity = params.activity ?? 'Running';
   const status = (params.status as Sentiment) ?? 'GOOD';
   const { location } = useLocationContext();
-  const queryClient = useQueryClient();
 
   const baseDate = useMemo(() => (params.date ? new Date(params.date) : new Date()), [params.date]);
+  const activityIdParam = params.activityId ? Number(params.activityId) : null;
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showFigures, setShowFigures] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [planStart, setPlanStart] = useState<Date>(baseDate);
   const [planEnd, setPlanEnd] = useState<Date>(baseDate);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    })();
+  }, []);
+
+  const activityType = ACTIVITY_TO_LABEL[activity] ?? 'generic_sports';
+
+  // fetch activityId if provided and check review
+  const { data: activityData } = useActivityById(activityIdParam);
 
   const { data: weatherData } = useWeather(
     location?.latitude ?? null,
@@ -48,29 +61,10 @@ export default function ActivityDetailScreen() {
 
   const selectedBar = useMemo(() => GRAPH_DATA[selectedIndex] ?? GRAPH_DATA[0], [selectedIndex]);
 
-  const hourlyWeatherData = useMemo(() => {
-    if (!weatherData?.hours || weatherData.hours.length === 0) return [];
-
-    const selectedHour = selectedBar.hour;
-    const hourIndex = weatherData.hours.findIndex((h) => {
-      const hDate = new Date(h.time);
-      const hHour = hDate.getHours().toString().padStart(2, '0') + ':' + hDate.getMinutes().toString().padStart(2, '0');
-      return hHour === selectedHour;
-    });
-
-    if (hourIndex === -1) return [];
-
-    const hour = weatherData.hours[hourIndex];
-    const tempUnit = weatherData.units === 'imperial' ? '°F' : '°C';
-    const speedUnit = weatherData.units === 'imperial' ? 'mph' : 'km/h';
-    const weatherDescription = WEATHER_CODE_TO_DESCRIPTION[hour.weathercode] || 'Unknown';
-
-    return [
-      ['Temperature', `${Math.round(hour.temperature_2m)}${tempUnit}`, 'Wind Speed', `${Math.round(hour.wind_speed_10m)} ${speedUnit}`],
-      ['Weather', weatherDescription, 'Wind Direction', `${Math.round(hour.wind_direction_10m)}°`],
-      ['Precipitation', `${hour.precipitation} mm`, 'Wind Gust', `${Math.round(hour.wind_gusts_10m)} ${speedUnit}`],
-    ] as [string, string, string, string][];
-  }, [selectedBar.hour, weatherData?.hours, weatherData?.units]);
+  const hourlyWeatherData = useMemo(() => 
+    getHourlyWeatherData(selectedBar.hour, weatherData ?? null),
+    [selectedBar.hour, weatherData]
+  );
 
   useEffect(() => {
     if (params.openPlanModal === 'true') {
@@ -92,39 +86,44 @@ export default function ActivityDetailScreen() {
   }, [baseDate, recommendedStart, recommendedEnd]);
 
   const handleCreateActivity = async (start: Date, end: Date) => {
+    if (!userId) {
+      Alert.alert('Error', 'You must be logged in to create an activity.');
+      return;
+    }
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        Alert.alert('Error', 'You must be logged in to create an activity.');
-        return;
-      }
-
-      const activityType = ACTIVITY_TO_LABEL[activity] ?? 'generic_sports';
-
-      const { error } = await supabase.from('activity').insert({
-        user_id: user.id,
-        activity_type: activityType,
-        location_id: null,
-        start_time: start.toISOString(),
-        end_time: end.toISOString(),
+      await createActivityMutation.mutateAsync({
+        userId,
+        activityType,
+        locationId: null,
+        startTime: start,
+        endTime: end,
       });
-
-      if (error) throw error;
+      
       Alert.alert('Success', 'Your activity has been planned.');
       setShowPlanModal(false);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
     } catch (err) {
       console.error(err);
       Alert.alert('Error', 'Unable to save your activity. Please try again.');
     }
   };
 
+  const createActivityMutation = useCreateActivity();
+
 
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[10%]">
       <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
         <LocationHeader locationLabel="Glasgow, United Kingdom" displayArrow={true} className='mb-6'/>
-        <ActivityHeader activity={activity} status={status} onPlan={() => setShowPlanModal(true)} />
+        <ActivityHeader 
+          activity={activity} 
+          status={status} 
+          onPlan={() => setShowPlanModal(true)}
+          hasReview={activityData?.hasReview ?? false}
+          reviewId={activityData?.reviewId ?? null}
+          activityId={activityIdParam?.toString()}
+          activityEndTime={activityData?.end_time ?? null}
+        />
 
         <Text className="text-xs text-typography-600 mb-1 text-center" style={{fontFamily: 'Roboto-Regular'}}>
           Recommended
