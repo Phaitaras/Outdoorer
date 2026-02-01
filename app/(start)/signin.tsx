@@ -88,17 +88,6 @@ export default function SignIn() {
       const user = data.user ?? data.session?.user;
 
       if (user) {
-        // set username if empty
-        const { error: updateError } = await supabase
-          .from('profile')
-          .update({ username })
-          .eq('id', user.id);
-
-        if (updateError) {
-          Alert.alert('Profile Error', updateError.message);
-          return;
-        }
-
         await checkOnboardingStatus(user.id);
       }
     }
