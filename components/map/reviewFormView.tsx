@@ -100,7 +100,7 @@ export function ReviewFormView({
       </View>
 
       {/* rating */}
-      <View className="mb-3">
+      <View className="mb-2">
         <Text className="text-typography-600 mb-1" style={{ fontFamily: 'Roboto-Medium' }}>
           Rating
         </Text>
@@ -120,7 +120,7 @@ export function ReviewFormView({
           Description
         </Text>
         {isOwnActivity ? (
-          <Textarea className={fullPage ? "h-[200px] rounded-2xl" : "min-h-[100px] rounded-2xl"}>
+          <Textarea className={fullPage ? "h-[200px] rounded-2xl" : "h-[85px] rounded-2xl"}>
             <TextareaInput
               placeholder=" Share your experience"
               value={reviewDescription}
@@ -137,7 +137,7 @@ export function ReviewFormView({
 
       {/* action buttons */}
       {isOwnActivity && (
-        <View className={existingReview ? "flex-row gap-4 mt-2" : "mt-2"}>
+        <View className={existingReview ? "flex-row gap-4" : ""}>
           {existingReview && onDelete && (
             <Button
               variant="outline"

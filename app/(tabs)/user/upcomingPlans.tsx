@@ -28,7 +28,6 @@ export default function UpcomingPlansScreen() {
     <ActivityListItem
       key={plan.id}
       id={plan.id}
-      emoji={plan.emoji}
       title={plan.activity}
       subtitle={`${plan.date} • ${plan.timeWindow}`}
       isLast={isLast}

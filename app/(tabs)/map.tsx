@@ -70,7 +70,6 @@ export default function Map() {
         friction: 7,
       }).start();
     } else {
-      // Delay the disappear animation slightly for smoother transition
       const timer = setTimeout(() => {
         Animated.timing(noMarkersAnim, {
           toValue: 0,

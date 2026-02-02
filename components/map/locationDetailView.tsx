@@ -117,7 +117,7 @@ export function LocationDetailView({
       )}
 
       {/* date and time */}
-      <View className="flex-row gap-8 mb-6">
+      <View className="flex-row gap-8 mb-16">
         <View className="flex-col">
           <Text className="text-typography-600" style={{ fontFamily: 'Roboto-Medium' }}>
             Date

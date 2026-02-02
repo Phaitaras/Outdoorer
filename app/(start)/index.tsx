@@ -46,13 +46,13 @@ export default function LoginScreen() {
       />
       <View className="relative w-full flex-1 justify-end">
 
-        <View className="w-full h-[50%] bg-white rounded-t-[30px] px-12 pt-[30%] pb-12 shadow-lg">
-          <View className="mb-8 flex-col justify-center items-center gap-1">
-            <Text size="2xl" style={{ fontFamily: 'Roboto-Bold' }}>
+        <View className="w-full h-[50%] bg-white rounded-t-[30px] px-12 pt-[30%]">
+          <View className="mb-6 flex-col justify-center items-center gap-2">
+            <Text size="3xl" style={{ fontFamily: 'Roboto-Bold' }}>
               Outdoorer
             </Text>
             <Text size="md" style={{ fontFamily: 'Roboto-Regular' }}>
-              Weather forecast for all your outdoor activities
+              Forecast for all your outdoor activities
             </Text>
           </View>
 

@@ -2,7 +2,7 @@ import { LocationModalLocation, REVIEW_QUERY_KEYS } from '@/features/map';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Dimensions } from 'react-native';
+import { Animated, Dimensions, Keyboard } from 'react-native';
 
 interface UseLocationModalAnimationProps {
   location: LocationModalLocation | null;
@@ -11,8 +11,32 @@ interface UseLocationModalAnimationProps {
 export function useLocationModalAnimation({ location }: UseLocationModalAnimationProps) {
   const slideAnim = useRef(new Animated.Value(300)).current;
   const horizontalSlideAnim = useRef(new Animated.Value(0)).current;
+  const backgroundOpacity = useRef(new Animated.Value(0)).current;
   const [isVisible, setIsVisible] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<LocationModalLocation | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShow = Keyboard.addListener('keyboardDidShow', () => {
+      Animated.timing(backgroundOpacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: false,
+      }).start();
+    });
+    const keyboardWillHide = Keyboard.addListener('keyboardWillHide', () => {
+      Animated.timing(backgroundOpacity, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      keyboardDidShow.remove();
+      keyboardWillHide.remove();
+    };
+  }, [backgroundOpacity]);
 
   useEffect(() => {
     if (location) {
@@ -37,7 +61,8 @@ export function useLocationModalAnimation({ location }: UseLocationModalAnimatio
     }
   }, [location, slideAnim, horizontalSlideAnim, isVisible]);
 
-  const openReviewForm = () => {
+  const handleOpenReviewForm = () => {
+    setShowReviewForm(true);
     const screenWidth = Dimensions.get('window').width;
     Animated.timing(horizontalSlideAnim, {
       toValue: -screenWidth,
@@ -46,21 +71,24 @@ export function useLocationModalAnimation({ location }: UseLocationModalAnimatio
     }).start();
   };
 
-  const closeReviewForm = () => {
+  const handleCloseReviewForm = () => {
     Animated.timing(horizontalSlideAnim, {
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
+    setTimeout(() => setShowReviewForm(false), 300);
   };
 
   return {
     slideAnim,
     horizontalSlideAnim,
+    backgroundOpacity,
     isVisible,
     currentLocation,
-    openReviewForm,
-    closeReviewForm,
+    showReviewForm,
+    handleOpenReviewForm,
+    handleCloseReviewForm,
   };
 }
 
@@ -68,6 +96,17 @@ interface UseLocationModalDataProps {
   currentLocation: LocationModalLocation | null;
   currentUserId: string | null;
 }
+
+const LABEL_TO_ACTIVITY: Record<string, string> = {
+  'hiking': 'Hiking',
+  'biking': 'Biking',
+  'camping': 'Camping',
+  'fishing': 'Fishing',
+  'climbing': 'Climbing',
+  'kayaking': 'Kayaking',
+  'skiing': 'Skiing',
+  'surfing': 'Surfing',
+};
 
 async function fetchActivityReview(activityId: string) {
   const { data, error } = await supabase
@@ -103,10 +142,16 @@ export function useLocationModalData({ currentLocation, currentUserId }: UseLoca
     return !!(currentUserId && currentActivity?.user_id === currentUserId);
   }, [currentUserId, currentActivity?.user_id]);
 
+  const activityLabel = useMemo(() => {
+    if (!currentActivity?.activity_type) return null;
+    return LABEL_TO_ACTIVITY[currentActivity.activity_type];
+  }, [currentActivity?.activity_type]);
+
   return {
     currentActivity,
     review,
     isOwnActivity,
+    activityLabel,
     refetchReview,
   };
 }
