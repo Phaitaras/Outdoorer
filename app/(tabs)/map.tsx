@@ -1,15 +1,15 @@
 import { CustomMarker, getActivityEmoji } from '@/components/map/customMarker';
 import { LocationModal } from '@/components/map/locationModal';
 import { ToggleButton } from '@/components/map/toggleButton';
-import { SearchIcon } from '@/components/ui/icon';
-import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { INITIAL_REGION } from '@/constants/mapMarkers';
+import LocationSearchBar from '@/components/plan/locationSearchBar';
 import { useFriends } from '@/features/friends';
 import { toMarker, useFriendActivities, useUserActivities, useUserPlans } from '@/features/map/hooks/useMapMarkers';
+import { useAppleMapsAutocomplete } from '@/features/plan';
+import { LOCATION_PICKER_CONSTANTS } from '@/features/plan/constants';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Keyboard, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
 import { Marker } from 'react-native-maps';
 
@@ -17,19 +17,20 @@ type FilterType = 'plans' | 'activities' | 'friends';
 
 export default function Map() {
   const { location } = useLocationContext();
+  const mapRef = useRef<MapView>(null);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>('plans');
+  const [showResults, setShowResults] = useState(false);
   const noMarkersAnim = useRef(new Animated.Value(0)).current;
 
-  const initialRegion = location
-    ? {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.2,
-      longitudeDelta: 0.2,
-    }
-    : INITIAL_REGION;
+  const {
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
+    results,
+    isLoading,
+  } = useAppleMapsAutocomplete(location ?? undefined);
 
   useEffect(() => {
     (async () => {
@@ -61,6 +62,29 @@ export default function Map() {
     setSelectedLocation(loc);
   };
 
+  const handleSelectAutocomplete = useCallback(
+    (result: (typeof results)[number]) => {
+      if (!result.location) return;
+
+      Keyboard.dismiss();
+      setShowResults(false);
+      setSearchQuery(result.displayLines[0] || '');
+
+      const newRegion = {
+        latitude: result.location.latitude,
+        longitude: result.location.longitude,
+        latitudeDelta: LOCATION_PICKER_CONSTANTS.ZOOM_DELTA,
+        longitudeDelta: LOCATION_PICKER_CONSTANTS.ZOOM_DELTA,
+      };
+
+      const map = (mapRef.current as any)?.getMapRef?.();
+      if (map) {
+        map.animateToRegion(newRegion, LOCATION_PICKER_CONSTANTS.ANIMATION_DURATION);
+      }
+    },
+    [results, setSearchQuery]
+  );
+
   useEffect(() => {
     if (markers.length === 0) {
       Animated.spring(noMarkersAnim, {
@@ -81,9 +105,28 @@ export default function Map() {
     }
   }, [markers.length, noMarkersAnim]);
 
+  if (!location) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background-0 mb-[20%]">
+        <ActivityIndicator size="large" color="#FFAE00" />
+        <Text className="mt-4 text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
+          Getting location...
+        </Text>
+      </View>
+    );
+  }
+
+  const initialRegion = {
+    latitude: location.latitude,
+    longitude: location.longitude,
+    latitudeDelta: 0.2,
+    longitudeDelta: 0.2,
+  };
+
   return (
     <View className="flex-1 mb-[20%]">
       <MapView
+        ref={mapRef}
         initialRegion={initialRegion}
         style={StyleSheet.absoluteFill}
         clusteringEnabled
@@ -138,16 +181,22 @@ export default function Map() {
         </Animated.View>
       )}
 
-      <Input
-        variant="rounded"
-        className="absolute top-4 left-[18%] right-[18%] bg-white rounded-full px-4 shadow-soft-2 flex-row items-center"
-      >
-        <InputSlot>
-          <InputIcon as={SearchIcon} />
-        </InputSlot>
-
-        <InputField placeholder="Search a location" />
-      </Input>
+      <LocationSearchBar
+        searchQuery={searchQuery}
+        onSearchChange={(text) => {
+          setSearchQuery(text);
+          setShowResults(true);
+        }}
+        onFocus={() => setShowResults(true)}
+        onClear={() => {
+          clearSearch();
+          setShowResults(false);
+        }}
+        results={results}
+        isLoading={isLoading}
+        showResults={showResults}
+        onSelectResult={handleSelectAutocomplete}
+      />
 
       <View className="absolute bottom-[2rem] left-[1rem] right-[1rem] items-center">
         <View className="bg-white rounded-full px-2 py-2 shadow-soft-2 flex-row gap-2">

@@ -30,17 +30,39 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
     return iconMap[iconName] || LucideIcons.Cloud;
   };
 
+  if (!weather.current) {
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">Current weather not available for future dates.</Text>
+        </View>
+      </View>
+    );
+  }
+
   const currentIcon = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
   const CurrentIcon = getIconComponent(currentIcon);
   const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
 
-  // Prefer API-provided next6 hours; fallback to slicing dayHours from current time
+  // use next 6hours from API, fallback to slicing dayHours from current time
   const hourlyData = useMemo(() => {
+    // start with current hour
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours().toString().padStart(2, '0');
+    const currentIconName = weather.current ? WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud' : 'cloud';
+    const CurrentIcon = getIconComponent(currentIconName);
+    const currentTemp = weather.current ? Math.round(weather.current.temperature_2m) : 0;
+
+    // Display as current hour
+    const result = [
+      { h: currentHour, Icon: CurrentIcon, t: currentTemp },
+    ];
+
+    // next 5 hours (skip any that match current hour)
     const source = (weather.next6 && weather.next6.length > 0)
       ? weather.next6
       : (weather.dayHours ?? []);
 
-    // If using dayHours, find next 6 based on current time
     const list = (source === weather.dayHours)
       ? (() => {
           const now = Date.now();
@@ -54,17 +76,26 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
           }
           return out;
         })()
-      : source;
+      : source.slice(0, 6);
 
-    return list.map((hour) => {
-      const time = new Date(hour.time);
-      const h = time.getHours().toString().padStart(2, '0');
-      const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
-      const Icon = getIconComponent(iconName);
-      const t = Math.round(hour.temperature_2m);
-      return { h, Icon, t };
-    });
-  }, [weather.next6, weather.dayHours, weather.units]);
+    const hourlyItems = list
+      .filter((hour: typeof weather.dayHours[0]) => {
+        const time = new Date(hour.time);
+        const h = time.getHours().toString().padStart(2, '0');
+        return h !== currentHour;
+      })
+      .slice(0, 5)
+      .map((hour: typeof weather.dayHours[0]) => {
+        const time = new Date(hour.time);
+        const h = time.getHours().toString().padStart(2, '0');
+        const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
+        const Icon = getIconComponent(iconName);
+        const t = Math.round(hour.temperature_2m);
+        return { h, Icon, t };
+      });
+
+    return [...result, ...hourlyItems];
+  }, [weather.current, weather.next6, weather.dayHours, weather.units, Math.floor(Date.now() / 3600000)]);
 
   return (
     <View>

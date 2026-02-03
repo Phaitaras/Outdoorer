@@ -11,7 +11,7 @@ interface ActivityWithReview extends Activity {
 async function fetchActivityById(activityId: number): Promise<ActivityWithReview | null> {
   const { data, error } = await supabase
     .from('activity')
-    .select('id, user_id, location_id, activity_type, start_time, end_time, created_at, location:location_id(id, name)')
+    .select('id, user_id, location_id, activity_type, start_time, end_time, created_at, location:location_id(id, name, latitude, longitude)')
     .eq('id', activityId)
     .single();
 
