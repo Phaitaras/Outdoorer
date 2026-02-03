@@ -89,9 +89,13 @@ export function useActivityDetail() {
 
   const { data: activityData } = useActivityById(activityIdParam);
 
+  // format date for API (YYYY-MM-DD)
+  const weatherDate = baseDate.toISOString().slice(0, 10);
+  
   const { data: weatherData } = useWeather(
-    location?.latitude ?? null,
-    location?.longitude ?? null
+    selectedLocation?.latitude ?? null,
+    selectedLocation?.longitude ?? null,
+    weatherDate
   );
 
   const { recommendedStart, recommendedEnd } = useMemo(() => {

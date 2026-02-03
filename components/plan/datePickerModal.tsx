@@ -7,11 +7,15 @@ export function DatePickerModal({
   value,
   onChange,
   onClose,
+  minimumDate,
+  maximumDate,
 }: {
   visible: boolean;
   value: Date;
   onChange: (event: DateTimePickerEvent, selected?: Date) => void;
   onClose: () => void;
+  minimumDate?: Date;
+  maximumDate?: Date;
 }) {
   if (!visible) return null;
 
@@ -27,6 +31,8 @@ export function DatePickerModal({
           value={value}
           onChange={onChange}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
         />
       </View>
     </View>

@@ -30,25 +30,58 @@ serve(async (req) => {
     let lat: number | null = null;
     let lon: number | null = null;
     let units: Units = "metric";
+    let targetDate: string | null = null;
 
     try {
       const body = await req.json();
       lat = typeof body.lat === "number" ? body.lat : Number(body.lat);
       lon = typeof body.lon === "number" ? body.lon : Number(body.lon);
       if (isUnits(body.units)) units = body.units;
+      if (typeof body.date === "string") targetDate = body.date;
     } catch {
       const url = new URL(req.url);
       const latStr = url.searchParams.get("lat");
       const lonStr = url.searchParams.get("lon");
       const unitsStr = url.searchParams.get("units");
+      const dateStr = url.searchParams.get("date");
 
       lat = latStr ? Number(latStr) : null;
       lon = lonStr ? Number(lonStr) : null;
       if (isUnits(unitsStr)) units = unitsStr;
+      if (dateStr) targetDate = dateStr;
     }
 
     if (lat === null || lon === null || Number.isNaN(lat) || Number.isNaN(lon)) {
       throw new Error("Missing or invalid lat/lon");
+    }
+
+    // Calculate forecast days needed based on target date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+    
+    let forecastDays = 2; // default for today + tomorrow
+    let requestedDateStr = todayStr; // default to today
+    
+    if (targetDate) {
+      // Validate and parse target date
+      const targetDateObj = new Date(targetDate + 'T00:00:00');
+      if (isNaN(targetDateObj.getTime())) {
+        throw new Error("Invalid date format. Use YYYY-MM-DD");
+      }
+      
+      requestedDateStr = targetDate;
+      const daysDiff = Math.ceil((targetDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff < 0) {
+        throw new Error("Cannot request weather for past dates");
+      }
+      
+      if (daysDiff > 15) {
+        throw new Error("Cannot request weather more than 15 days in advance");
+      }
+      
+      forecastDays = Math.max(2, daysDiff + 2); // ensure we get the target day + buffer
     }
 
     const unitParams =
@@ -65,16 +98,18 @@ serve(async (req) => {
       "precipitation",
     ].join(",");
 
-    const currentVars = hourlyVars;
+    // Only include current weather if requesting today's data
+    const currentVars = requestedDateStr === todayStr ? hourlyVars : "";
+    const currentParam = currentVars ? `&current=${encodeURIComponent(currentVars)}` : "";
 
     const apiUrl =
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${encodeURIComponent(String(lat))}` +
       `&longitude=${encodeURIComponent(String(lon))}` +
-      `&current=${encodeURIComponent(currentVars)}` +
+      currentParam +
       `&hourly=${encodeURIComponent(hourlyVars)}` +
       `&timezone=auto` +
-      `&forecast_days=2` +
+      `&forecast_days=${forecastDays}` +
       unitParams;
 
     const weatherRes = await fetch(apiUrl);
@@ -113,44 +148,62 @@ serve(async (req) => {
       precipitation: precip[i],
     }));
 
-    const todayDate = times[0]?.slice(0, 10); // YYYY-MM-DD
-    if (!todayDate) throw new Error("No hourly data returned from Open-Meteo");
+    if (allHours.length === 0) throw new Error("No hourly data returned from Open-Meteo");
 
-    const dayHours = allHours.filter((h) => h.time.startsWith(todayDate));
-
-    // build next 6 hours including current hour
-    const currentTimeStr: string | undefined = data.current?.time;
-    const nowEpoch = currentTimeStr ? new Date(currentTimeStr).getTime() : Date.now();
-
-    const next6: HourRow[] = [];
-    for (const h of allHours) {
-      const t = new Date(h.time).getTime();
-      // back shift to include the current hour block
-      if (t >= nowEpoch - 30 * 60 * 1000) {
-        next6.push(h);
-        if (next6.length >= 6) break;
-      }
+    // filter hours for the requested date
+    const dayHours = allHours.filter((h) => h.time.startsWith(requestedDateStr));
+    
+    if (dayHours.length === 0) {
+      throw new Error(`No weather data available for date: ${requestedDateStr}`);
     }
 
-    // fallback if current.time is missing to use Date.now()
-    if (next6.length < 6) {
-      const nowFallback = Date.now();
-      const tmp: HourRow[] = [];
+    // build next 6 hours
+    let next6: HourRow[] = [];
+    
+    if (requestedDateStr === todayStr) {
+      // for today start from current hour
+      const currentTimeStr: string | undefined = data.current?.time;
+      const nowEpoch = currentTimeStr ? new Date(currentTimeStr).getTime() : Date.now();
+      
       for (const h of allHours) {
         const t = new Date(h.time).getTime();
-        if (t >= nowFallback - 30 * 60 * 1000) {
-          tmp.push(h);
-          if (tmp.length >= 6) break;
+        // back shift to include the current hour block
+        if (t >= nowEpoch - 30 * 60 * 1000) {
+          next6.push(h);
+          if (next6.length >= 6) break;
         }
       }
-      if (tmp.length > next6.length) {
-        next6.splice(0, next6.length, ...tmp);
+
+      // fallback if current.time is missing to use Date.now()
+      if (next6.length < 6) {
+        const nowFallback = Date.now();
+        const tmp: HourRow[] = [];
+        for (const h of allHours) {
+          const t = new Date(h.time).getTime();
+          if (t >= nowFallback - 30 * 60 * 1000) {
+            tmp.push(h);
+            if (tmp.length >= 6) break;
+          }
+        }
+        if (tmp.length > next6.length) {
+          next6.splice(0, next6.length, ...tmp);
+        }
+      }
+    } else {
+      // for future dates start from 6 AM or first available hour
+      const targetDate6AM = `${requestedDateStr}T06:00`;
+      const startFromHour = allHours.find(h => h.time >= targetDate6AM) || dayHours[0];
+      
+      if (startFromHour) {
+        const startIndex = allHours.findIndex(h => h.time === startFromHour.time);
+        next6 = allHours.slice(startIndex, startIndex + 6);
       }
     }
 
     const result = {
       units,
-      current: {
+      date: requestedDateStr,
+      current: requestedDateStr === todayStr ? {
         time: data.current?.time,
         temperature_2m: data.current?.temperature_2m,
         weathercode: data.current?.weathercode,
@@ -158,10 +211,9 @@ serve(async (req) => {
         wind_direction_10m: data.current?.wind_direction_10m,
         wind_gusts_10m: data.current?.wind_gusts_10m,
         precipitation: data.current?.precipitation,
-      },
-      dayHours, // full 24h
-      next6,    // 6 hours for crossing to tommorrow
-      // hours: allHours,
+      } : null, // No current weather for future dates
+      dayHours, // full 24h for the requested date
+      next6,    // 6 hours starting from current time (today) or 6 AM (future dates)
       location: { lat, lon },
     };
 

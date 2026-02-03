@@ -75,6 +75,12 @@ export default function Plan() {
 
   const openDatePicker = () => setShowDatePicker(true);
 
+  // Calculate date range for picker (15 days max)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // set time to midnight
+  const maxDate = new Date(today);
+  maxDate.setDate(today.getDate() + 15);
+
 
 
   return (
@@ -181,6 +187,8 @@ export default function Plan() {
         value={date}
         onChange={handleDateChange}
         onClose={() => setShowDatePicker(false)}
+        minimumDate={today}
+        maximumDate={maxDate}
       />
 
       <TemperaturePickerModal

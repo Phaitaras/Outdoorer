@@ -1,4 +1,5 @@
 export * from './constants';
-export { useWeather, type WeatherData } from './hooks/useWeather';
+export { useWeather } from './hooks/useWeather';
+export type { HourWeather, WeatherData } from './types';
 export { getHourlyWeatherData } from './utils';
 

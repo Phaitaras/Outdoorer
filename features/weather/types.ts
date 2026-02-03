@@ -10,7 +10,8 @@ export type HourWeather = {
 
 export type WeatherData = {
   units: 'metric' | 'imperial';
-  current: HourWeather;
+  date: string; // YYYY-MM-DD format
+  current: HourWeather | null; // null for future dates
   dayHours: HourWeather[];
   next6: HourWeather[];
   hours?: HourWeather[];

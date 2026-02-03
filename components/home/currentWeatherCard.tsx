@@ -30,6 +30,16 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
     return iconMap[iconName] || LucideIcons.Cloud;
   };
 
+  if (!weather.current) {
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">Current weather not available for future dates.</Text>
+        </View>
+      </View>
+    );
+  }
+
   const currentIcon = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
   const CurrentIcon = getIconComponent(currentIcon);
   const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
@@ -39,9 +49,9 @@ export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
     // start with current hour
     const currentTime = new Date();
     const currentHour = currentTime.getHours().toString().padStart(2, '0');
-    const currentIconName = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
+    const currentIconName = weather.current ? WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud' : 'cloud';
     const CurrentIcon = getIconComponent(currentIconName);
-    const currentTemp = Math.round(weather.current.temperature_2m);
+    const currentTemp = weather.current ? Math.round(weather.current.temperature_2m) : 0;
 
     // Display as current hour
     const result = [
