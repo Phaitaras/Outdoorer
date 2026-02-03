@@ -3,7 +3,7 @@ import { StatusBadge } from '@/components/home/statusBadge';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 
 export function ActivityHeader({ 
@@ -25,10 +25,9 @@ export function ActivityHeader({
 }) {
   const router = useRouter();
 
-  const isActivityCompleted = useMemo(() => {
-    if (!activityId || !activityEndTime) return false;
-    return new Date(activityEndTime) < new Date();
-  }, [activityId, activityEndTime]);
+  const isSavedActivity = !!(activityId && activityEndTime);
+  const isActivityCompleted = isSavedActivity && new Date(activityEndTime!) < new Date();
+  const isSavedPlan = isSavedActivity && !isActivityCompleted;
 
   const handleButtonPress = () => {
     if (isActivityCompleted && reviewId) {
@@ -44,6 +43,18 @@ export function ActivityHeader({
   const buttonText = isActivityCompleted
     ? (hasReview ? 'Edit Review' : 'Leave Review')
     : 'Plan Activity';
+
+  // hide button if it's a plan
+  if (isSavedPlan) {
+    return (
+      <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row items-center gap-2">
+          <Text className="text-lg" style={{ fontFamily: 'Roboto-Medium' }}>{activity}</Text>
+          <StatusBadge value={status} />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-row items-center justify-between mb-3">
