@@ -1,6 +1,6 @@
-import { useAppleMapsToken } from '@/features/appleMaps';
+import { APPLE_MAPS_QUERY_KEYS, useAppleMapsToken } from '@/features/appleMaps';
 import { AutocompleteResult } from '@/features/plan/constants';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import debounce from 'lodash.debounce';
 import { useCallback, useState } from 'react';
 
@@ -52,11 +52,9 @@ async function fetchAutocomplete(
     }
   );
 
-  console.log('Apple Maps Autocomplete:', response);
-
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Apple Maps API error: ${error}`);
+    const errorText = await response.text();
+    throw new Error(`Apple Maps API error (${response.status}): ${errorText}`);
   }
 
   const data: AutocompleteResponse = await response.json();
@@ -65,6 +63,7 @@ async function fetchAutocomplete(
 
 export function useAppleMapsAutocomplete(userLocation?: { latitude: number; longitude: number }) {
   const { data: token } = useAppleMapsToken();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 
@@ -92,6 +91,17 @@ export function useAppleMapsAutocomplete(userLocation?: { latitude: number; long
     enabled: !!token && debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
+    retry: (failureCount, error) => {
+      // On 401, invalidate token and retry
+      if (error instanceof Error && error.message.includes('(401)')) {
+        if (failureCount === 0) {
+          queryClient.invalidateQueries({ queryKey: [APPLE_MAPS_QUERY_KEYS.TOKEN] });
+          return true;
+        }
+      }
+      return false;
+    },
+    retryDelay: 1000,
   });
 
   return {

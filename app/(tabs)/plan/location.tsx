@@ -1,5 +1,6 @@
+import BackButton from '@/components/plan/backButton';
 import CenterMarker from '@/components/plan/centerMarker';
-import LocationTopBar from '@/components/plan/locationTopBar';
+import LocationSearchBar from '@/components/plan/locationSearchBar';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useAppleMapsAutocomplete } from '@/features/plan';
@@ -10,8 +11,6 @@ import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TouchableWithoutFeedback,
   View
@@ -93,15 +92,18 @@ export default function LocationPicker() {
 
         <CenterMarker />
 
-        <LocationTopBar
-          onBackPress={() => router.back()}
+        <View className="absolute top-4 left-4 z-50">
+          <BackButton onPress={() => router.back()} />
+        </View>
+
+        <LocationSearchBar
           searchQuery={searchQuery}
           onSearchChange={(text) => {
             setSearchQuery(text);
             setShowResults(true);
           }}
-          onSearchFocus={() => setShowResults(true)}
-          onClearSearch={() => {
+          onFocus={() => setShowResults(true)}
+          onClear={() => {
             clearSearch();
             setShowResults(false);
           }}

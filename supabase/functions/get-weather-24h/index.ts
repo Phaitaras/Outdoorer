@@ -62,6 +62,7 @@ serve(async (req) => {
     
     let forecastDays = 2; // default for today + tomorrow
     let requestedDateStr = todayStr; // default to today
+    let isPastDate = false;
     
     if (targetDate) {
       // Validate and parse target date
@@ -74,14 +75,12 @@ serve(async (req) => {
       const daysDiff = Math.ceil((targetDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       
       if (daysDiff < 0) {
-        throw new Error("Cannot request weather for past dates");
-      }
-      
-      if (daysDiff > 15) {
+        isPastDate = true;
+      } else if (daysDiff > 15) {
         throw new Error("Cannot request weather more than 15 days in advance");
+      } else {
+        forecastDays = Math.max(2, daysDiff + 2); // ensure we get the target day + buffer
       }
-      
-      forecastDays = Math.max(2, daysDiff + 2); // ensure we get the target day + buffer
     }
 
     const unitParams =
@@ -102,15 +101,30 @@ serve(async (req) => {
     const currentVars = requestedDateStr === todayStr ? hourlyVars : "";
     const currentParam = currentVars ? `&current=${encodeURIComponent(currentVars)}` : "";
 
-    const apiUrl =
-      `https://api.open-meteo.com/v1/forecast` +
-      `?latitude=${encodeURIComponent(String(lat))}` +
-      `&longitude=${encodeURIComponent(String(lon))}` +
-      currentParam +
-      `&hourly=${encodeURIComponent(hourlyVars)}` +
-      `&timezone=auto` +
-      `&forecast_days=${forecastDays}` +
-      unitParams;
+    let apiUrl: string;
+    if (isPastDate) {
+      // for past dates, use start_date and end_date parameters
+      apiUrl =
+        `https://api.open-meteo.com/v1/forecast` +
+        `?latitude=${encodeURIComponent(String(lat))}` +
+        `&longitude=${encodeURIComponent(String(lon))}` +
+        `&start_date=${encodeURIComponent(requestedDateStr)}` +
+        `&end_date=${encodeURIComponent(requestedDateStr)}` +
+        `&hourly=${encodeURIComponent(hourlyVars)}` +
+        `&timezone=auto` +
+        unitParams;
+    } else {
+      // for today and future dates, use forecast_days
+      apiUrl =
+        `https://api.open-meteo.com/v1/forecast` +
+        `?latitude=${encodeURIComponent(String(lat))}` +
+        `&longitude=${encodeURIComponent(String(lon))}` +
+        currentParam +
+        `&hourly=${encodeURIComponent(hourlyVars)}` +
+        `&timezone=auto` +
+        `&forecast_days=${forecastDays}` +
+        unitParams;
+    }
 
     const weatherRes = await fetch(apiUrl);
     if (!weatherRes.ok) {
@@ -190,7 +204,7 @@ serve(async (req) => {
         }
       }
     } else {
-      // for future dates start from 6 AM or first available hour
+      // for past or future dates start from 6 AM or first available hour
       const targetDate6AM = `${requestedDateStr}T06:00`;
       const startFromHour = allHours.find(h => h.time >= targetDate6AM) || dayHours[0];
       
@@ -211,9 +225,9 @@ serve(async (req) => {
         wind_direction_10m: data.current?.wind_direction_10m,
         wind_gusts_10m: data.current?.wind_gusts_10m,
         precipitation: data.current?.precipitation,
-      } : null, // No current weather for future dates
+      } : null, // No current weather for past or future dates
       dayHours, // full 24h for the requested date
-      next6,    // 6 hours starting from current time (today) or 6 AM (future dates)
+      next6,    // 6 hours starting from current time (today) or 6 AM (past/future dates)
       location: { lat, lon },
     };
 

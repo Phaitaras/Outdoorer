@@ -26,7 +26,7 @@ export default function LocationSearchBar({
   onSelectResult,
 }: LocationSearchBarProps) {
   return (
-    <View className="flex-1">
+    <View className="absolute top-0 left-[12%] right-[12%] pt-4 px-4 flex-1">
       <View>
         {/* search input */}
         <Input

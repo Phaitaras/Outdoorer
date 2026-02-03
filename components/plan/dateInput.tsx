@@ -27,6 +27,9 @@ export function DateInput({
           {value}
         </Text>
       </Pressable>
+      <Text className="mt-1 text-xs text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
+        For best results, choose date in the nearby future.
+      </Text>
     </View>
   );
 }

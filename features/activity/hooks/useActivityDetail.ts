@@ -34,8 +34,16 @@ export function useActivityDetail() {
   const status = (params.status as Sentiment) ?? 'GOOD';
   const { location } = useLocationContext();
 
-  const baseDate = useMemo(() => (params.date ? new Date(params.date) : new Date()), [params.date]);
   const activityIdParam = params.activityId ? Number(params.activityId) : null;
+  const { data: activityData } = useActivityById(activityIdParam);
+
+  // use activity's actual date or use params.date or today
+  const baseDate = useMemo(() => {
+    if (activityData?.start_time) {
+      return new Date(activityData.start_time);
+    }
+    return params.date ? new Date(params.date) : new Date();
+  }, [activityData?.start_time, params.date]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showFigures, setShowFigures] = useState(false);
@@ -67,6 +75,19 @@ export function useActivityDetail() {
     return null;
   }, [params.lat, params.lng, params.locationName]);
 
+  const locationFromActivity = useMemo<SelectedLocation | null>(() => {
+    if (activityData?.location && 
+        typeof activityData.location.latitude === 'number' && 
+        typeof activityData.location.longitude === 'number') {
+      return {
+        latitude: activityData.location.latitude,
+        longitude: activityData.location.longitude,
+        name: activityData.location.name || `${activityData.location.latitude.toFixed(3)}, ${activityData.location.longitude.toFixed(3)}`,
+      };
+    }
+    return null;
+  }, [activityData?.location]);
+
   const fallbackLocation = useMemo<SelectedLocation | null>(() => {
     if (!location) return null;
     return {
@@ -76,7 +97,8 @@ export function useActivityDetail() {
     };
   }, [location]);
 
-  const selectedLocation = locationFromParams ?? fallbackLocation;
+  // Priority: activity's stored location > params location > current GPS location
+  const selectedLocation = locationFromActivity ?? locationFromParams ?? fallbackLocation;
   const { data: resolvedLocationName } = useReverseGeocode(
     selectedLocation
       ? { latitude: selectedLocation.latitude, longitude: selectedLocation.longitude }
@@ -87,7 +109,7 @@ export function useActivityDetail() {
 
   const activityType = ACTIVITY_TO_LABEL[activity] ?? 'generic_sports';
 
-  const { data: activityData } = useActivityById(activityIdParam);
+  // Use activity's actual location if available, otherwise use params or fallback
 
   // format date for API (YYYY-MM-DD)
   const weatherDate = baseDate.toISOString().slice(0, 10);
