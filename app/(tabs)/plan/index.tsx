@@ -1,9 +1,10 @@
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Platform, ScrollView, View } from 'react-native';
 
 import { ActivitySelect } from '@/components/plan/activitySelect';
 import { type RainValue } from '@/components/plan/constants';
+import { DateInput } from '@/components/plan/dateInput';
 import { DatePickerModal } from '@/components/plan/datePickerModal';
 import { LocationInput } from '@/components/plan/locationInput';
 import { TemperaturePickerModal } from '@/components/plan/temperaturePickerModal';
@@ -14,15 +15,20 @@ import {
 } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { usePlannerLocation } from '@/features/plan/hooks/usePlannerLocation';
 import { useLocationContext } from '@/providers/location';
 
 type TempPickerMode = 'min' | 'max' | null;
 
 export default function Plan() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ 
+    selectedLat?: string; 
+    selectedLng?: string; 
+    selectedAddress?: string;
+  }>();
+  
   const [activity, setActivity] = useState<string>('Running');
-  const [location, setLocation] = useState('Kelvinhaugh, Glasgow');
-  const [locationEdited, setLocationEdited] = useState(false);
   const { location: currentLocation } = useLocationContext();
 
   const [date, setDate] = useState<Date>(new Date());
@@ -39,10 +45,12 @@ export default function Plan() {
 
   const [windLevel, setWindLevel] = useState<number>(1); // 0 - 2
 
-  useEffect(() => {
-    if (!currentLocation || locationEdited) return;
-    setLocation(`${currentLocation.latitude.toFixed(3)}, ${currentLocation.longitude.toFixed(3)}`);
-  }, [currentLocation, locationEdited]);
+  const {
+    coordinates,
+    mapRegion,
+    locationLabel,
+    setLocationLabel,
+  } = usePlannerLocation(params, currentLocation ?? null);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-GB', {
@@ -77,29 +85,26 @@ export default function Plan() {
         <ActivitySelect value={activity} onChange={setActivity} />
 
         <LocationInput
-          value={location}
+          value={locationLabel}
           onChange={(val) => {
-            setLocationEdited(true);
-            setLocation(val);
+            setLocationLabel(val);
+          }}
+          coordinates={coordinates}
+          mapRegion={mapRegion}
+          onPress={() => {
+            router.push({
+              pathname: '/(tabs)/plan/location',
+              params: coordinates 
+                ? { initialLat: coordinates.latitude.toString(), initialLng: coordinates.longitude.toString() }
+                : undefined,
+            });
           }}
         />
 
-        <View className="mb-4">
-          <Text
-            className="mb-1 text-[14px] text-typography-700"
-            style={{ fontFamily: 'Roboto-Medium' }}
-          >
-            Date <Text className="text-error-500">*</Text>
-          </Text>
-          <Pressable
-            onPress={openDatePicker}
-            className="rounded-lg border border-outline-200 bg-white px-4 py-3"
-          >
-            <Text className="text-[14px] text-typography-900" style={{ fontFamily: 'Roboto-Regular' }}>
-              {formatDate(date)}
-            </Text>
-          </Pressable>
-        </View>
+        <DateInput
+          value={formatDate(date)}
+          onPress={openDatePicker}
+        />
 
         <View className="flex-row items-center justify-between mb-2 mt-2">
           <Text
