@@ -1,47 +1,7 @@
+import type { WeatherData } from '@/features/weather/types';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { WEATHER_QUERY_KEYS } from '../constants';
-
-export type WeatherData = {
-  units: 'metric' | 'imperial';
-  current: {
-    time: string;
-    temperature_2m: number;
-    weathercode: number;
-    wind_speed_10m: number;
-    wind_direction_10m: number;
-    wind_gusts_10m: number;
-    precipitation: number;
-  };
-  dayHours: Array<{
-    time: string;
-    temperature_2m: number;
-    weathercode: number;
-    wind_speed_10m: number;
-    wind_direction_10m: number;
-    wind_gusts_10m: number;
-    precipitation: number;
-  }>;
-  next6: Array<{
-    time: string;
-    temperature_2m: number;
-    weathercode: number;
-    wind_speed_10m: number;
-    wind_direction_10m: number;
-    wind_gusts_10m: number;
-    precipitation: number;
-  }>;
-  hours?: Array<{
-    time: string;
-    temperature_2m: number;
-    weathercode: number;
-    wind_speed_10m: number;
-    wind_direction_10m: number;
-    wind_gusts_10m: number;
-    precipitation: number;
-  }>;
-  location: { lat: number; lon: number };
-};
 
 async function fetchWeather24h(
   latitude: number,
