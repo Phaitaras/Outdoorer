@@ -6,7 +6,6 @@ import { Pressable, ScrollView, View } from 'react-native';
 export type ActivityCard = {
   id: string;
   activity: string;
-  emoji: string;
   date: string;
   timeWindow: string;
 };
@@ -52,7 +51,7 @@ export function ActivityCardsScroll({
             >
               <View className="flex-col">
                 <Text className="text-lg mb-2" style={{ fontFamily: 'Roboto-Medium' }}>
-                  {card.emoji ? `${card.emoji} ${card.activity}` : card.activity}
+                  {card.activity}
                 </Text>
 
                 <Text className="text-sm" style={{ fontFamily: 'Roboto-Regular' }}>

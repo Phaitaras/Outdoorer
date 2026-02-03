@@ -2,12 +2,14 @@ import { CustomMarker, getActivityEmoji } from '@/components/map/customMarker';
 import { LocationModal } from '@/components/map/locationModal';
 import { ToggleButton } from '@/components/map/toggleButton';
 import LocationSearchBar from '@/components/plan/locationSearchBar';
+import { LABEL_TO_ACTIVITY } from '@/constants/activities';
 import { useFriends } from '@/features/friends';
 import { toMarker, useFriendActivities, useUserActivities, useUserPlans } from '@/features/map/hooks/useMapMarkers';
 import { useAppleMapsAutocomplete } from '@/features/plan';
 import { LOCATION_PICKER_CONSTANTS } from '@/features/plan/constants';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Keyboard, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
@@ -23,6 +25,7 @@ export default function Map() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('plans');
   const [showResults, setShowResults] = useState(false);
   const noMarkersAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   const {
     searchQuery,
@@ -61,6 +64,22 @@ export default function Map() {
   const handleMarkerPress = (loc: any) => {
     setSelectedLocation(loc);
   };
+
+  const handleCheckForecast = useCallback(() => {
+    if (!selectedLocation?.activity) return;
+
+    const activityType = selectedLocation.activity.activity_type || 'generic_sports';
+    const activityLabel = LABEL_TO_ACTIVITY[activityType] || activityType;
+    const activityId = selectedLocation.activity.id;
+
+    router.push({
+      pathname: '/(tabs)/activity',
+      params: {
+        activity: activityLabel,
+        activityId: activityId.toString(),
+      },
+    });
+  }, [selectedLocation, router]);
 
   const handleSelectAutocomplete = useCallback(
     (result: (typeof results)[number]) => {
@@ -221,6 +240,7 @@ export default function Map() {
       <LocationModal
         location={selectedLocation}
         currentUserId={userId}
+        onPlanActivity={handleCheckForecast}
         onClose={() => setSelectedLocation(null)}
       />
     </View>
