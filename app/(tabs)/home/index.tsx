@@ -3,6 +3,7 @@ import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import { LocationHeader } from '@/components/home/locationHeader';
 import type { Sentiment } from '@/components/home/sentiment';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { useCurrentLocationGeocode } from '@/features/location';
 import { useProfile } from '@/features/profile';
 import { useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
@@ -15,6 +16,7 @@ export default function Home() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const { location } = useLocationContext();
+  const { localityName, isLoading: isGeocodingLocation } = useCurrentLocationGeocode(location);
   const { data: profile } = useProfile(userId);
   const { data: weatherData, isLoading: weatherLoading, error: weatherError } = useWeather(
     location?.latitude ?? null,
@@ -52,6 +54,8 @@ export default function Home() {
       .filter(Boolean) as ActivityItem[];
   }, [profile, router]);
 
+  const locationDisplayLabel = localityName || 'Locating...';
+
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[20%]">
       <ScrollView
@@ -59,7 +63,7 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
       >
         <LocationHeader
-          locationLabel="Glasgow, United Kingdom"
+          locationLabel={locationDisplayLabel}
         />
         <CurrentWeatherCard weather={weatherData} />
         <ActivityList items={items} />

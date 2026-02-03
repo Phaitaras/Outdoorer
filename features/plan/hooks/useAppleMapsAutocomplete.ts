@@ -52,6 +52,8 @@ async function fetchAutocomplete(
     }
   );
 
+  console.log('Apple Maps Autocomplete:', response);
+
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`Apple Maps API error: ${error}`);

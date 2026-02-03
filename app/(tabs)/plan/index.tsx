@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Platform, ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, View } from 'react-native';
 
 import { ActivitySelect } from '@/components/plan/activitySelect';
 import { type RainValue } from '@/components/plan/constants';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { useReverseGeocode } from '@/features/location';
 import { usePlannerLocation } from '@/features/plan/hooks/usePlannerLocation';
 import { useLocationContext } from '@/providers/location';
 
@@ -51,6 +52,14 @@ export default function Plan() {
     locationLabel,
     setLocationLabel,
   } = usePlannerLocation(params, currentLocation ?? null);
+
+  const { data: resolvedLocationName } = useReverseGeocode(coordinates ?? null);
+
+  useEffect(() => {
+    if (resolvedLocationName && resolvedLocationName !== locationLabel) {
+      setLocationLabel(resolvedLocationName);
+    }
+  }, [resolvedLocationName, locationLabel, setLocationLabel]);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-GB', {
@@ -138,10 +147,26 @@ export default function Plan() {
           action="primary"
           className="mt-4 mb-4 rounded-lg bg-tertiary-400"
           onPress={() => {
+            if (!coordinates) {
+              Alert.alert('Select a location', 'Please choose a location before planning.');
+              return;
+            }
             const dateIso = date.toISOString();
+            const latString = coordinates.latitude.toString();
+            const lngString = coordinates.longitude.toString();
+            const locationNameForActivity =
+              resolvedLocationName ||
+              locationLabel ||
+              `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`;
             router.push({
               pathname: '/(tabs)/activity',
-              params: { activity, openPlanModal: 'true', date: dateIso },
+              params: {
+                activity,
+                date: dateIso,
+                lat: latString,
+                lng: lngString,
+                locationName: locationNameForActivity,
+              },
             });
           }}
         >

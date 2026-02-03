@@ -52,7 +52,7 @@ async function fetchWeather24h(
   });
 
   if (error) throw error;
-  console.log('Weather data fetched:', data);
+  // console.log('Weather data fetched:', data);
   const shaped = {
     ...data,
     hours: data.dayHours,

@@ -79,10 +79,6 @@ export default function LocationPicker() {
       Keyboard.dismiss();
       setShowResults(false);
     }}>
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1"
-    >
       <View className="flex-1 mb-[20%]">
         <MapView
           ref={mapRef}
@@ -129,7 +125,6 @@ export default function LocationPicker() {
 
         )}
       </View>
-    </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }

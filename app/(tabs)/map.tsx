@@ -3,13 +3,12 @@ import { LocationModal } from '@/components/map/locationModal';
 import { ToggleButton } from '@/components/map/toggleButton';
 import { SearchIcon } from '@/components/ui/icon';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
-import { INITIAL_REGION } from '@/constants/mapMarkers';
 import { useFriends } from '@/features/friends';
 import { toMarker, useFriendActivities, useUserActivities, useUserPlans } from '@/features/map/hooks/useMapMarkers';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
 import { Marker } from 'react-native-maps';
 
@@ -21,15 +20,6 @@ export default function Map() {
   const [userId, setUserId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>('plans');
   const noMarkersAnim = useRef(new Animated.Value(0)).current;
-
-  const initialRegion = location
-    ? {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      latitudeDelta: 0.2,
-      longitudeDelta: 0.2,
-    }
-    : INITIAL_REGION;
 
   useEffect(() => {
     (async () => {
@@ -80,6 +70,24 @@ export default function Map() {
       return () => clearTimeout(timer);
     }
   }, [markers.length, noMarkersAnim]);
+
+  if (!location) {
+    return (
+      <View className="flex-1 items-center justify-center bg-background-0 mb-[20%]">
+        <ActivityIndicator size="large" color="#FFAE00" />
+        <Text className="mt-4 text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
+          Getting location...
+        </Text>
+      </View>
+    );
+  }
+
+  const initialRegion = {
+    latitude: location.latitude,
+    longitude: location.longitude,
+    latitudeDelta: 0.2,
+    longitudeDelta: 0.2,
+  };
 
   return (
     <View className="flex-1 mb-[20%]">

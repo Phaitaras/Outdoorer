@@ -1,21 +1,43 @@
+import { PROFILE_QUERY_KEYS } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface CreateActivityParams {
   userId: string;
   activityType: string;
-  locationId: number | null;
+  location: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
   startTime: Date;
   endTime: Date;
+}
+
+async function createLocationId(location: CreateActivityParams['location']) {
+  const { data, error } = await supabase
+    .from('location')
+    .insert({
+      name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    })
+    .select('id')
+    .single();
+
+  if (error) throw error;
+  return data.id as number;
 }
 
 async function createActivity({
   userId,
   activityType,
-  locationId,
+  location,
   startTime,
   endTime,
 }: CreateActivityParams): Promise<void> {
+  const locationId = await createLocationId(location);
+
   const { error } = await supabase.from('activity').insert({
     user_id: userId,
     activity_type: activityType,
