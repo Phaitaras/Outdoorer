@@ -2,7 +2,7 @@ import { LocationPickerScreen } from '@/components/common/locationPickerScreen';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 
-export default function PlanLocationPicker() {
+export default function HomeLocationPicker() {
   const router = useRouter();
   const params = useLocalSearchParams<{ initialLat?: string; initialLng?: string }>();
 
@@ -12,7 +12,7 @@ export default function PlanLocationPicker() {
       initialLng={params.initialLng}
       onConfirm={(latitude, longitude, address) => {
         router.replace({
-          pathname: '/(tabs)/plan',
+          pathname: '/(tabs)/home',
           params: {
             selectedLat: latitude.toString(),
             selectedLng: longitude.toString(),

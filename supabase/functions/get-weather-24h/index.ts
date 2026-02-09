@@ -97,34 +97,34 @@ serve(async (req) => {
       "precipitation",
     ].join(",");
 
-    // Only include current weather if requesting today's data
+    // only include current weather if requesting today's data
     const currentVars = requestedDateStr === todayStr ? hourlyVars : "";
-    const currentParam = currentVars ? `&current=${encodeURIComponent(currentVars)}` : "";
+    const currentParam = currentVars ? `&current=${currentVars}` : "";
 
     let apiUrl: string;
     if (isPastDate) {
       // for past dates, use start_date and end_date parameters
       apiUrl =
         `https://api.open-meteo.com/v1/forecast` +
-        `?latitude=${encodeURIComponent(String(lat))}` +
-        `&longitude=${encodeURIComponent(String(lon))}` +
-        `&start_date=${encodeURIComponent(requestedDateStr)}` +
-        `&end_date=${encodeURIComponent(requestedDateStr)}` +
-        `&hourly=${encodeURIComponent(hourlyVars)}` +
-        `&timezone=auto` +
+        `?latitude=${lat}` +
+        `&longitude=${lon}` +
+        `&start_date=${requestedDateStr}` +
+        `&end_date=${requestedDateStr}` +
+        `&hourly=${hourlyVars}` +
         unitParams;
     } else {
       // for today and future dates, use forecast_days
       apiUrl =
         `https://api.open-meteo.com/v1/forecast` +
-        `?latitude=${encodeURIComponent(String(lat))}` +
-        `&longitude=${encodeURIComponent(String(lon))}` +
+        `?latitude=${lat}` +
+        `&longitude=${lon}` +
         currentParam +
-        `&hourly=${encodeURIComponent(hourlyVars)}` +
-        `&timezone=auto` +
+        `&hourly=${hourlyVars}` +
         `&forecast_days=${forecastDays}` +
         unitParams;
     }
+
+    // console.log('url:', apiUrl);
 
     const weatherRes = await fetch(apiUrl);
     if (!weatherRes.ok) {
@@ -235,7 +235,14 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: String(error?.message ?? error) }), {
+    const errorMessage = String(error?.message ?? error);
+    console.error('Function error:', errorMessage);
+    console.error('Error details:', error);
+    
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      timestamp: new Date().toISOString(),
+    }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

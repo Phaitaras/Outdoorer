@@ -1,4 +1,3 @@
-import { SearchBar } from '@/components/common/searchBar';
 import { Button, ButtonIcon } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useRouter } from 'expo-router';
@@ -23,8 +22,8 @@ export function LocationHeader({
 
   return (
     <View className={className ?? 'rounded-2xl mb-5'}>
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center justify-between gap-3">
+        <View className="flex-row items-center gap-2 flex-1">
           {displayArrow ? (
             <Pressable onPress={() => router.back()}>
               <ArrowLeftIcon size={18} />
@@ -33,20 +32,19 @@ export function LocationHeader({
             <MapPin size={18} />
           )}
 
-          <Text className="text-[20px]" style={{ fontFamily: 'Roboto-Medium' }}>
+          <Text 
+            className="text-[20px] flex-1" 
+            style={{ fontFamily: 'Roboto-Medium' }}
+            numberOfLines={2}
+          >
             {locationLabel}
           </Text>
         </View>
-        <Button variant="solid" size="xs" className="px-2 rounded-md" onPress={onFiltersPress}>
-          <ButtonIcon as={SlidersHorizontal} />
-        </Button>
-      </View>
-      <View className="mt-3">
-        <SearchBar
-          placeholder="Specify a destination"
-          onSearch={onSearchPress}
-          size="sm"
-        />
+        {onFiltersPress && (
+          <Button variant="solid" size="xs" className="px-2 rounded-md" onPress={onFiltersPress}>
+            <ButtonIcon as={SlidersHorizontal} />
+          </Button>
+        )}
       </View>
     </View>
   );

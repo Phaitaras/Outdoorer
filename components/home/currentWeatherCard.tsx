@@ -5,8 +5,29 @@ import * as LucideIcons from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 
-export function CurrentWeatherCard({ weather }: { weather?: WeatherData }) {
-  if (!weather) {
+export function CurrentWeatherCard({ 
+  weather, 
+  isLoading, 
+  error 
+}: { 
+  weather?: WeatherData;
+  isLoading?: boolean;
+  error?: Error | null;
+}) {
+  if (error) {
+    console.error('Weather card error:', error);
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">
+            Error: {error.message?.substring(0, 100) || 'Unknown error'}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (isLoading || !weather) {
     return (
       <View>
         <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">

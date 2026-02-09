@@ -19,7 +19,7 @@ export function LocationInput({
 }) {
   if (!mapRegion) {
     return (
-      <View className="mb-5">
+      <View className="mb-2">
         <Text
           className="mb-1 text-[14px] text-typography-700"
           style={{ fontFamily: 'Roboto-Medium' }}
@@ -36,7 +36,7 @@ export function LocationInput({
   }
 
   return (
-    <View className="mb-5">
+    <View className="mb-2">
       <Text
         className="mb-1 text-[14px] text-typography-700"
         style={{ fontFamily: 'Roboto-Medium' }}

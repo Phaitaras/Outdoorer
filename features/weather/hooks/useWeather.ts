@@ -17,11 +17,28 @@ async function fetchWeather24h(
     body.date = date;
   }
 
+  console.log('Fetching weather for:', { lat: latitude, lon: longitude, date });
+
   const { data, error } = await supabase.functions.invoke('get-weather-24h', {
     body,
   });
 
-  if (error) throw error;
+  if (error) {
+    // Try to parse error response if it's JSON
+    let errorMessage = error.message;
+    if (typeof error === 'object' && error.context?.status === 400) {
+      // The error might be in the response body
+      errorMessage = `Weather API Error (${error.context.status}): ${error.message}`;
+    }
+    console.error('Weather fetch error:', errorMessage, error);
+    throw new Error(errorMessage);
+  }
+
+  if (!data) {
+    throw new Error('No data returned from weather API');
+  }
+
+  console.log('Weather data fetched successfully for:', { lat: latitude, lon: longitude });
   // console.log('Weather data fetched:', data);
   const shaped = {
     ...data,

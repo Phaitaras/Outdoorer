@@ -12,7 +12,7 @@ export function DateInput({
   onPress: () => void;
 }) {
   return (
-    <View className="mb-4">
+    <View className="mt-2 mb-4">
       <Text
         className="mb-1 text-[14px] text-typography-700"
         style={{ fontFamily: 'Roboto-Medium' }}

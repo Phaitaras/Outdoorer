@@ -51,6 +51,7 @@ export function usePlannerLocation(
 
   return {
     coordinates,
+    setCoordinates,
     mapRegion,
     locationLabel,
     setLocationLabel,
