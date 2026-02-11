@@ -1,17 +1,10 @@
+import { ACTIVITIES as ACTIVITY_LABELS } from '@/constants/activities';
 import { Angry, Frown, Laugh, Meh, Smile } from 'lucide-react-native';
 
-export const ACTIVITIES = [
-  { label: 'Running', value: 'Running' },
-  { label: 'Cycling', value: 'Cycling' },
-  { label: 'Hiking', value: 'Hiking' },
-  { label: 'Rock Climbing', value: 'Rock Climbing' },
-  { label: 'Kayaking', value: 'Kayaking' },
-  { label: 'Sailing', value: 'Sailing' },
-  { label: 'Surfing', value: 'Surfing' },
-  { label: 'Kitesurfing', value: 'Kitesurfing' },
-  { label: 'Windsurfing', value: 'Windsurfing' },
-  { label: 'Generic Sport', value: 'Generic Sport' },
-];
+export const ACTIVITIES = ACTIVITY_LABELS.map((label) => ({
+  label,
+  value: label,
+}));
 
 export { SENTIMENT_COLORS } from '@/constants/sentiment';
 

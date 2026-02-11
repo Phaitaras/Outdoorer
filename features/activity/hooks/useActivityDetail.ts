@@ -1,11 +1,11 @@
-import { GRAPH_DATA } from '@/components/home/activity/constants';
 import type { Sentiment } from '@/components/home/sentiment';
 import { ACTIVITY_TO_LABEL } from '@/constants/activities';
 import { useReverseGeocode } from '@/features/location';
+import { computeHourlySentiments, type ActivityKey, type FilterState } from '@/features/scoring';
 import { getHourlyWeatherData, useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
-import { findRecommendedWindow } from '@/utils/activity';
+import { findRecommendedWindow, type HourBar } from '@/utils/activity';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
@@ -20,7 +20,15 @@ export type ActivityParams = {
   lat?: string;
   lng?: string;
   locationName?: string;
+  useWeatherPrefs?: string;
+  rainTolerance?: string;
+  tempMin?: string;
+  tempMax?: string;
+  windLevel?: string;
 };
+
+// Water sports that need marine data
+const WATER_SPORTS: ActivityKey[] = ['kayaking', 'sailing', 'surfing', 'kitesurfing', 'windsurfing'];
 
 interface SelectedLocation {
   latitude: number;
@@ -107,47 +115,91 @@ export function useActivityDetail() {
 
   const locationLabel = resolvedLocationName || selectedLocation?.name || 'Unknown location';
 
-  const activityType = ACTIVITY_TO_LABEL[activity] ?? 'generic_sports';
+  const activityTypeMap: Record<string, ActivityKey> = {
+    'Running': 'running',
+    'Cycling': 'cycling',
+    'Hiking': 'hiking',
+    'Rock Climbing': 'rock_climbing',
+    'Kayaking': 'kayaking',
+    'Sailing': 'sailing',
+    'Surfing': 'surfing',
+    'Kitesurfing': 'kitesurfing',
+    'Windsurfing': 'windsurfing',
+    'Generic Sport': 'generic_sports',
+  };
+  
+  const activityType = (activityTypeMap[activity] || (ACTIVITY_TO_LABEL[activity] ?? 'generic_sports')) as ActivityKey;
 
-  // Use activity's actual location if available, otherwise use params or fallback
+  const needsMarine = WATER_SPORTS.includes(activityType as ActivityKey);
 
-  // format date for API (YYYY-MM-DD)
   const weatherDate = baseDate.toISOString().slice(0, 10);
   
   const { data: weatherData } = useWeather(
     selectedLocation?.latitude ?? null,
     selectedLocation?.longitude ?? null,
-    weatherDate
+    weatherDate,
+    needsMarine
   );
 
-  const { recommendedStart, recommendedEnd } = useMemo(() => {
-    const window = findRecommendedWindow();
-    return { recommendedStart: window.start, recommendedEnd: window.end };
-  }, []);
+  // Parse filter params from URL
+  const filters = useMemo<FilterState | null>(() => {
+    if (params.useWeatherPrefs !== 'true') return null;
+    return {
+      useWeatherPrefs: true,
+      rainTolerance: (params.rainTolerance as any) ?? 'light',
+      tempMin: params.tempMin ? parseInt(params.tempMin) : 8,
+      tempMax: params.tempMax ? parseInt(params.tempMax) : 28,
+      windLevel: params.windLevel ? parseInt(params.windLevel) : 1,
+    };
+  }, [params.useWeatherPrefs, params.rainTolerance, params.tempMin, params.tempMax, params.windLevel]);
 
-  const selectedBar = useMemo(() => GRAPH_DATA[selectedIndex] ?? GRAPH_DATA[0], [selectedIndex]);
+  // Compute dynamic graph data from weather
+  const graphData = useMemo<HourBar[]>(() => {
+    if (!weatherData?.dayHours) return [];
+    const hourlySentiments = computeHourlySentiments(
+      weatherData.dayHours,
+      activityType as ActivityKey,
+      filters
+    );
+    return hourlySentiments.map((h) => ({
+      hour: h.hour,
+      sentiment: h.sentiment,
+      score: h.score,
+    }));
+  }, [weatherData, activityType, filters]);
+
+  const { recommendedStart, recommendedEnd } = useMemo(() => {
+    if (graphData.length === 0) return { recommendedStart: 0, recommendedEnd: 0 };
+    const window = findRecommendedWindow(graphData);
+    return { recommendedStart: window.start, recommendedEnd: window.end };
+  }, [graphData]);
+
+  const selectedBar = useMemo(() => graphData[selectedIndex] ?? graphData[0] ?? { hour: '00:00', sentiment: 'POOR' as Sentiment }, [graphData, selectedIndex]);
 
   const hourlyWeatherData = useMemo(() =>
     getHourlyWeatherData(selectedBar.hour, weatherData ?? null),
   [selectedBar.hour, weatherData]
   );
 
-  const recommendedLabel = `${GRAPH_DATA[recommendedStart].hour} - ${GRAPH_DATA[recommendedEnd].hour}`;
+  const recommendedLabel = graphData.length > 0 
+    ? `${graphData[recommendedStart].hour} - ${graphData[recommendedEnd].hour}` 
+    : 'N/A';
 
   const dateLabel = useMemo(() =>
     baseDate.toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' }),
   [baseDate]);
 
   useEffect(() => {
-    const [rsHour, rsMinute] = GRAPH_DATA[recommendedStart].hour.split(':').map(Number);
-    const [reHour, reMinute] = GRAPH_DATA[recommendedEnd].hour.split(':').map(Number);
+    if (graphData.length === 0) return;
+    const [rsHour, rsMinute] = graphData[recommendedStart].hour.split(':').map(Number);
+    const [reHour, reMinute] = graphData[recommendedEnd].hour.split(':').map(Number);
     const start = new Date(baseDate);
     start.setHours(rsHour, rsMinute, 0, 0);
     const end = new Date(baseDate);
     end.setHours(reHour, reMinute, 0, 0);
     setPlanStart(start);
     setPlanEnd(end);
-  }, [baseDate, recommendedStart, recommendedEnd]);
+  }, [baseDate, recommendedStart, recommendedEnd, graphData]);
 
   const createActivityMutation = useCreateActivity();
 
@@ -204,5 +256,6 @@ export function useActivityDetail() {
     locationLabel,
     dateLabel,
     handleCreateActivity,
+    graphData,
   };
 }

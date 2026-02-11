@@ -33,6 +33,7 @@ export default function ActivityDetailScreen() {
     locationLabel,
     dateLabel,
     handleCreateActivity,
+    graphData,
   } = useActivityDetail();
 
   return (
@@ -56,7 +57,13 @@ export default function ActivityDetailScreen() {
         <Text className="text-xs text-typography-600 mb-1 text-center" style={{fontFamily: 'Roboto-Regular'}}>
           Recommended
         </Text>
-        <ActivityGraph selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} recommendedStart={recommendedStart} recommendedEnd={recommendedEnd} />
+        <ActivityGraph 
+          data={graphData} 
+          selectedIndex={selectedIndex} 
+          setSelectedIndex={setSelectedIndex} 
+          recommendedStart={recommendedStart} 
+          recommendedEnd={recommendedEnd} 
+        />
 
         <Pressable
           onPress={() => setShowFigures(true)}
@@ -72,7 +79,7 @@ export default function ActivityDetailScreen() {
           windowLabel={recommendedLabel}
         />
 
-        <HourlyTable selectedHour={selectedBar.hour} rows={hourlyWeatherData} />
+        <HourlyTable selectedHour={selectedBar.hour} sentiment={selectedBar.sentiment} score={selectedBar.score} rows={hourlyWeatherData} />
       </ScrollView>
 
       <FigureModal visible={showFigures} onClose={() => setShowFigures(false)} />
