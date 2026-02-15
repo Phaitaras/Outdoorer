@@ -1,6 +1,8 @@
 import { Text } from '@/components/ui/text';
 import { WEATHER_CODE_TO_DESCRIPTION, WEATHER_CODE_TO_ICON } from '@/constants/weather';
-import { type WeatherData } from '@/features/weather';
+import type { MetricSystem } from '@/features/profile/types';
+import type { WeatherData } from '@/features/weather';
+import { celsiusToFahrenheit, formatTemp } from '@/utils/units';
 import * as LucideIcons from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
@@ -8,11 +10,13 @@ import { View } from 'react-native';
 export function CurrentWeatherCard({ 
   weather, 
   isLoading, 
-  error 
+  error,
+  metricSystem = 'metric'
 }: { 
   weather?: WeatherData;
   isLoading?: boolean;
   error?: Error | null;
+  metricSystem?: MetricSystem;
 }) {
   if (error) {
     console.error('Weather card error:', error);
@@ -72,7 +76,8 @@ export function CurrentWeatherCard({
     const currentHour = currentTime.getHours().toString().padStart(2, '0');
     const currentIconName = weather.current ? WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud' : 'cloud';
     const CurrentIcon = getIconComponent(currentIconName);
-    const currentTemp = weather.current ? Math.round(weather.current.temperature_2m) : 0;
+    const currentTempCelsius = weather.current ? weather.current.temperature_2m : 0;
+    const currentTemp = metricSystem === 'imperial' ? Math.round(celsiusToFahrenheit(currentTempCelsius)) : Math.round(currentTempCelsius);
 
     // Display as current hour
     const result = [
@@ -111,12 +116,12 @@ export function CurrentWeatherCard({
         const h = time.getHours().toString().padStart(2, '0');
         const iconName = WEATHER_CODE_TO_ICON[hour.weathercode] || 'cloud';
         const Icon = getIconComponent(iconName);
-        const t = Math.round(hour.temperature_2m);
+        const t = metricSystem === 'imperial' ? Math.round(celsiusToFahrenheit(hour.temperature_2m)) : Math.round(hour.temperature_2m);
         return { h, Icon, t };
       });
 
     return [...result, ...hourlyItems];
-  }, [weather.current, weather.next6, weather.dayHours, weather.units, Math.floor(Date.now() / 3600000)]);
+  }, [weather.current, weather.next6, weather.dayHours, weather.units, metricSystem, Math.floor(Date.now() / 3600000)]);
 
   return (
     <View>
@@ -130,7 +135,7 @@ export function CurrentWeatherCard({
             </View>
           </View>
           <Text className="text-4xl" style={{fontFamily: 'Roboto-Medium'}}>
-            {Math.round(weather.current.temperature_2m)}{weather.units === 'imperial' ? '°f' : '°c'}
+            {formatTemp(weather.current.temperature_2m, metricSystem)}
           </Text>
         </View>
 

@@ -115,7 +115,7 @@ export default function Home() {
           next6,
           windowText,
           onPress: () => {
-            const params: any = { activity: title, status };
+            const params: any = { activity: title, status, metricSystem: profile?.metric ?? 'metric' };
             if (coordinates && location && (
               Math.abs(coordinates.latitude - location.latitude) > 0.001 ||
               Math.abs(coordinates.longitude - location.longitude) > 0.001
@@ -200,8 +200,9 @@ export default function Home() {
             setLocationLabel(filters.locationLabel);
             setShowFilters(false);
           }}
+          metricSystem={profile?.metric ?? 'metric'}
         />
-        <CurrentWeatherCard weather={weatherData} isLoading={weatherLoading} error={weatherError} />
+        <CurrentWeatherCard weather={weatherData} isLoading={weatherLoading} error={weatherError} metricSystem={profile?.metric ?? 'metric'} />
         <ActivityList items={items} />
       </ScrollView>
       
@@ -210,6 +211,7 @@ export default function Home() {
         selectedValue={tempPicker === 'min' ? tempMin : tempMax}
         onValueChange={handleTempValueChange}
         onClose={() => setTempPicker(null)}
+        metricSystem={profile?.metric ?? 'metric'}
       />
     </View>
   );

@@ -1,6 +1,7 @@
 import type { Sentiment } from '@/components/home/sentiment';
 import { ACTIVITY_TO_LABEL } from '@/constants/activities';
 import { useReverseGeocode } from '@/features/location';
+import type { MetricSystem } from '@/features/profile/types';
 import { computeHourlySentiments, type ActivityKey, type FilterState } from '@/features/scoring';
 import { getHourlyWeatherData, useWeather } from '@/features/weather';
 import { supabase } from '@/lib/supabase';
@@ -25,6 +26,7 @@ export type ActivityParams = {
   tempMin?: string;
   tempMax?: string;
   windLevel?: string;
+  metricSystem?: MetricSystem;
 };
 
 // Water sports that need marine data
@@ -40,6 +42,7 @@ export function useActivityDetail() {
   const params = useLocalSearchParams<ActivityParams>();
   const activity = params.activity ?? 'Running';
   const status = (params.status as Sentiment) ?? 'GOOD';
+  const metricSystem = (params.metricSystem as MetricSystem) ?? 'metric';
   const { location } = useLocationContext();
 
   const activityIdParam = params.activityId ? Number(params.activityId) : null;
@@ -177,8 +180,8 @@ export function useActivityDetail() {
   const selectedBar = useMemo(() => graphData[selectedIndex] ?? graphData[0] ?? { hour: '00:00', sentiment: 'POOR' as Sentiment }, [graphData, selectedIndex]);
 
   const hourlyWeatherData = useMemo(() =>
-    getHourlyWeatherData(selectedBar.hour, weatherData ?? null),
-  [selectedBar.hour, weatherData]
+    getHourlyWeatherData(selectedBar.hour, weatherData ?? null, metricSystem),
+  [selectedBar.hour, weatherData, metricSystem]
   );
 
   const recommendedLabel = graphData.length > 0 
@@ -257,5 +260,6 @@ export function useActivityDetail() {
     dateLabel,
     handleCreateActivity,
     graphData,
+    metricSystem,
   };
 }

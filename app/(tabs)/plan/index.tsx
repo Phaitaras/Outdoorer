@@ -10,13 +10,15 @@ import { LocationInput } from '@/components/plan/locationInput';
 import { TemperaturePickerModal } from '@/components/plan/temperaturePickerModal';
 import { WeatherPreferencesCard } from '@/components/plan/weatherPreferencesCard';
 import {
-    Button,
-    ButtonText,
+  Button,
+  ButtonText,
 } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { useCurrentUserId } from '@/features/home';
 import { useReverseGeocode } from '@/features/location';
 import { usePlannerLocation } from '@/features/plan/hooks/usePlannerLocation';
+import { useProfile } from '@/features/profile';
 import { useLocationContext } from '@/providers/location';
 
 type TempPickerMode = 'min' | 'max' | null;
@@ -28,6 +30,9 @@ export default function Plan() {
     selectedLng?: string; 
     selectedAddress?: string;
   }>();
+  
+  const userId = useCurrentUserId();
+  const { data: profile } = useProfile(userId);
   
   const [activity, setActivity] = useState<string>('🏃‍♂️  Running');
   const { location: currentLocation } = useLocationContext();
@@ -144,6 +149,7 @@ export default function Plan() {
             onTempMaxPress={() => setTempPicker('max')}
             windLevel={windLevel}
             onWindLevelChange={setWindLevel}
+            metricSystem={profile?.metric ?? 'metric'}
           />
         )}
 
@@ -216,6 +222,7 @@ export default function Plan() {
           }
         }}
         onClose={() => setTempPicker(null)}
+        metricSystem={profile?.metric ?? 'metric'}
       />
     </View>
   );

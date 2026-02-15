@@ -1,20 +1,34 @@
+import type { MetricSystem } from '@/features/profile/types';
+import { celsiusToFahrenheit, fahrenheitToCelsius, formatTemp, getTempValues } from '@/utils/units';
 import { Picker } from '@react-native-picker/picker';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { TEMP_VALUES } from './constants';
 
 export function TemperaturePickerModal({
   visible,
   selectedValue,
   onValueChange,
   onClose,
+  metricSystem = 'metric',
 }: {
   visible: boolean;
   selectedValue: number;
   onValueChange: (value: number) => void;
   onClose: () => void;
+  metricSystem?: MetricSystem;
 }) {
   if (!visible) return null;
+
+  const tempValues = getTempValues(metricSystem);
+  
+  // convert selectedValue from celsius to display format
+  const displayValue = metricSystem === 'imperial' ? celsiusToFahrenheit(selectedValue) : selectedValue;
+
+  const handlePickerChange = (value: number) => {
+    // convert selected value back to celsius for internal storage
+    const celsiusValue = metricSystem === 'imperial' ? fahrenheitToCelsius(value) : value;
+    onValueChange(Math.round(celsiusValue));
+  };
 
   return (
     <View className="absolute inset-0 justify-end">
@@ -24,11 +38,11 @@ export function TemperaturePickerModal({
       />
       <View className="bg-white p-4">
         <Picker
-          selectedValue={selectedValue}
-          onValueChange={onValueChange}
+          selectedValue={displayValue}
+          onValueChange={handlePickerChange}
         >
-          {TEMP_VALUES.map((t) => (
-            <Picker.Item key={t} label={`${t}°C`} value={t} />
+          {tempValues.map((t) => (
+            <Picker.Item key={t} label={formatTemp(metricSystem === 'imperial' ? fahrenheitToCelsius(t) : t, metricSystem)} value={t} />
           ))}
         </Picker>
       </View>

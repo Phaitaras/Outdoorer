@@ -1,9 +1,12 @@
 import { WEATHER_CODE_TO_DESCRIPTION } from '@/constants/weather';
+import type { MetricSystem } from '@/features/profile/types';
+import { formatPrecip, formatSpeed, formatTemp } from '@/utils/units';
 import type { WeatherData } from './hooks/useWeather';
 
 export function getHourlyWeatherData(
   selectedHour: string,
-  weatherData: WeatherData | null
+  weatherData: WeatherData | null,
+  metricSystem: MetricSystem = 'metric'
 ): [string, string, string, string][] {
   if (!weatherData?.hours || weatherData.hours.length === 0) return [];
 
@@ -16,14 +19,12 @@ export function getHourlyWeatherData(
   if (hourIndex === -1) return [];
 
   const hour = weatherData.hours[hourIndex];
-  const tempUnit = weatherData.units === 'imperial' ? '°F' : '°C';
-  const speedUnit = weatherData.units === 'imperial' ? 'mph' : 'km/h';
   const weatherDescription = WEATHER_CODE_TO_DESCRIPTION[hour.weathercode] || 'Unknown';
 
   return [
-    ['Temperature', `${Math.round(hour.temperature_2m)}${tempUnit}`, 'Wind Speed', `${Math.round(hour.wind_speed_10m)} ${speedUnit}`],
+    ['Temperature', formatTemp(hour.temperature_2m, metricSystem), 'Wind Speed', formatSpeed(hour.wind_speed_10m, metricSystem)],
     ['Weather', weatherDescription, 'Wind Direction', `${Math.round(hour.wind_direction_10m)}°`],
-    ['Precipitation', `${hour.precipitation} mm`, 'Wind Gust', `${Math.round(hour.wind_gusts_10m)} ${speedUnit}`],
-    ['Dew Point', `${Math.round(hour.dew_point_2m)}${tempUnit}`, 'Precip. Prob.', `${Math.round(hour.precipitation_probability)}%`],
+    ['Precipitation', formatPrecip(hour.precipitation, metricSystem), 'Wind Gust', formatSpeed(hour.wind_gusts_10m, metricSystem)],
+    ['Dew Point', formatTemp(hour.dew_point_2m, metricSystem), 'Precip. Prob.', `${Math.round(hour.precipitation_probability)}%`],
   ];
 }

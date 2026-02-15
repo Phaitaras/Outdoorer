@@ -4,6 +4,7 @@ import { WeatherPreferencesCard } from '@/components/plan/weatherPreferencesCard
 import { Button, ButtonText } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import type { MetricSystem } from '@/features/profile/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
 
@@ -34,6 +35,7 @@ interface FilterSectionProps {
   onTempPickerClose: () => void;
   onTempPickerOpen: (mode: 'min' | 'max') => void;
   onTempValueChange: (value: number) => void;
+  metricSystem?: MetricSystem;
 }
 
 export function FilterSection({
@@ -54,6 +56,7 @@ export function FilterSection({
   onTempPickerClose,
   onTempPickerOpen,
   onTempValueChange,
+  metricSystem = 'metric',
 }: FilterSectionProps) {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
@@ -184,6 +187,7 @@ export function FilterSection({
               onTempMaxPress={() => onTempPickerOpen('max')}
               windLevel={tempWindLevel}
               onWindLevelChange={setTempWindLevel}
+              metricSystem={metricSystem}
             />
           )}
 

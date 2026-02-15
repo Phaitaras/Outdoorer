@@ -1,4 +1,5 @@
 import { ACTIVITIES as ACTIVITY_LABELS } from '@/constants/activities';
+import { TEMP_VALUES_METRIC } from '@/utils/units';
 import { Angry, Frown, Laugh, Meh, Smile } from 'lucide-react-native';
 
 export const ACTIVITIES = ACTIVITY_LABELS.map((label) => ({
@@ -7,6 +8,7 @@ export const ACTIVITIES = ACTIVITY_LABELS.map((label) => ({
 }));
 
 export { SENTIMENT_COLORS } from '@/constants/sentiment';
+export { TEMP_VALUES_IMPERIAL, TEMP_VALUES_METRIC } from '@/utils/units';
 
 export const RAIN_OPTIONS = [
   { value: 'clear', label: 'Clear', Icon: Laugh, level: 0, sentiment: 'GREAT' },
@@ -16,6 +18,7 @@ export const RAIN_OPTIONS = [
   { value: 'heavy', label: 'Heavy\nRain', Icon: Angry, level: 4, sentiment: 'POOR' },
 ] as const;
 
-export const TEMP_VALUES = Array.from({ length: 41 }, (_, i) => -10 + i); // -10 .. 30
+
+export const TEMP_VALUES = TEMP_VALUES_METRIC;
 
 export type RainValue = (typeof RAIN_OPTIONS)[number]['value'];

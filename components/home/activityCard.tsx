@@ -37,12 +37,12 @@ export function ActivityCard({
       </View>
 
       <View className="mt-2 flex-row items-center gap-2">
-        <Text className="text-sm text-typography-700 pt-1" style={{fontFamily: 'Roboto-Regular'}}>Next 6h:</Text>
+        <Text className="text-sm text-typography-700 pt-1" style={{fontFamily: 'Roboto-Regular'}}>Next 6 Hourly Window: </Text>
         <SentimentRow items={next6} />
       </View>
 
       <Text className="text-sm text-typography-700 mt-1" style={{fontFamily: 'Roboto-Regular'}}>
-        Great Window: {windowText}
+        Recommended Window: {windowText}
       </Text>
     </Container>
   );

@@ -1,4 +1,6 @@
 import { Text } from '@/components/ui/text';
+import type { MetricSystem } from '@/features/profile/types';
+import { formatTemp } from '@/utils/units';
 import Slider from '@react-native-community/slider';
 import React from 'react';
 import { Pressable, View } from 'react-native';
@@ -13,6 +15,7 @@ export function WeatherPreferencesCard({
   onTempMaxPress,
   windLevel,
   onWindLevelChange,
+  metricSystem = 'metric',
 }: {
   rainTolerance: RainValue;
   onRainToleranceChange: (value: RainValue) => void;
@@ -22,6 +25,7 @@ export function WeatherPreferencesCard({
   onTempMaxPress: () => void;
   windLevel: number;
   onWindLevelChange: (value: number) => void;
+  metricSystem?: MetricSystem;
 }) {
   const toleranceIndex = RAIN_OPTIONS.findIndex((o) => o.value === rainTolerance);
 
@@ -100,7 +104,7 @@ export function WeatherPreferencesCard({
             className="text-[13px] text-typography-700"
             style={{ fontFamily: 'Roboto-Medium' }}
           >
-            {tempMin}°C – {tempMax}°C
+            {formatTemp(tempMin, metricSystem)} – {formatTemp(tempMax, metricSystem)}
           </Text>
         </View>
 
@@ -117,7 +121,7 @@ export function WeatherPreferencesCard({
               className="rounded-2xl bg-[#F4F4F5] px-4 py-3 items-center justify-center"
             >
               <Text className="text-[14px]" style={{ fontFamily: 'Roboto-Medium' }}>
-                {tempMin}°C
+                {formatTemp(tempMin, metricSystem)}
               </Text>
             </Pressable>
           </View>
@@ -134,7 +138,7 @@ export function WeatherPreferencesCard({
               className="rounded-2xl bg-[#F4F4F5] px-4 py-3 items-center justify-center"
             >
               <Text className="text-[14px]" style={{ fontFamily: 'Roboto-Medium' }}>
-                {tempMax}°C
+                {formatTemp(tempMax, metricSystem)}
               </Text>
             </Pressable>
           </View>
