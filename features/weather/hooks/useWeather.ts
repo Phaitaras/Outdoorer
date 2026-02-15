@@ -6,9 +6,10 @@ import { WEATHER_QUERY_KEYS } from '../constants';
 async function fetchWeather24h(
   latitude: number,
   longitude: number,
-  date?: string
+  date?: string,
+  marine?: boolean
 ): Promise<WeatherData> {
-  const body: { lat: number; lon: number; date?: string } = { 
+  const body: { lat: number; lon: number; date?: string; marine?: boolean } = { 
     lat: latitude, 
     lon: longitude 
   };
@@ -17,7 +18,11 @@ async function fetchWeather24h(
     body.date = date;
   }
 
-  console.log('Fetching weather for:', { lat: latitude, lon: longitude, date });
+  if (marine) {
+    body.marine = marine;
+  }
+
+  console.log('Fetching weather for:', { lat: latitude, lon: longitude, date, marine });
 
   const { data, error } = await supabase.functions.invoke('get-weather-24h', {
     body,
@@ -55,16 +60,17 @@ function bucketCoordinate(coord: number): number {
 export function useWeather(
   latitude: number | null, 
   longitude: number | null, 
-  date?: string
+  date?: string,
+  marine?: boolean
 ) {
   const bucketedLat = latitude ? bucketCoordinate(latitude) : null;
   const bucketedLon = longitude ? bucketCoordinate(longitude) : null;
 
   return useQuery({
-    queryKey: [WEATHER_QUERY_KEYS.WEATHER, bucketedLat, bucketedLon, date],
+    queryKey: [WEATHER_QUERY_KEYS.WEATHER, bucketedLat, bucketedLon, date, marine],
     queryFn: () => {
       if (!bucketedLat || !bucketedLon) throw new Error('Missing coordinates');
-      return fetchWeather24h(bucketedLat, bucketedLon, date);
+      return fetchWeather24h(bucketedLat, bucketedLon, date, marine);
     },
     enabled: !!(bucketedLat && bucketedLon),
   });

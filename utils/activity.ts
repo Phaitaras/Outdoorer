@@ -1,5 +1,10 @@
-import { GRAPH_DATA } from '@/components/home/activity/constants';
 import type { Sentiment } from '@/components/home/sentiment';
+
+export type HourBar = {
+  hour: string;
+  sentiment: Sentiment;
+  score: number; // 0-100 for dynamic height scaling
+};
 
 const SENTIMENT_RANK: Record<Sentiment, number> = {
   POOR: 0,
@@ -12,17 +17,22 @@ const SENTIMENT_RANK: Record<Sentiment, number> = {
 /**
  * finds the best window of recommended conditions in the graph data
  * prioritize higher sentiment, then longer duration at the same sentiment level.
+ * @param data - Array of hourly sentiment data
  */
-export function findRecommendedWindow(): { start: number; end: number } {
+export function findRecommendedWindow(data: HourBar[]): { start: number; end: number } {
+  if (data.length === 0) {
+    return { start: 0, end: 0 };
+  }
+
   let bestStart = 0;
   let bestEnd = 0;
   let bestOrder = -1;
   let bestLength = 0;
 
   let currentStart = 0;
-  let currentOrder = SENTIMENT_RANK[GRAPH_DATA[0].sentiment];
+  let currentOrder = SENTIMENT_RANK[data[0].sentiment];
 
-  GRAPH_DATA.forEach((bar, index) => {
+  data.forEach((bar, index) => {
     const order = SENTIMENT_RANK[bar.sentiment];
     if (order === currentOrder) {
       const length = index - currentStart;

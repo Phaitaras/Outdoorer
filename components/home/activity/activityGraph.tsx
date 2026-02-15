@@ -1,10 +1,18 @@
 import { SentimentIcon, type Sentiment } from '@/components/home/sentiment';
 import { Text } from '@/components/ui/text';
+import type { HourBar } from '@/utils/activity';
 import React, { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { BAR_FILL_COLOR, BAR_HEIGHT_CLASS, GRAPH_DATA, ROWS, SENTIMENT_COLORS } from './constants';
+import { BAR_FILL_COLOR, ROWS, SENTIMENT_COLORS } from './constants';
 
-export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStart, recommendedEnd }: {
+export function ActivityGraph({ 
+  data,
+  selectedIndex, 
+  setSelectedIndex, 
+  recommendedStart, 
+  recommendedEnd 
+}: {
+  data: HourBar[];
   selectedIndex: number;
   setSelectedIndex: (i: number) => void;
   recommendedStart: number;
@@ -21,6 +29,11 @@ export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStar
       scrollViewRef.current?.scrollTo({ x: Math.max(0, scrollOffset), animated: false });
     }, 0);
   }, []);
+
+  if (data.length === 0) {
+    return <Text className="text-center text-typography-500">No data available</Text>;
+  }
+
   return (
     <View className="flex-row mt-1 mb-3 mx-1">
       {/* y axis */}
@@ -39,7 +52,7 @@ export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStar
         <View>
           {/* hours */}
           <View className="flex-row mb-2">
-            {GRAPH_DATA.map((bar, index) => {
+            {data.map((bar, index) => {
               const isActive = index === selectedIndex;
               const isRecommended = index >= recommendedStart && index <= recommendedEnd;
 
@@ -67,17 +80,44 @@ export function ActivityGraph({ selectedIndex, setSelectedIndex, recommendedStar
             </View>
 
             {/* each bar */}
-            <View className="flex-row items-end" style={{ zIndex: 1 }}>
-              {GRAPH_DATA.map((bar, index) => {
+            <View className="flex-row items-end h-[12rem]" style={{ zIndex: 1 }}>
+              {data.map((bar, index) => {
                 const sentiment: Sentiment = bar.sentiment;
                 const color = SENTIMENT_COLORS[sentiment];
                 const isActive = index === selectedIndex;
+                
+                // Map score to visual zone height percentages
+                // Grid has 5 zones, each 20%: POOR(0-20%), BAD(20-40%), FAIR(40-60%), GOOD(60-80%), GREAT(80-100%)
+                let heightPercent: number;
+                const score = bar.score;
+                
+                if (score < 45) {
+                  // POOR: map 0-44 to 0-20%, but cap minimum at 20% for visibility
+                  heightPercent = Math.max(20, (score / 44) * 20);
+                } else if (score < 60) {
+                  // BAD: map 45-59 to 20-40%
+                  heightPercent = 20 + ((score - 45) / 15) * 20;
+                } else if (score < 75) {
+                  // FAIR: map 60-74 to 40-60%
+                  heightPercent = 40 + ((score - 60) / 15) * 20;
+                } else if (score < 90) {
+                  // GOOD: map 75-89 to 60-80%
+                  heightPercent = 60 + ((score - 75) / 15) * 20;
+                } else {
+                  // GREAT: map 90+ to 80-100%
+                  heightPercent = 80 + ((score - 90) / 10) * 20;
+                }
 
                 return (
                   <Pressable key={bar.hour} onPress={() => setSelectedIndex(index)} className="items-center mx-1">
                     <View
-                      className={`w-[2.4rem] rounded-lg justify-start items-center pt-2 ${BAR_HEIGHT_CLASS[sentiment]}`}
-                      style={{ backgroundColor: BAR_FILL_COLOR[sentiment], borderColor: isActive ? '#FFAE00' : color, borderWidth: isActive ? 2 : 1 }}
+                      className="w-[2.4rem] rounded-lg justify-start items-center pt-2"
+                      style={{ 
+                        height: `${heightPercent}%`,
+                        backgroundColor: BAR_FILL_COLOR[sentiment], 
+                        borderColor: isActive ? '#FFAE00' : color, 
+                        borderWidth: isActive ? 2 : 1 
+                      }}
                     >
                       <SentimentIcon value={sentiment} />
                     </View>

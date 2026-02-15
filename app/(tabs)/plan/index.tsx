@@ -10,8 +10,8 @@ import { LocationInput } from '@/components/plan/locationInput';
 import { TemperaturePickerModal } from '@/components/plan/temperaturePickerModal';
 import { WeatherPreferencesCard } from '@/components/plan/weatherPreferencesCard';
 import {
-  Button,
-  ButtonText,
+    Button,
+    ButtonText,
 } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
@@ -29,14 +29,14 @@ export default function Plan() {
     selectedAddress?: string;
   }>();
   
-  const [activity, setActivity] = useState<string>('Running');
+  const [activity, setActivity] = useState<string>('🏃‍♂️  Running');
   const { location: currentLocation } = useLocationContext();
 
   const [date, setDate] = useState<Date>(new Date());
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [useWeatherPrefs, setUseWeatherPrefs] = useState(true);
+  const [useWeatherPrefs, setUseWeatherPrefs] = useState(false);
 
   const [rainTolerance, setRainTolerance] = useState<RainValue>('light');
 
@@ -164,15 +164,27 @@ export default function Plan() {
               resolvedLocationName ||
               locationLabel ||
               `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`;
+            
+            const params: any = {
+              activity,
+              date: dateIso,
+              lat: latString,
+              lng: lngString,
+              locationName: locationNameForActivity,
+            };
+
+            // Pass filter params through navigation
+            if (useWeatherPrefs) {
+              params.useWeatherPrefs = 'true';
+              params.rainTolerance = rainTolerance;
+              params.tempMin = tempMin.toString();
+              params.tempMax = tempMax.toString();
+              params.windLevel = windLevel.toString();
+            }
+
             router.push({
               pathname: '/(tabs)/activity',
-              params: {
-                activity,
-                date: dateIso,
-                lat: latString,
-                lng: lngString,
-                locationName: locationNameForActivity,
-              },
+              params,
             });
           }}
         >

@@ -24,5 +24,6 @@ export function getHourlyWeatherData(
     ['Temperature', `${Math.round(hour.temperature_2m)}${tempUnit}`, 'Wind Speed', `${Math.round(hour.wind_speed_10m)} ${speedUnit}`],
     ['Weather', weatherDescription, 'Wind Direction', `${Math.round(hour.wind_direction_10m)}°`],
     ['Precipitation', `${hour.precipitation} mm`, 'Wind Gust', `${Math.round(hour.wind_gusts_10m)} ${speedUnit}`],
+    ['Dew Point', `${Math.round(hour.dew_point_2m)}${tempUnit}`, 'Precip. Prob.', `${Math.round(hour.precipitation_probability)}%`],
   ];
 }

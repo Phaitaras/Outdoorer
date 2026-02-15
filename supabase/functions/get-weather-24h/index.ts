@@ -19,6 +19,13 @@ type HourRow = {
   wind_direction_10m: number;
   wind_gusts_10m: number;
   precipitation: number;
+  dew_point_2m: number;
+  is_day: number;
+  precipitation_probability: number;
+  wave_height?: number | null;
+  wave_period?: number | null;
+  wind_wave_height?: number | null;
+  ocean_current_velocity?: number | null;
 };
 
 serve(async (req) => {
@@ -31,6 +38,7 @@ serve(async (req) => {
     let lon: number | null = null;
     let units: Units = "metric";
     let targetDate: string | null = null;
+    let marine: boolean = false;
 
     try {
       const body = await req.json();
@@ -38,17 +46,20 @@ serve(async (req) => {
       lon = typeof body.lon === "number" ? body.lon : Number(body.lon);
       if (isUnits(body.units)) units = body.units;
       if (typeof body.date === "string") targetDate = body.date;
+      if (typeof body.marine === "boolean") marine = body.marine;
     } catch {
       const url = new URL(req.url);
       const latStr = url.searchParams.get("lat");
       const lonStr = url.searchParams.get("lon");
       const unitsStr = url.searchParams.get("units");
       const dateStr = url.searchParams.get("date");
+      const marineStr = url.searchParams.get("marine");
 
       lat = latStr ? Number(latStr) : null;
       lon = lonStr ? Number(lonStr) : null;
       if (isUnits(unitsStr)) units = unitsStr;
       if (dateStr) targetDate = dateStr;
+      if (marineStr === "true") marine = true;
     }
 
     if (lat === null || lon === null || Number.isNaN(lat) || Number.isNaN(lon)) {
@@ -95,6 +106,9 @@ serve(async (req) => {
       "wind_direction_10m",
       "wind_gusts_10m",
       "precipitation",
+      "dew_point_2m",
+      "is_day",
+      "precipitation_probability",
     ].join(",");
 
     // only include current weather if requesting today's data
@@ -141,6 +155,9 @@ serve(async (req) => {
     const windDirs: number[] = data.hourly?.wind_direction_10m ?? [];
     const gusts: number[] = data.hourly?.wind_gusts_10m ?? [];
     const precip: number[] = data.hourly?.precipitation ?? [];
+    const dewPoints: number[] = data.hourly?.dew_point_2m ?? [];
+    const isDays: number[] = data.hourly?.is_day ?? [];
+    const precipProbs: number[] = data.hourly?.precipitation_probability ?? [];
 
     const n = Math.min(
       times.length,
@@ -149,8 +166,57 @@ serve(async (req) => {
       windSpeeds.length,
       windDirs.length,
       gusts.length,
-      precip.length
+      precip.length,
+      dewPoints.length,
+      isDays.length,
+      precipProbs.length
     );
+
+    // Fetch marine data if requested
+    let marineData: any = null;
+    if (marine) {
+      try {
+        const marineVars = [
+          "wave_height",
+          "wave_period",
+          "wind_wave_height",
+          "ocean_current_velocity",
+        ].join(",");
+
+        let marineUrl: string;
+        if (isPastDate) {
+          marineUrl =
+            `https://marine-api.open-meteo.com/v1/marine` +
+            `?latitude=${lat}` +
+            `&longitude=${lon}` +
+            `&start_date=${requestedDateStr}` +
+            `&end_date=${requestedDateStr}` +
+            `&hourly=${marineVars}` +
+            unitParams;
+        } else {
+          marineUrl =
+            `https://marine-api.open-meteo.com/v1/marine` +
+            `?latitude=${lat}` +
+            `&longitude=${lon}` +
+            `&hourly=${marineVars}` +
+            `&forecast_days=${forecastDays}` +
+            unitParams;
+        }
+
+        const marineRes = await fetch(marineUrl);
+        if (marineRes.ok) {
+          marineData = await marineRes.json();
+        }
+      } catch (marineError) {
+        console.error('Marine API error:', marineError);
+        // Continue without marine data
+      }
+    }
+
+    const waveHeights: (number | null)[] = marineData?.hourly?.wave_height ?? [];
+    const wavePeriods: (number | null)[] = marineData?.hourly?.wave_period ?? [];
+    const windWaveHeights: (number | null)[] = marineData?.hourly?.wind_wave_height ?? [];
+    const oceanCurrentVelocities: (number | null)[] = marineData?.hourly?.ocean_current_velocity ?? [];
 
     const allHours: HourRow[] = Array.from({ length: n }, (_, i) => ({
       time: times[i],
@@ -160,6 +226,13 @@ serve(async (req) => {
       wind_direction_10m: windDirs[i],
       wind_gusts_10m: gusts[i],
       precipitation: precip[i],
+      dew_point_2m: dewPoints[i],
+      is_day: isDays[i],
+      precipitation_probability: precipProbs[i],
+      wave_height: waveHeights[i] ?? null,
+      wave_period: wavePeriods[i] ?? null,
+      wind_wave_height: windWaveHeights[i] ?? null,
+      ocean_current_velocity: oceanCurrentVelocities[i] ?? null,
     }));
 
     if (allHours.length === 0) throw new Error("No hourly data returned from Open-Meteo");
@@ -225,6 +298,9 @@ serve(async (req) => {
         wind_direction_10m: data.current?.wind_direction_10m,
         wind_gusts_10m: data.current?.wind_gusts_10m,
         precipitation: data.current?.precipitation,
+        dew_point_2m: data.current?.dew_point_2m,
+        is_day: data.current?.is_day,
+        precipitation_probability: data.current?.precipitation_probability,
       } : null, // No current weather for past or future dates
       dayHours, // full 24h for the requested date
       next6,    // 6 hours starting from current time (today) or 6 AM (past/future dates)

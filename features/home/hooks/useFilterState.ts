@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 export function useFilterState() {
   const [showFilters, setShowFilters] = useState(false);
-  const [useWeatherPrefs, setUseWeatherPrefs] = useState(true);
+  const [useWeatherPrefs, setUseWeatherPrefs] = useState(false);
   const [rainTolerance, setRainTolerance] = useState<RainValue>('light');
   const [tempMin, setTempMin] = useState<number>(8);
   const [tempMax, setTempMax] = useState<number>(28);
