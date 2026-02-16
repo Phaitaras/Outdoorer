@@ -1,9 +1,9 @@
-import { AVATAR_COLOR_HEX } from '@/constants/user';
-import { getAvatarColor, LocationModalLocation, useLocationModalAnimation, useLocationModalData, useReviewSubmission } from '@/features/map';
+import { LocationModalLocation, useLocationModalAnimation, useLocationModalData, useReviewSubmission } from '@/features/map';
 import { useProfile } from '@/features/profile';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback } from 'react';
-import { ActivityIndicator, Animated, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import { Animated, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import { LocationDetailSkeleton } from './locationDetailSkeleton';
 import { LocationDetailView } from './locationDetailView';
 import { ReviewFormView } from './reviewFormView';
 
@@ -61,13 +61,10 @@ export function LocationModal({
 
   if (!isVisible && !currentLocation) return null;
 
-  const avatarColor = getAvatarColor(currentActivity?.user_id);
-  const color = AVATAR_COLOR_HEX[avatarColor] || AVATAR_COLOR_HEX['blue'];
-
   if (profileLoading) {
     return (
-      <View className="flex-column absolute bottom-0 left-0 right-0 bg-white p-10 shadow-lg rounded-t-[2rem] items-center justify-center py-12">
-        <ActivityIndicator size="large" color={color} />
+      <View className="flex-column absolute bottom-0 left-0 right-0 bg-white shadow-lg rounded-t-[2rem] overflow-hidden">
+        <LocationDetailSkeleton />
       </View>
     );
   }

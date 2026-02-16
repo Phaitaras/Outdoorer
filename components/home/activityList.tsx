@@ -8,28 +8,24 @@ export type ActivityItem = {
     status: Sentiment;
     next6: Sentiment[];
     windowText: string;
+    isContentLoading?: boolean;
     onPress?: () => void;
 };
 
-export function ActivityList({ items, className }: { items: ActivityItem[]; className?: string }) {
+export function ActivityList({ items, className, isContentLoading }: { items: ActivityItem[]; className?: string; isContentLoading?: boolean }) {
     return (
-        <View>
-            <Text className="mt-6 mb-4 text-xl text-typography-700" style={{ fontFamily: 'Roboto-Medium' }}>
-                Activities
-            </Text>
-
-            <View className={className ?? 'gap-4 mb-4'}>
-                {items.map((item, idx) => (
-                    <ActivityCard
-                        key={`${item.title}-${idx}`}
-                        title={item.title}
-                        status={item.status}
-                        next6={item.next6}
-                        windowText={item.windowText}
-                        onPress={item.onPress}
-                    />
-                ))}
-            </View>
+        <View className={className ?? 'gap-4 mb-4'}>
+            {items.map((item, idx) => (
+                <ActivityCard
+                    key={`${item.title}-${idx}`}
+                    title={item.title}
+                    status={item.status}
+                    next6={item.next6}
+                    windowText={item.windowText}
+                    onPress={item.onPress}
+                    isContentLoading={isContentLoading}
+                />
+            ))}
         </View>
     );
 }

@@ -1,13 +1,15 @@
+import { Spinner } from '@/components/ui/spinner';
 import { GroupedReviewsList } from '@/components/user/groupedReviewsList';
 import { ReviewListItem } from '@/components/user/reviewListItem';
 import { UserHeader } from '@/components/user/userHeader';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
+import { useFadeInAnimation } from '@/features/home';
 import { useUserReviews } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
 import { formatActivityDate, formatActivityTime } from '@/utils/activity';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, View } from 'react-native';
 
 interface ReviewItem {
   id: number;
@@ -29,7 +31,13 @@ export default function UserReviewsScreen() {
     })();
   }, []);
 
-  const { data: reviews = [] } = useUserReviews(userId, 200);
+  const { data: reviews = [], isLoading: reviewsLoading } = useUserReviews(userId, 200);
+
+  const reviewsFadeAnim = useFadeInAnimation({
+    isLoading: reviewsLoading,
+    hasData: reviews.length > 0,
+    itemCount: reviews.length,
+  });
 
   const reviewItems: ReviewItem[] = (reviews || []).map((review) => {
     const createdDate = new Date(review.created_at);
@@ -69,13 +77,21 @@ export default function UserReviewsScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-6">
-          <GroupedReviewsList
-            items={reviewItems}
-            groupBy="month"
-            renderItem={renderReviewItem}
-            emptyMessage="No reviews yet"
-            sortOrder="desc"
-          />
+          {reviewsLoading ? (
+            <View className="items-center justify-center py-12">
+              <Spinner size="large" />
+            </View>
+          ) : (
+            <Animated.View style={{ opacity: reviewsFadeAnim }}>
+              <GroupedReviewsList
+                items={reviewItems}
+                groupBy="month"
+                renderItem={renderReviewItem}
+                emptyMessage="No reviews yet"
+                sortOrder="desc"
+              />
+            </Animated.View>
+          )}
         </View>
       </ScrollView>
     </View>

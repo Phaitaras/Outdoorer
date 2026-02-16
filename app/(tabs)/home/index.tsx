@@ -3,8 +3,9 @@ import { ActivityList, type ActivityItem } from '@/components/home/activityList'
 import { CurrentWeatherCard } from '@/components/home/currentWeatherCard';
 import { LocationHeader } from '@/components/home/locationHeader';
 import { TemperaturePickerModal } from '@/components/plan/temperaturePickerModal';
+import { Spinner } from '@/components/ui/spinner';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
-import { useCurrentUserId, useFilterState, useLocationPickerResult, useSyncLocationName } from '@/features/home';
+import { useCurrentUserId, useFadeInAnimation, useFilterState, useLocationPickerResult, useSyncLocationName } from '@/features/home';
 import { useCurrentLocationGeocode, useLocationDisplayLabel } from '@/features/location';
 import { usePlannerLocation } from '@/features/plan/hooks/usePlannerLocation';
 import { useProfile } from '@/features/profile';
@@ -13,7 +14,7 @@ import { useWeather } from '@/features/weather';
 import { useLocationContext } from '@/providers/location';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, Text, View } from 'react-native';
 
 // Water sports that need marine data
 const WATER_SPORTS = ['kayaking', 'sailing', 'surfing', 'kitesurfing', 'windsurfing'];
@@ -30,7 +31,7 @@ export default function Home() {
   const { location } = useLocationContext();
   const userId = useCurrentUserId();
   const { localityName } = useCurrentLocationGeocode(location);
-  const { data: profile } = useProfile(userId);
+  const { data: profile, isLoading: profileLoading } = useProfile(userId);
   
   const {
     coordinates,
@@ -146,6 +147,13 @@ export default function Home() {
     localityName
   );
 
+  const isLoadingActivities = profileLoading || !profile;
+  const fadeAnim = useFadeInAnimation({
+    isLoading: profileLoading,
+    hasData: !!profile,
+    itemCount: items.length,
+  });
+
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[20%]">
       <ScrollView
@@ -202,8 +210,19 @@ export default function Home() {
           }}
           metricSystem={profile?.metric ?? 'metric'}
         />
-        <CurrentWeatherCard weather={weatherData} isLoading={weatherLoading} error={weatherError} metricSystem={profile?.metric ?? 'metric'} />
-        <ActivityList items={items} />
+        <CurrentWeatherCard weather={weatherData} isLoading={weatherLoading || profileLoading} error={weatherError} metricSystem={profile?.metric ?? 'metric'} />
+        <Text className="mt-6 mb-4 text-xl text-typography-700" style={{ fontFamily: 'Roboto-Medium' }}>
+            Activities
+        </Text>
+        {isLoadingActivities ? (
+          <View className="items-center justify-center py-20">
+            <Spinner size="large" />
+          </View>
+        ) : (
+          <Animated.View style={{ opacity: fadeAnim }}>
+            <ActivityList items={items} isContentLoading={weatherLoading}/>
+          </Animated.View>
+        )}
       </ScrollView>
       
       <TemperaturePickerModal

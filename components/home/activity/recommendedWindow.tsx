@@ -13,7 +13,6 @@ export function RecommendedWindow({ dateLabel, windowLabel }: { dateLabel: strin
         <Text className="text-sm text-typography-700" style={{ fontFamily: 'Roboto-Medium' }}>Recommended Window</Text>
         <View className="flex-row items-center gap-1">
           <Text className="text-sm" style={{ fontFamily: 'Roboto-Medium' }}>{windowLabel}</Text>
-          <LucideArrowRight size={16} />
         </View>
       </View>
     </>

@@ -1,3 +1,4 @@
+import { CurrentWeatherCardSkeleton } from '@/components/home/currentWeatherCardSkeleton';
 import { Text } from '@/components/ui/text';
 import { WEATHER_CODE_TO_DESCRIPTION, WEATHER_CODE_TO_ICON } from '@/constants/weather';
 import type { MetricSystem } from '@/features/profile/types';
@@ -32,13 +33,7 @@ export function CurrentWeatherCard({
   }
 
   if (isLoading || !weather) {
-    return (
-      <View>
-        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
-          <Text className="text-typography-500">Fetching Weather Data...</Text>
-        </View>
-      </View>
-    );
+    return <CurrentWeatherCardSkeleton />;
   }
 
   const getIconComponent = (iconName: string) => {

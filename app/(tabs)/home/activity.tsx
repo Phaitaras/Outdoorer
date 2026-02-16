@@ -2,6 +2,7 @@ import { PlanTimeModal } from '@/components/home/activity/planTimeModal';
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
+import { ActivityDetailSkeleton } from '@/components/home/activity/activityDetailSkeleton';
 import { ActivityGraph } from '@/components/home/activity/activityGraph';
 import { ActivityHeader } from '@/components/home/activity/activityHeader';
 import { FigureModal } from '@/components/home/activity/figureModal';
@@ -9,9 +10,11 @@ import { HourlyTable } from '@/components/home/activity/hourlyTable';
 import { RecommendedWindow } from '@/components/home/activity/recommendedWindow';
 import { LocationHeader } from '@/components/home/locationHeader';
 import { Text } from '@/components/ui/text';
-import { useActivityDetail } from '@/features/activity';
+import { useActivityDetail, useActivityRenderGuard, type ActivityParams } from '@/features/activity';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function ActivityDetailScreen() {
+  const params = useLocalSearchParams<ActivityParams>();
   const {
     activity,
     status,
@@ -34,12 +37,23 @@ export default function ActivityDetailScreen() {
     dateLabel,
     handleCreateActivity,
     graphData,
+    isLoading,
   } = useActivityDetail();
+  const router = useRouter();
+  const { showSkeleton } = useActivityRenderGuard({
+    params,
+    isLoading,
+    hasData: graphData.length > 0,
+  });
+
+  if (showSkeleton) {
+    return <ActivityDetailSkeleton onBack={() => router.back()} />;
+  }
 
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[10%]">
       <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
-        <LocationHeader 
+          <LocationHeader 
           locationLabel={locationLabel} 
           displayArrow={true} 
           className='mb-6'
@@ -54,9 +68,6 @@ export default function ActivityDetailScreen() {
           activityEndTime={activityData?.end_time ?? null}
         />
 
-        <Text className="text-xs text-typography-600 mb-1 text-center" style={{fontFamily: 'Roboto-Regular'}}>
-          Recommended
-        </Text>
         <ActivityGraph 
           data={graphData} 
           selectedIndex={selectedIndex} 

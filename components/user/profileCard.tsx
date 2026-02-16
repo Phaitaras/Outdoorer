@@ -7,11 +7,13 @@ import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
 import { getAvatarColor } from '@/features/map';
 import { type ProfileWithStats } from '@/features/profile';
 import { SettingsIcon } from 'lucide-react-native';
-import React from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Pressable, View } from 'react-native';
+import { ProfileCardSkeleton } from './profileCardSkeleton';
 
 export interface ProfileCardProps {
-  profile: ProfileWithStats;
+  profile?: ProfileWithStats;
+  isLoading?: boolean;
   avatarColor?: AvatarColor;
   avatarUri?: string;
   onSettingsPress?: () => void;
@@ -27,6 +29,7 @@ export interface ProfileCardProps {
 
 export function ProfileCard({
   profile,
+  isLoading,
   avatarColor,
   avatarUri = '',
   onSettingsPress,
@@ -39,6 +42,23 @@ export function ProfileCard({
   onActivitiesPress,
   onReviewsPress,
 }: ProfileCardProps) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isLoading && profile) {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isLoading, profile, fadeAnim]);
+
+  if (isLoading || !profile) {
+    return <ProfileCardSkeleton />;
+  }
+
   const computedAvatarColor = avatarColor ?? getAvatarColor(profile.id);
   const color = AVATAR_COLOR_HEX[computedAvatarColor] || AVATAR_COLOR_HEX['blue'];
   const activityLabels = profile.activity_types
@@ -50,7 +70,7 @@ export function ProfileCard({
     : 'text-white';
 
   return (
-    <View className="bg-white p-6 rounded-2xl shadow-soft-1">
+    <Animated.View style={{ opacity: fadeAnim }} className="bg-white p-6 rounded-2xl shadow-soft-1">
       {/* header */}
       <View className="flex-row justify-between items-center mb-6">
         <View className='flex-row gap-6 items-center'>
@@ -124,29 +144,6 @@ export function ProfileCard({
           </Text>
         </Pressable>
       </View>
-
-      {/* buttons */}
-      <View className="mt-6 flex-row justify-evenly gap-4">
-        {onAddFriendPress && (
-          <Button
-            variant={addFriendVariant}
-            className="rounded-full"
-            onPress={onAddFriendPress}
-            disabled={addFriendDisabled}
-          >
-            <ButtonText className={friendButtonTextClass} style={{ fontFamily: 'Roboto-Medium' }}>
-              {addFriendLabel || 'Add New Friend'}
-            </ButtonText>
-          </Button>
-        )}
-        {onViewBookmarksPress && (
-          <Button variant="solid" className="rounded-full" onPress={onViewBookmarksPress}>
-            <ButtonText className="text-white" style={{ fontFamily: 'Roboto-Medium' }}>
-              View Bookmarks
-            </ButtonText>
-          </Button>
-        )}
-      </View>
-    </View>
+    </Animated.View>
   );
 }

@@ -26,7 +26,7 @@ export function ActivityCardsScroll({
 
   if (cards.length === 0) {
     return (
-      <View className="py-6">
+      <View className="py-6 w-full items-center justify-center">
         <Text className="text-typography-500 text-md" style={{ fontFamily: 'Roboto-Regular' }}>
           {emptyMessage}
         </Text>
@@ -76,7 +76,7 @@ export function ActivityCardsScroll({
           right: 0,
           top: 0,
           bottom: 0,
-          width: 20,
+          width: 50,
         }}
         pointerEvents="none"
       />

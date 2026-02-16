@@ -1,6 +1,7 @@
 import { SearchBar } from '@/components/common/searchBar';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
+import { Spinner } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
 import { FriendsList, UserHeader } from '@/components/user';
 import { PendingRequestsList } from '@/components/user/pendingRequestsList';
@@ -10,10 +11,11 @@ import {
   usePendingRequests,
   useRejectFriendRequest,
 } from '@/features/friends';
+import { useFadeInAnimation } from '@/features/home';
 import { supabase } from '@/lib/supabase';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, View } from 'react-native';
 
 export default function FriendsListScreen() {
   const router = useRouter();
@@ -27,8 +29,20 @@ export default function FriendsListScreen() {
     })();
   }, []);
 
-  const { data: friends = [], refetch: refetchFriends } = useFriends(userId);
-  const { data: pendingRequests = [], refetch: refetchPendingRequests } = usePendingRequests(userId);
+  const { data: friends = [], refetch: refetchFriends, isLoading: friendsLoading } = useFriends(userId);
+  const { data: pendingRequests = [], refetch: refetchPendingRequests, isLoading: requestsLoading } = usePendingRequests(userId);
+
+  const friendsFadeAnim = useFadeInAnimation({
+    isLoading: friendsLoading,
+    hasData: friends.length > 0,
+    itemCount: friends.length,
+  });
+
+  const requestsFadeAnim = useFadeInAnimation({
+    isLoading: requestsLoading,
+    hasData: pendingRequests.length > 0,
+    itemCount: pendingRequests.length,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -82,11 +96,24 @@ export default function FriendsListScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-6 gap-4">
-          <PendingRequestsList
-            requests={pendingRequests}
-            onAccept={handleAcceptRequest}
-            onReject={handleRejectRequest}
-          />
+          {requestsLoading ? (
+            <View>
+              <Text className="text-sm text-typography-700 mb-3" style={{ fontFamily: 'Roboto-Medium' }}>
+                Incoming Requests
+              </Text>
+              <View className="items-center justify-center py-8">
+                <Spinner size="large" />
+              </View>
+            </View>
+          ) : (
+            <Animated.View style={{ opacity: requestsFadeAnim }}>
+              <PendingRequestsList
+                requests={pendingRequests}
+                onAccept={handleAcceptRequest}
+                onReject={handleRejectRequest}
+              />
+            </Animated.View>
+          )}
 
           <View className="gap-3">
             <Button onPress={() => router.push('/user/friends/add')} className="rounded-xl">
@@ -103,7 +130,15 @@ export default function FriendsListScreen() {
               placeholder="Find a friend by username"
             />
 
-            <FriendsList friends={filteredFriends} onViewProfile={handleViewProfile} />
+            {friendsLoading ? (
+              <View className="items-center justify-center py-12">
+                <Spinner size="large" />
+              </View>
+            ) : (
+              <Animated.View style={{ opacity: friendsFadeAnim }}>
+                <FriendsList friends={filteredFriends} onViewProfile={handleViewProfile} />
+              </Animated.View>
+            )}
           </View>
         </View>
       </ScrollView>

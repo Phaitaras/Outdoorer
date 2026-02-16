@@ -1,15 +1,17 @@
 import { ActivityCardsScroll } from '@/components/home/activityCardsScroll';
 import { Divider } from '@/components/ui/divider';
+import { Spinner } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
 import { ProfileCard } from '@/components/user/profileCard';
 import { UserHeader } from '@/components/user/userHeader';
 import { useFriendActions, useFriendActivities, useFriendStatus } from '@/features/friends';
+import { useFadeInAnimation } from '@/features/home';
 import { useProfile } from '@/features/profile';
 import { activityToCard } from '@/features/profile/utils/activityToCard';
 import { supabase } from '@/lib/supabase';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, View } from 'react-native';
 
 export default function FriendProfileScreen() {
   const params = useLocalSearchParams();
@@ -63,6 +65,12 @@ export default function FriendProfileScreen() {
 
   const activityCards = useMemo(() => activities.map(activityToCard), [activities]);
 
+  const activitiesFadeAnim = useFadeInAnimation({
+    isLoading: activitiesLoading,
+    hasData: activities.length > 0,
+    itemCount: activities.length,
+  });
+
   return (
     <View className="flex-1 bg-[#F6F6F7]">
       <UserHeader title="Profile" />
@@ -70,20 +78,15 @@ export default function FriendProfileScreen() {
       <ScrollView className="flex-1 p-8" showsVerticalScrollIndicator={false}>
         <View className="flex-col">
           <View className="mb-6">
-            {profileLoading || !profile ? (
-              <Text className="text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
-                Loading profile...
-              </Text>
-            ) : (
-              <ProfileCard
-                profile={profile}
-                avatarColor={friendColor as any}
-                onAddFriendPress={actionButton?.onPress}
-                addFriendLabel={actionButton?.label}
-                addFriendVariant={actionButton?.variant as any}
-                addFriendDisabled={isActing}
-              />
-            )}
+            <ProfileCard
+              profile={profile}
+              isLoading={profileLoading}
+              avatarColor={friendColor as any}
+              onAddFriendPress={actionButton?.onPress}
+              addFriendLabel={actionButton?.label}
+              addFriendVariant={actionButton?.variant as any}
+              addFriendDisabled={isActing}
+            />
           </View>
 
           <Divider className="mb-4" />
@@ -101,15 +104,17 @@ export default function FriendProfileScreen() {
           {canViewActivities && (
             <>
               {activitiesLoading ? (
-                <Text className="text-typography-500" style={{ fontFamily: 'Roboto-Regular' }}>
-                  Loading activities...
-                </Text>
+                <View className="items-center justify-center py-12">
+                  <Spinner size="large" />
+                </View>
               ) : (
-                <ActivityCardsScroll
-                  cards={activityCards}
-                  onCardPress={() => {}}
-                  emptyMessage="No recent activities"
-                />
+                <Animated.View style={{ opacity: activitiesFadeAnim }}>
+                  <ActivityCardsScroll
+                    cards={activityCards}
+                    onCardPress={() => {}}
+                    emptyMessage="No recent activities"
+                  />
+                </Animated.View>
               )}
             </>
           )}

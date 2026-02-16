@@ -1,12 +1,14 @@
+import { Spinner } from '@/components/ui/spinner';
 import { ActivityListItem } from '@/components/user/activityListItem';
 import { GroupedActivityList } from '@/components/user/groupedActivityList';
 import { UserHeader } from '@/components/user/userHeader';
+import { useFadeInAnimation } from '@/features/home';
 import { useUserActivities } from '@/features/profile';
 import { activityToCard } from '@/features/profile/utils';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, View } from 'react-native';
 
 interface ActivityItem {
   id: string;
@@ -28,10 +30,16 @@ export default function PreviousActivitiesScreen() {
     })();
   }, []);
 
-  const { data: activities = [] } = useUserActivities({
+  const { data: activities = [], isLoading: activitiesLoading } = useUserActivities({
     userId: userId ?? '',
     type: 'previous',
     limit: 200,
+  });
+
+  const activitiesFadeAnim = useFadeInAnimation({
+    isLoading: activitiesLoading,
+    hasData: activities.length > 0,
+    itemCount: activities.length,
   });
 
   const activityItems: ActivityItem[] = (activities || []).map((activity) => {
@@ -75,13 +83,21 @@ export default function PreviousActivitiesScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-6">
-          <GroupedActivityList
-            items={activityItems}
-            groupBy="month"
-            renderItem={renderActivityItem}
-            emptyMessage="No previous activities"
-            sortOrder="desc"
-          />
+          {activitiesLoading ? (
+            <View className="items-center justify-center py-12">
+              <Spinner size="large" />
+            </View>
+          ) : (
+            <Animated.View style={{ opacity: activitiesFadeAnim }}>
+              <GroupedActivityList
+                items={activityItems}
+                groupBy="month"
+                renderItem={renderActivityItem}
+                emptyMessage="No previous activities"
+                sortOrder="desc"
+              />
+            </Animated.View>
+          )}
         </View>
       </ScrollView>
     </View>

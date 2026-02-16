@@ -46,7 +46,8 @@ export function useActivityDetail() {
   const { location } = useLocationContext();
 
   const activityIdParam = params.activityId ? Number(params.activityId) : null;
-  const { data: activityData } = useActivityById(activityIdParam);
+  const { data: activityData, isLoading: activityDataLoading } = useActivityById(activityIdParam);
+  const isActivityDataForCurrentId = !activityIdParam || activityData?.id === activityIdParam;
 
   // use activity's actual date or use params.date or today
   const baseDate = useMemo(() => {
@@ -87,6 +88,7 @@ export function useActivityDetail() {
   }, [params.lat, params.lng, params.locationName]);
 
   const locationFromActivity = useMemo<SelectedLocation | null>(() => {
+    if (!isActivityDataForCurrentId) return null;
     if (activityData?.location && 
         typeof activityData.location.latitude === 'number' && 
         typeof activityData.location.longitude === 'number') {
@@ -97,7 +99,7 @@ export function useActivityDetail() {
       };
     }
     return null;
-  }, [activityData?.location]);
+  }, [activityData?.location, isActivityDataForCurrentId]);
 
   const fallbackLocation = useMemo<SelectedLocation | null>(() => {
     if (!location) return null;
@@ -137,7 +139,7 @@ export function useActivityDetail() {
 
   const weatherDate = baseDate.toISOString().slice(0, 10);
   
-  const { data: weatherData } = useWeather(
+  const { data: weatherData, isLoading: weatherLoading } = useWeather(
     selectedLocation?.latitude ?? null,
     selectedLocation?.longitude ?? null,
     weatherDate,
@@ -261,5 +263,8 @@ export function useActivityDetail() {
     handleCreateActivity,
     graphData,
     metricSystem,
+    isLoading:
+      weatherLoading ||
+      (!!activityIdParam && (activityDataLoading || !isActivityDataForCurrentId)),
   };
 }
