@@ -13,6 +13,18 @@ export type ActivityItem = {
 };
 
 export function ActivityList({ items, className, isContentLoading }: { items: ActivityItem[]; className?: string; isContentLoading?: boolean }) {
+    if (items.length === 0) {
+        return (
+            <View className="items-center justify-center py-12 gap-2">
+                <Text className="text-typography-400" style={{ fontFamily: 'Roboto-Regular' }}>
+                    No preferred activities.
+                </Text>
+                <Text className="text-typography-400" style={{ fontFamily: 'Roboto-Regular' }}>
+                    Head to Profile Settings to add activities to your feed.
+                </Text>
+            </View>
+        );
+    }
     return (
         <View className={className ?? 'gap-4 mb-4'}>
             {items.map((item, idx) => (

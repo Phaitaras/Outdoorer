@@ -126,7 +126,6 @@ export default function SignIn() {
       const user = response.data?.user;
 
       if (!idToken) {
-        Alert.alert('Google Sign-In Error', 'No ID token returned from Google.');
         return;
       }
 
@@ -136,7 +135,6 @@ export default function SignIn() {
       });
 
       if (error) {
-        Alert.alert('Google Sign-In Error', error.message);
         console.log(error.message);
         return;
       }

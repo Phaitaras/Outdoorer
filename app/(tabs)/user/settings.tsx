@@ -14,7 +14,6 @@ export default function SettingsScreen() {
     const settingsItems = [
         { label: 'Profile Settings', route: '/user/settings/profile' },
         { label: 'Preferences', route: '/user/settings/preferences' },
-        { label: 'Notifications', route: '/user/settings/notifications' },
     ];
 
     return (
