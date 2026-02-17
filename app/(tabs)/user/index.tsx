@@ -56,9 +56,6 @@ export default function User() {
               isLoading={profileLoading}
               onSettingsPress={() => router.push('/user/settings')}
               onAddFriendPress={() => router.push('/user/friends/add')}
-              onViewBookmarksPress={() => {
-                // TODO: Navigate to bookmarks
-              }}
               onFriendsPress={() => router.push('/user/friends')}
               onActivitiesPress={() => router.push('/user/previousActivities')}
               onReviewsPress={() => router.push('/user/reviews')}

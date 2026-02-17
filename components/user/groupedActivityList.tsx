@@ -52,7 +52,7 @@ export function GroupedActivityList({
             {group}
           </Text>
           <View className="bg-white rounded-2xl shadow-soft-1 overflow-hidden">
-            {grouped[group].map((item, index) =>
+            {grouped[group].map((item: any, index: any) =>
               renderItem(item, index === grouped[group].length - 1)
             )}
           </View>

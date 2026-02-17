@@ -42,19 +42,6 @@ export function ProfileCard({
   onActivitiesPress,
   onReviewsPress,
 }: ProfileCardProps) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (!isLoading && profile) {
-      fadeAnim.setValue(0);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [isLoading, profile, fadeAnim]);
-
   if (isLoading || !profile) {
     return <ProfileCardSkeleton />;
   }
@@ -70,7 +57,7 @@ export function ProfileCard({
     : 'text-white';
 
   return (
-    <Animated.View style={{ opacity: fadeAnim }} className="bg-white p-6 rounded-2xl shadow-soft-1">
+    <View className="bg-white p-6 rounded-2xl shadow-soft-1">
       {/* header */}
       <View className="flex-row justify-between items-center mb-6">
         <View className='flex-row gap-6 items-center'>
@@ -144,6 +131,6 @@ export function ProfileCard({
           </Text>
         </Pressable>
       </View>
-    </Animated.View>
+    </View>
   );
 }

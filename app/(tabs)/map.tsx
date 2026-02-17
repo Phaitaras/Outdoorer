@@ -96,12 +96,27 @@ export default function Map() {
         longitudeDelta: LOCATION_PICKER_CONSTANTS.ZOOM_DELTA,
       };
 
-      const map = (mapRef.current as any)?.getMapRef?.();
-      if (map) {
-        map.animateToRegion(newRegion, LOCATION_PICKER_CONSTANTS.ANIMATION_DURATION);
+      const clusteredMap = mapRef.current as any;
+      const nativeMap = clusteredMap?.getMapRef?.() ?? clusteredMap;
+
+      if (nativeMap?.animateToRegion) {
+        nativeMap.animateToRegion(newRegion, LOCATION_PICKER_CONSTANTS.ANIMATION_DURATION);
+        return;
+      }
+
+      if (nativeMap?.animateCamera) {
+        nativeMap.animateCamera(
+          {
+            center: {
+              latitude: newRegion.latitude,
+              longitude: newRegion.longitude,
+            },
+          },
+          { duration: LOCATION_PICKER_CONSTANTS.ANIMATION_DURATION }
+        );
       }
     },
-    [results, setSearchQuery]
+    [setSearchQuery]
   );
 
   useEffect(() => {
