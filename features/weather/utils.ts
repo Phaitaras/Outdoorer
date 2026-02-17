@@ -1,7 +1,7 @@
 import { WEATHER_CODE_TO_DESCRIPTION } from '@/constants/weather';
 import type { MetricSystem } from '@/features/profile/types';
 import { formatPrecip, formatSpeed, formatTemp } from '@/utils/units';
-import type { WeatherData } from './hooks/useWeather';
+import type { WeatherData } from '@/features/weather/types';
 
 export function getHourlyWeatherData(
   selectedHour: string,

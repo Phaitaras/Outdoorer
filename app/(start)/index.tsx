@@ -2,12 +2,15 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
+import { useLocationContext } from '@/providers/location';
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, View } from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { permissionStatus, refresh } = useLocationContext();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   async function checkOnboardingStatus(userId: string) {
     const { data, error } = await supabase
@@ -22,6 +25,13 @@ export default function LoginScreen() {
     }
 
     if (data.onboarded) {
+      if (permissionStatus === 'unknown') {
+        try {
+          await refresh();
+        } catch (error) {
+          console.error('Location permission request failed:', error);
+        }
+      }
       router.replace('/(tabs)/home');
     } else {
       router.replace('/getting-started');
@@ -36,6 +46,18 @@ export default function LoginScreen() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [fadeAnim]);
 
   return (
     <View className="flex-1 bg-[#FFAE00]">
@@ -56,17 +78,19 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          <Button
-            variant="solid"
-            size="md"
-            action="negative"
-            className="bg-tertiary-400 rounded-lg"
-            onPress={() => router.push('/signin')}
-          >
-            <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>
-              Sign In
-            </ButtonText>
-          </Button>
+          <Animated.View style={{ opacity: fadeAnim }}>
+            <Button
+              variant="solid"
+              size="md"
+              action="negative"
+              className="bg-tertiary-400 rounded-lg"
+              onPress={() => router.push('/signin')}
+            >
+              <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>
+                Sign In
+              </ButtonText>
+            </Button>
+          </Animated.View>
         </View>
       </View>
     </View>

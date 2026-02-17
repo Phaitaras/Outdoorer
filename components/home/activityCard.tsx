@@ -34,20 +34,22 @@ export function ActivityCard({
             {title}
           </Text>
           {isContentLoading ? <Skeleton className="w-11 h-5 rounded-md" startColor='bg-background-100' speed={4} />
-          : <StatusBadge value={status} />}
+            : <StatusBadge value={status} />}
         </View>
         <ArrowRight size={18} />
       </View>
 
-      <View className="mt-2 flex-row items-center gap-2">
+      <View className="mt-2 flex-row items-center gap-4">
         <Text className="text-sm text-typography-700 pt-1" style={{ fontFamily: 'Roboto-Regular' }}>Next 6 Hourly Window: </Text>
         {isContentLoading ? <Skeleton className="w-40 h-[20px] mt-1 rounded-md" startColor='bg-background-100' speed={4} />
-        : <SentimentRow items={next6} />}
+          : <SentimentRow items={next6} />}
       </View>
 
-      <Text className="text-sm text-typography-700 mt-1" style={{ fontFamily: 'Roboto-Regular' }}>
-        Recommended Window: {windowText}
-      </Text>
+      <View className="flex-row items-center gap-2">
+        <Text className="text-sm text-typography-700 mt-1" style={{ fontFamily: 'Roboto-Regular' }}>Recommended Window: </Text>
+        {isContentLoading ? <Skeleton className="w-16 h-5 mt-1 rounded-md" startColor='bg-background-100' speed={4} />
+          : <Text className="text-sm text-typography-700 mt-1" style={{ fontFamily: 'Roboto-Medium' }}>{windowText}</Text>}
+      </View>
     </Container>
   );
 }

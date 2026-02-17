@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Alert } from 'react-native';
 
 export function useLocationDisplayLabel(
   coordinates: { latitude: number; longitude: number } | null,
@@ -15,6 +16,6 @@ export function useLocationDisplayLabel(
 
     // Show detailed location from filter if custom coordinates selected,
     // otherwise show bucketed locality from GPS
-    return isCustomLocation ? filterLocationLabel : (localityName || 'Locating...');
+    return isCustomLocation ? filterLocationLabel : (localityName || 'Location Unavailable');
   }, [coordinates, gpsLocation, filterLocationLabel, localityName]);
 }

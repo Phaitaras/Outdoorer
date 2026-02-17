@@ -220,7 +220,7 @@ export default function Home() {
           </View>
         ) : (
           <Animated.View style={{ opacity: fadeAnim }}>
-            <ActivityList items={items} isContentLoading={weatherLoading}/>
+            <ActivityList items={items} isContentLoading={weatherLoading || profileLoading || !weatherData}/>
           </Animated.View>
         )}
       </ScrollView>

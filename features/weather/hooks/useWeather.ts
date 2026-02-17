@@ -61,10 +61,11 @@ export function useWeather(
   latitude: number | null, 
   longitude: number | null, 
   date?: string,
-  marine?: boolean
+  _marine?: boolean
 ) {
   const bucketedLat = latitude ? bucketCoordinate(latitude) : null;
   const bucketedLon = longitude ? bucketCoordinate(longitude) : null;
+  const marine = true;
 
   return useQuery({
     queryKey: [WEATHER_QUERY_KEYS.WEATHER, bucketedLat, bucketedLon, date, marine],
