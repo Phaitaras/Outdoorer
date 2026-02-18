@@ -1,9 +1,10 @@
 import { TimePickerModal } from '@/components/plan/timePickerModal';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { useModalTransitionAnimation } from '@/features/home/hooks/useModalTransitionAnimation';
 import { formatTime } from '@/utils/activity';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Animated, Dimensions, Pressable, View } from 'react-native';
 
 interface PlanTimeModalProps {
   visible: boolean;
@@ -26,6 +27,12 @@ export function PlanTimeModal({
   const [endTime, setEndTime] = useState<Date>(initialEnd);
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end'>('start');
   const [showPicker, setShowPicker] = useState(false);
+  const fullSlideDistance = Dimensions.get('window').height;
+  const { shouldRender, backdropOpacity, contentOpacity, translateY } = useModalTransitionAnimation({
+    visible,
+    enableSlide: true,
+    slideDistance: fullSlideDistance,
+  });
 
   useEffect(() => {
     setStartTime(initialStart);
@@ -36,7 +43,6 @@ export function PlanTimeModal({
   const endLabel = useMemo(() => formatTime(endTime), [endTime]);
 
   const handleTimeChange = (_: any, selected?: Date) => {
-    setShowPicker(false);
     if (!selected) return;
     if (pickerTarget === 'start') {
       setStartTime(selected);
@@ -52,15 +58,32 @@ export function PlanTimeModal({
     }
   };
 
-  if (!visible) return null;
+  if (!shouldRender) return null;
 
   return (
     <>
-      <Pressable 
-        className="absolute inset-0 bg-black/40"
-        onPress={onClose}
-      />
-      <View className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-8 gap-3 mb-10">
+      <Animated.View className="absolute inset-0" style={{ opacity: backdropOpacity }} pointerEvents={visible ? 'auto' : 'none'}>
+        <Pressable
+          className="absolute inset-0 bg-black/40"
+          onPress={onClose}
+        />
+      </Animated.View>
+      <Animated.View
+        className="absolute bottom-0 left-0 right-0"
+        style={{
+          opacity: contentOpacity,
+          transform: [{ translateY }],
+        }}
+        pointerEvents={visible ? 'auto' : 'none'}
+      >
+        <View className="relative bg-white rounded-t-3xl p-8 gap-3 mb-10">
+          {showPicker && (
+            <Pressable
+              className="absolute inset-0 z-10"
+              onPress={() => setShowPicker(false)}
+            />
+          )}
+
         <Text className="text-lg text-typography-900" style={{ fontFamily: 'Roboto-Medium' }}>
           Plan Activity
         </Text>
@@ -68,7 +91,7 @@ export function PlanTimeModal({
             Recommended window: {recommendedLabel}
           </Text>
 
-          <View className="flex-row justify-between mt-2 gap-3">
+          <View className="relative z-20 flex-row justify-between mt-2 gap-3">
             <Pressable
               className="flex-1 border border-outline-200 rounded-xl px-4 py-3 bg-background-50"
               onPress={() => {
@@ -100,21 +123,28 @@ export function PlanTimeModal({
             </Pressable>
           </View>
 
+          <View className="relative z-20">
+            <TimePickerModal
+              visible={showPicker}
+              embedded
+              value={pickerTarget === 'start' ? startTime : endTime}
+              onChange={handleTimeChange}
+              onClose={() => setShowPicker(false)}
+            />
+          </View>
+
           <Button
             variant="solid"
-            className="rounded-full bg-tertiary-400 mt-2"
-            onPress={() => onConfirm(startTime, endTime)}
+            className="relative z-20 rounded-full bg-tertiary-400 mt-2"
+            onPress={() => {
+              setShowPicker(false);
+              onConfirm(startTime, endTime);
+            }}
           >
             <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>Save</ButtonText>
           </Button>
         </View>
-
-        <TimePickerModal
-          visible={showPicker}
-          value={pickerTarget === 'start' ? startTime : endTime}
-          onChange={handleTimeChange}
-          onClose={() => setShowPicker(false)}
-        />
+      </Animated.View>
       </>
   );
 }
