@@ -37,7 +37,6 @@ export function ProfileCard({
   addFriendLabel,
   addFriendVariant = 'solid',
   addFriendDisabled = false,
-  onViewBookmarksPress,
   onFriendsPress,
   onActivitiesPress,
   onReviewsPress,
@@ -131,6 +130,20 @@ export function ProfileCard({
           </Text>
         </Pressable>
       </View>
+
+      {/* action button */}
+      {onAddFriendPress && addFriendLabel && (
+        <Button
+          variant={addFriendVariant}
+          className="mt-6 rounded-full self-center"
+          onPress={onAddFriendPress}
+          disabled={addFriendDisabled}
+        >
+          <ButtonText className={friendButtonTextClass} style={{ fontFamily: 'Roboto-Medium' }}>
+            {addFriendLabel}
+          </ButtonText>
+        </Button>
+      )}
     </View>
   );
 }

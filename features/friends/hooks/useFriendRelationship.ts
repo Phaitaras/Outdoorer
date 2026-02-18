@@ -1,16 +1,18 @@
+import { PROFILE_QUERY_KEYS } from '@/features/profile';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FRIENDS_QUERY_KEYS } from '../constants';
 import {
-    acceptFriendRequest,
-    cancelFriendRequest,
-    fetchFriendStatus,
-    rejectFriendRequest,
-    sendFriendRequest,
-    unfriend,
+  acceptFriendRequest,
+  cancelFriendRequest,
+  fetchFriendStatus,
+  rejectFriendRequest,
+  sendFriendRequest,
+  unfriend,
 } from './friendService';
 
 const invalidateQueries = (queryClient: any, userId: string | null, targetId?: string) => {
   if (userId) {
+    queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.PROFILE, userId] });
     queryClient.invalidateQueries({ queryKey: [FRIENDS_QUERY_KEYS.FRIENDS, userId] });
     queryClient.invalidateQueries({ queryKey: [FRIENDS_QUERY_KEYS.PENDING_REQUESTS, userId] });
     if (targetId) {

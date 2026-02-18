@@ -1,3 +1,4 @@
+import { QUERY_KEYS } from '@/features/map/constants';
 import { PROFILE_QUERY_KEYS } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -54,10 +55,12 @@ export function useCreateActivity() {
 
   return useMutation({
     mutationFn: createActivity,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.PROFILE] });
-      queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.USER_ACTIVITIES] });
-      queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.USER_PLANS] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.PROFILE, variables.userId] });
+      queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEYS.ACTIVITIES, variables.userId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_PLANS, variables.userId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_USER_ACTIVITIES, variables.userId] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MAP_FRIEND_ACTIVITIES] });
     },
   });
 }

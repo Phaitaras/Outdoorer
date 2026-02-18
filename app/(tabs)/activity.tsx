@@ -12,6 +12,7 @@ import { LocationHeader } from '@/components/home/locationHeader';
 import { Text } from '@/components/ui/text';
 import { useActivityDetail, useActivityRenderGuard, type ActivityParams } from '@/features/activity';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Info } from 'lucide-react-native';
 
 export default function ActivityDetailScreen() {
   const params = useLocalSearchParams<ActivityParams>();
@@ -53,14 +54,14 @@ export default function ActivityDetailScreen() {
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[10%]">
       <ScrollView className="flex-1 px-8 mt-6" showsVerticalScrollIndicator={false}>
-          <LocationHeader 
-          locationLabel={locationLabel} 
-          displayArrow={true} 
+        <LocationHeader
+          locationLabel={locationLabel}
+          displayArrow={true}
           className='mb-6'
         />
-        <ActivityHeader 
-          activity={activity} 
-          status={status} 
+        <ActivityHeader
+          activity={activity}
+          status={status}
           onPlan={() => setShowPlanModal(true)}
           hasReview={activityData?.hasReview ?? false}
           reviewId={activityData?.reviewId ?? null}
@@ -68,19 +69,20 @@ export default function ActivityDetailScreen() {
           activityEndTime={activityData?.end_time ?? null}
         />
 
-        <ActivityGraph 
-          data={graphData} 
-          selectedIndex={selectedIndex} 
-          setSelectedIndex={setSelectedIndex} 
-          recommendedStart={recommendedStart} 
-          recommendedEnd={recommendedEnd} 
+        <ActivityGraph
+          data={graphData}
+          selectedIndex={selectedIndex}
+          setSelectedIndex={setSelectedIndex}
+          recommendedStart={recommendedStart}
+          recommendedEnd={recommendedEnd}
         />
 
         <Pressable
           onPress={() => setShowFigures(true)}
-          className="self-end mb-4"
+          className="self-end mb-4 flex-row gap-1 items-center"
         >
-          <Text className="text-[11px] text-typography-500 underline" style={{fontFamily: 'Roboto-Regular'}}>
+          <Info size={14} color="#999" strokeWidth={3} />
+          <Text className="text-sm text-typography-500 underline" style={{ fontFamily: 'Roboto-Regular' }}>
             What is this?
           </Text>
         </Pressable>

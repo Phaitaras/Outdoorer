@@ -9,7 +9,7 @@ import { useAppleMapsAutocomplete } from '@/features/plan';
 import { LOCATION_PICKER_CONSTANTS } from '@/features/plan/constants';
 import { supabase } from '@/lib/supabase';
 import { useLocationContext } from '@/providers/location';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Keyboard, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
@@ -42,12 +42,29 @@ export default function Map() {
     })();
   }, []);
 
-  const { data: friends = [] } = useFriends(userId);
+  const { data: friends = [], refetch: refetchFriends } = useFriends(userId);
   const friendIds = useMemo(() => friends.map((f) => f.id), [friends]);
 
-  const { data: userPlans = [] } = useUserPlans(userId);
-  const { data: userActivities = [] } = useUserActivities(userId);
-  const { data: friendActivities = [] } = useFriendActivities(friendIds);
+  const { data: userPlans = [], refetch: refetchUserPlans } = useUserPlans(userId);
+  const { data: userActivities = [], refetch: refetchUserActivities } = useUserActivities(userId);
+  const { data: friendActivities = [], refetch: refetchFriendActivities } = useFriendActivities(friendIds);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      refetchFriends();
+      refetchUserPlans();
+      refetchUserActivities();
+      if (friendIds.length > 0) refetchFriendActivities();
+    }, [
+      userId,
+      friendIds.length,
+      refetchFriends,
+      refetchUserPlans,
+      refetchUserActivities,
+      refetchFriendActivities,
+    ])
+  );
 
   const markers = useMemo(() => {
     const planMarkers = userPlans.map((a) => toMarker(a, 'plan')).filter(Boolean);

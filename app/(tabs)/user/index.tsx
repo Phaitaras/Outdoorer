@@ -3,7 +3,7 @@ import { PreviousActivities, ProfileCard, UpcomingActivities } from '@/component
 import { useFadeInAnimation } from '@/features/home';
 import { useProfile, useUserActivities } from '@/features/profile';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
@@ -11,13 +11,25 @@ export default function User() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   
-  const { data: profile, isLoading: profileLoading } = useProfile(userId);
-  const { data: upcomingActivities, isLoading: upcomingLoading } = useUserActivities({
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    refetch: refetchProfile,
+  } = useProfile(userId);
+  const {
+    data: upcomingActivities,
+    isLoading: upcomingLoading,
+    refetch: refetchUpcomingActivities,
+  } = useUserActivities({
     userId: userId ?? '',
     type: 'upcoming',
     limit: 3,
   });
-  const { data: previousActivities, isLoading: previousLoading } = useUserActivities({
+  const {
+    data: previousActivities,
+    isLoading: previousLoading,
+    refetch: refetchPreviousActivities,
+  } = useUserActivities({
     userId: userId ?? '',
     type: 'previous',
     limit: 3,
@@ -41,6 +53,16 @@ export default function User() {
       if (user) setUserId(user.id);
     })();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!userId) return;
+
+      refetchProfile();
+      refetchUpcomingActivities();
+      refetchPreviousActivities();
+    }, [userId, refetchProfile, refetchUpcomingActivities, refetchPreviousActivities])
+  );
 
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[20%]">
