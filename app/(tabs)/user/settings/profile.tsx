@@ -125,7 +125,6 @@ export default function ProfileSettingsScreen() {
                             </Text>
                             <View className="flex-row gap-2">
                                 {[
-                                    { value: 'public', label: 'Public' },
                                     { value: 'friends', label: 'Friends' },
                                     { value: 'private', label: 'Private' },
                                 ].map((option) => (
@@ -133,7 +132,7 @@ export default function ProfileSettingsScreen() {
                                         key={option.value}
                                         label={option.label}
                                         active={activityVisibility === option.value}
-                                        onPress={() => setActivityVisibility(option.value as 'public' | 'friends' | 'private')}
+                                        onPress={() => setActivityVisibility(option.value as 'friends' | 'private')}
                                     />
                                 ))}
                             </View>
