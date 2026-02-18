@@ -54,7 +54,10 @@ export function CurrentWeatherCard({
     return (
       <View>
         <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
-          <Text className="text-typography-500">Current weather not available for future dates.</Text>
+          <Text className="text-typography-500">Current weather not available.</Text>
+        </View>
+        <View className="mt-2 flex self-end">
+          <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
         </View>
       </View>
     );
@@ -143,6 +146,9 @@ export function CurrentWeatherCard({
             </View>
           ))}
         </View>
+      </View>
+      <View className="mt-2 flex self-end">
+        <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
       </View>
     </View>
   );

@@ -5,7 +5,8 @@ import { View } from 'react-native';
 
 export function HourlyTable({ selectedHour, sentiment, score, rows }: { selectedHour: string; sentiment?: Sentiment; score?: number; rows: [string, string, string, string][] }) {
   return (
-    <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-8">
+    <View>
+    <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-sm" style={{ fontFamily: 'Roboto-Medium' }}>Hourly Window</Text>
         <Text className="text-sm text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
@@ -35,6 +36,10 @@ export function HourlyTable({ selectedHour, sentiment, score, rows }: { selected
           </View>
         </View>
       ))}
+    </View>
+      <View className="mt-2 flex self-end">
+        <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
+      </View>
     </View>
   );
 }

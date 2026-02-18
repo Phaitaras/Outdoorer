@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 export function CurrentWeatherCardSkeleton() {
   return (
@@ -26,6 +26,9 @@ export function CurrentWeatherCardSkeleton() {
             </View>
           ))}
         </View>
+      </View>
+      <View className="mt-2 flex self-end">
+        <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
       </View>
     </View>
   );
