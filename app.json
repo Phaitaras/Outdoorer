@@ -4,10 +4,7 @@
     "slug": "outdoorer",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": {
-      "dark": "./assets/images/ios-dark.png",
-      "light": "./assets/images/ios-light.png",
-    },
+    "icon": "./assets/app.icon",
     "scheme": "outdoorer",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
