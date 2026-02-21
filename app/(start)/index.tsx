@@ -51,10 +51,10 @@ export default function LoginScreen() {
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 600,
         useNativeDriver: true,
       }).start();
-    }, 100);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, [fadeAnim]);
@@ -63,12 +63,12 @@ export default function LoginScreen() {
     <View className="flex-1 bg-[#FFAE00]">
       <Image
         source={require('../../assets/images/full_icon.png')}
-        className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-[120px] w-[260px] h-[260px] z-20"
+        className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-[120px] w-[270px] h-[270px] z-20"
         resizeMode="contain"
       />
       <View className="relative w-full flex-1 justify-end">
 
-        <View className="w-full h-[50%] bg-white rounded-t-[30px] px-12 pt-[30%]">
+        <View className="w-full h-[51%] bg-white rounded-t-[30px] px-12 pt-[30%]">
           <View className="mb-6 flex-col justify-center items-center gap-2">
             <Text size="3xl" style={{ fontFamily: 'Roboto-Bold' }}>
               Outdoorer

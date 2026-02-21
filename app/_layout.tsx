@@ -3,11 +3,16 @@ import '@/global.css';
 import { LocationProvider } from '@/providers/location';
 import { QueryProvider } from '@/providers/query';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({
+  duration: 300,
+  fade: true,
+});
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
