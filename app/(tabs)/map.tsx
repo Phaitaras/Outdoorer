@@ -161,7 +161,7 @@ export default function Map() {
       <View className="flex-1 items-center justify-center bg-background-0 mb-[20%]">
         <ActivityIndicator size="large" color="#FFAE00" />
         <Text className="mt-4 text-typography-600" style={{ fontFamily: 'Roboto-Regular' }}>
-          Getting location...
+          Getting location
         </Text>
       </View>
     );
@@ -183,6 +183,8 @@ export default function Map() {
         clusteringEnabled
         clusterColor="#FFAE00"
         clusterTextColor="#FFFFFF"
+        radius={10}
+        maxZoom={100}
         showsUserLocation={true}
         showsMyLocationButton={true}
         onPress={(e) => {
@@ -202,6 +204,7 @@ export default function Map() {
                 longitude: loc.longitude,
               }}
               onPress={() => handleMarkerPress(loc)}
+              tracksViewChanges={true}
             >
               <CustomMarker emoji={emoji} />
             </Marker>

@@ -14,7 +14,7 @@ export function CustomMarker({ emoji }: CustomMarkerProps) {
   return (
     <Text
       style={{
-        fontSize: 35,
+        fontSize: 40,
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 0, height: 2 },
         textShadowRadius: 4,
