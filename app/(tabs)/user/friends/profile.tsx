@@ -9,7 +9,7 @@ import { useFadeInAnimation } from '@/features/home';
 import { useProfile } from '@/features/profile';
 import { activityToCard } from '@/features/profile/utils/activityToCard';
 import { supabase } from '@/lib/supabase';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Animated, ScrollView, View } from 'react-native';
 
@@ -27,8 +27,13 @@ export default function FriendProfileScreen() {
     })();
   }, []);
 
-  const { data: profile, isLoading: profileLoading } = useProfile(friendId);
-  const { data: status } = useFriendStatus(currentUserId, friendId);
+  useFocusEffect(() => {
+    refetchProfile();
+    refetchStatus();
+  });
+
+  const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile(friendId);
+  const { data: status, refetch: refetchStatus } = useFriendStatus(currentUserId, friendId);
   const { request, cancel, accept, unfriend } = useFriendActions(currentUserId, friendId);
 
   const isFriend = status?.status === 'accepted';
@@ -54,7 +59,7 @@ export default function FriendProfileScreen() {
   }, [accept, cancel, unfriend, friendId, currentUserId, isOwner, isFriend, isPending, isUserSide, request, status?.status]);
 
   const activityVisibility = profile?.activity_visibility ?? 'friends';
-  const canViewActivities = !!friendId && (activityVisibility === 'public' || isOwner || (activityVisibility === 'friends' && isFriend));
+  const canViewActivities = !!friendId && (isOwner || (activityVisibility === 'friends' && isFriend));
   const activitiesMessage = canViewActivities
     ? null
     : activityVisibility === 'private'
@@ -86,6 +91,7 @@ export default function FriendProfileScreen() {
               addFriendLabel={actionButton?.label}
               addFriendVariant={actionButton?.variant as any}
               addFriendDisabled={isActing}
+              hideActivitiesCount={(!isFriend && activityVisibility === 'friends') || activityVisibility === 'private'}
             />
           </View>
 

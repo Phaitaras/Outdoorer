@@ -1,14 +1,13 @@
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar';
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
+import { Button, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Text } from '@/components/ui/text';
 import { LABEL_TO_ACTIVITY } from '@/constants/activities';
 import { AVATAR_COLOR_HEX, AvatarColor } from '@/constants/user';
 import { getAvatarColor } from '@/features/map';
 import { type ProfileWithStats } from '@/features/profile';
-import { SettingsIcon } from 'lucide-react-native';
-import React, { useEffect, useRef } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import React from 'react';
+import { Pressable, View } from 'react-native';
 import { ProfileCardSkeleton } from './profileCardSkeleton';
 
 export interface ProfileCardProps {
@@ -25,6 +24,7 @@ export interface ProfileCardProps {
   onFriendsPress?: () => void;
   onActivitiesPress?: () => void;
   onReviewsPress?: () => void;
+  hideActivitiesCount?: boolean;
 }
 
 export function ProfileCard({
@@ -40,6 +40,7 @@ export function ProfileCard({
   onFriendsPress,
   onActivitiesPress,
   onReviewsPress,
+  hideActivitiesCount = false,
 }: ProfileCardProps) {
   if (isLoading || !profile) {
     return <ProfileCardSkeleton />;
@@ -106,15 +107,19 @@ export function ProfileCard({
             Friends
           </Text>
         </Pressable>
-        <Divider orientation="vertical" />
-        <Pressable onPress={onActivitiesPress} className="flex-col gap-1">
-          <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
-            {profile.activityCount}
-          </Text>
-          <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
-            Activities
-          </Text>
-        </Pressable>
+        {!hideActivitiesCount && (
+          <>
+            <Divider orientation="vertical" />
+            <Pressable onPress={onActivitiesPress} className="flex-col gap-1">
+              <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
+                {profile.activityCount}
+              </Text>
+              <Text className="text-typography-600 text-md" style={{ fontFamily: 'Roboto-Medium' }}>
+                Activities
+              </Text>
+            </Pressable>
+          </>
+        )}
         <Divider orientation="vertical" />
         <Pressable onPress={onReviewsPress} className="flex-col gap-1">
           <Text className="text-typography-700 text-4xl" style={{ fontFamily: 'Roboto-Medium' }}>
