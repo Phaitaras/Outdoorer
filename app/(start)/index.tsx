@@ -87,7 +87,7 @@ export default function LoginScreen() {
               onPress={() => router.push('/signin')}
             >
               <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>
-                Sign In
+                Get Started
               </ButtonText>
             </Button>
           </Animated.View>

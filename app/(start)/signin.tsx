@@ -1,4 +1,4 @@
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import {
   FormControl,
@@ -13,6 +13,7 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Alert, Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, View } from 'react-native';
+import { GoogleIcon } from '@/components/ui/icon';
 
 export default function SignIn() {
   const router = useRouter();
@@ -23,7 +24,6 @@ export default function SignIn() {
   const [username, setUsername] = React.useState('');
   const [passwordError, setPasswordError] = React.useState('');
 
-  // Configure Google Sign-In once
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -93,31 +93,6 @@ export default function SignIn() {
     }
   }
 
-  async function ensureProfile(userId: string, defaultUsername?: string | null) {
-    // check if profile exists
-    const { data, error } = await supabase
-      .from('profile')
-      .select('id')
-      .eq('id', userId)
-      .single();
-
-    if (!error && data) return;
-
-    // create if missing
-    const { error: insertError } = await supabase
-      .from('profile')
-      .insert({
-        id: userId,
-        username: defaultUsername ?? '',
-        onboarded: false,
-      });
-
-    if (insertError) {
-      Alert.alert('Profile Error', insertError.message);
-      throw insertError;
-    }
-  }
-
   async function signInWithGoogle() {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -145,7 +120,6 @@ export default function SignIn() {
         return;
       }
 
-      await ensureProfile(authedUser.id, user?.name ?? authedUser.email ?? null);
       await checkOnboardingStatus(authedUser.id);
     } catch (err: any) {
       if (err?.code === statusCodes.SIGN_IN_CANCELLED) return;
@@ -311,6 +285,7 @@ export default function SignIn() {
           </View>
 
           <Button variant="outline" size="md" className="rounded-lg" onPress={signInWithGoogle}>
+            <ButtonIcon as={GoogleIcon}/>
             <ButtonText style={{ fontFamily: 'Roboto-Medium' }}>Sign In With Google</ButtonText>
           </Button>
         </View>
