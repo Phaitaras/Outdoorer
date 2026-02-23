@@ -23,32 +23,35 @@ export function ActivityDetailSkeleton({ onBack }: ActivityDetailSkeletonProps) 
           <Skeleton startColor="bg-background-100" speed={4} className="h-10 w-28 rounded-full" />
         </View>
 
-        <View className="mt-1 mb-3">
+        <View className="mt-1 mb-4">
           <Skeleton startColor="bg-background-100" speed={4} className="h-52 w-full rounded-xl" />
         </View>
 
         <View className="self-end mb-5">
-          <Skeleton startColor="bg-background-100" speed={4} className="h-4 w-20 rounded-md" />
+          <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-24 rounded-md" />
         </View>
 
-        <Skeleton startColor="bg-background-100" speed={4} className="h-4 w-40 mb-2 rounded-md" />
+        <Skeleton startColor="bg-background-100" speed={4} className="h-4 w-32 mb-2 rounded-md" />
 
         <View className="bg-white rounded-2xl px-4 py-3 shadow-soft-1 border border-outline-100 mb-4">
           <View className="flex-row items-center justify-between">
             <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-36 rounded-md" />
-            <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-24 rounded-md" />
+            <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-20 rounded-md" />
           </View>
         </View>
 
-        <View className="bg-white rounded-2xl shadow-soft-1 p-3">
-          <View className="flex-row items-center justify-between">
-            <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-20 rounded-xl" />
-            <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-12 rounded-xl" />
+        <View className="bg-white rounded-2xl shadow-soft-1 px-4 py-3">
+          <View className="flex-row items-center justify-between pb-3">
+            <View className="flex-row items-center gap-2">
+              <Skeleton startColor="bg-background-100" speed={4} className="h-6 w-14 rounded-lg" />
+              <Skeleton startColor="bg-background-100" speed={4} className="h-5 w-10 rounded-lg" />
+            </View>
+            <Skeleton startColor="bg-background-100" speed={4} className="h-6 w-14 rounded-lg" />
           </View>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <View key={i} className="flex-row items-center justify-between pt-5">
-              <Skeleton startColor="bg-background-100" speed={4} className="h-7 w-24 rounded-xl" />
-              <Skeleton startColor="bg-background-100" speed={4} className="h-7 w-24 rounded-xl" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <View key={i} className="flex-row justify-evenly py-1 border-b border-outline-100 last:border-b-0">
+              <Skeleton startColor="bg-background-100" speed={4} className="w-[48%] p-2 mr-2 h-12 rounded-lg" />
+              <Skeleton startColor="bg-background-100" speed={4} className="w-[48%] p-2 h-12 rounded-lg" />
             </View>
           ))}
         </View>

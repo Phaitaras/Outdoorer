@@ -14,13 +14,8 @@ async function fetchWeather24h(
     lon: longitude 
   };
   
-  if (date) {
-    body.date = date;
-  }
-
-  if (marine) {
-    body.marine = marine;
-  }
+  if (date) body.date = date;
+  if (marine) body.marine = marine;
 
   console.log('Fetching weather for:', { lat: latitude, lon: longitude, date, marine });
 
@@ -29,10 +24,8 @@ async function fetchWeather24h(
   });
 
   if (error) {
-    // Try to parse error response if it's JSON
     let errorMessage = error.message;
     if (typeof error === 'object' && error.context?.status === 400) {
-      // The error might be in the response body
       errorMessage = `Weather API Error (${error.context.status}): ${error.message}`;
     }
     console.error('Weather fetch error:', errorMessage, error);

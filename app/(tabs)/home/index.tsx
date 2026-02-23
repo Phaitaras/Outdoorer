@@ -16,9 +16,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Animated, ScrollView, Text, View } from 'react-native';
 
-// Water sports that need marine data
-const WATER_SPORTS = ['kayaking', 'sailing', 'surfing', 'kitesurfing', 'windsurfing'];
-
 export default function Home() {
   const router = useRouter();
   const { selectedLat, selectedLng, selectedAddress } = useLocalSearchParams<{
@@ -27,7 +24,6 @@ export default function Home() {
     selectedAddress?: string;
   }>();
 
-  // Hooks
   const { location } = useLocationContext();
   const userId = useCurrentUserId();
   const { localityName } = useCurrentLocationGeocode(location);
@@ -44,17 +40,10 @@ export default function Home() {
   useLocationPickerResult(selectedLat, selectedLng, selectedAddress, setLocationLabel, setCoordinates);
   useSyncLocationName(coordinates, locationLabel, setLocationLabel);
 
-  // Check if profile includes any water sports
-  const needsMarine = useMemo(() => {
-    if (!profile?.activity_types) return false;
-    return profile.activity_types.some((type: string) => WATER_SPORTS.includes(type));
-  }, [profile?.activity_types]);
-
   const { data: weatherData, isLoading: weatherLoading, error: weatherError } = useWeather(
     coordinates?.latitude ?? location?.latitude ?? null,
     coordinates?.longitude ?? location?.longitude ?? null,
-    undefined,
-    needsMarine
+    undefined
   );
 
   const {
@@ -76,7 +65,6 @@ export default function Home() {
     resetFilters,
   } = useFilterState();
 
-  // Build filters object for scoring
   const filters = useMemo<FilterState | null>(() => {
     if (!useWeatherPrefs) return null;
     return {
@@ -88,7 +76,6 @@ export default function Home() {
     };
   }, [useWeatherPrefs, rainTolerance, tempMin, tempMax, windLevel]);
 
-  // Compute activity scores
   const activityScores = useActivityScoring(
     weatherData,
     profile?.activity_types ?? [],
@@ -103,11 +90,10 @@ export default function Home() {
         const title = LABEL_TO_ACTIVITY[enumVal];
         if (!title) return null;
 
-        // Get computed scores or use defaults
         const scoreResult = activityScores.get(enumVal);
-        const status = scoreResult?.status ?? 'GOOD';
-        const next6 = scoreResult?.next6 ?? ['GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD', 'GOOD'];
-        const windowText = scoreResult?.windowText ?? 'N/A';
+        const status = scoreResult?.status;
+        const next6 = scoreResult?.next6;
+        const windowText = scoreResult?.windowText;
 
         return {
           emoji: '',
@@ -125,7 +111,6 @@ export default function Home() {
               params.lng = coordinates.longitude.toString();
               params.locationName = locationLabel;
             }
-            // Pass filter params through navigation
             if (useWeatherPrefs) {
               params.useWeatherPrefs = 'true';
               params.rainTolerance = rainTolerance;

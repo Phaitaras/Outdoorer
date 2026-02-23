@@ -41,7 +41,7 @@ interface SelectedLocation {
 export function useActivityDetail() {
   const params = useLocalSearchParams<ActivityParams>();
   const activity = params.activity ?? 'Running';
-  const status = (params.status as Sentiment) ?? 'GOOD';
+  const status = (params.status as Sentiment);
   const metricSystem = (params.metricSystem as MetricSystem) ?? 'metric';
   const { location } = useLocationContext();
 
@@ -172,6 +172,15 @@ export function useActivityDetail() {
       score: h.score,
     }));
   }, [weatherData, activityType, filters]);
+
+  useEffect(() => {
+    if (graphData.length === 0) return;
+    const currentHour = new Date().getHours().toString().padStart(2, '0');
+    const currentHourIndex = graphData.findIndex(bar => bar.hour.startsWith(currentHour));
+    if (currentHourIndex !== -1) {
+      setSelectedIndex(currentHourIndex);
+    }
+  }, [graphData]);
 
   const { recommendedStart, recommendedEnd } = useMemo(() => {
     if (graphData.length === 0) return { recommendedStart: 0, recommendedEnd: 0 };
