@@ -2,6 +2,9 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, View } from 'react-native';
 
+const FLUSH_MIN_DATE = new Date(1900, 0, 1);
+const FLUSH_MAX_DATE = new Date(2100, 0, 1);
+
 export function TimePickerModal({
   visible,
   value,
@@ -71,6 +74,8 @@ export function TimePickerModal({
           value={value}
           onChange={onChange}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          minimumDate={FLUSH_MIN_DATE}
+          maximumDate={FLUSH_MAX_DATE}
         />
       </Animated.View>
     );
@@ -90,6 +95,8 @@ export function TimePickerModal({
           value={value}
           onChange={onChange}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          minimumDate={FLUSH_MIN_DATE}
+          maximumDate={FLUSH_MAX_DATE}
         />
       </View>
     </View>
