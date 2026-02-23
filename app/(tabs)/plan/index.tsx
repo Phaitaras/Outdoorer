@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Platform, ScrollView, View } from 'react-native';
 
 import { ActivitySelect } from '@/components/plan/activitySelect';
@@ -29,6 +29,13 @@ export default function Plan() {
     selectedLat?: string; 
     selectedLng?: string; 
     selectedAddress?: string;
+    activity?: string;
+    date?: string;
+    useWeatherPrefs?: string;
+    rainTolerance?: string;
+    tempMin?: string;
+    tempMax?: string;
+    windLevel?: string;
   }>();
   
   const userId = useCurrentUserId();
@@ -50,6 +57,7 @@ export default function Plan() {
   const [tempPicker, setTempPicker] = useState<TempPickerMode>(null);
 
   const [windLevel, setWindLevel] = useState<number>(1); // 0 - 2
+  const hydratedFromParamsRef = useRef(false);
 
   const {
     coordinates,
@@ -65,6 +73,47 @@ export default function Plan() {
       setLocationLabel(resolvedLocationName);
     }
   }, [resolvedLocationName, locationLabel, setLocationLabel]);
+
+  useEffect(() => {
+    if (hydratedFromParamsRef.current) return;
+
+    const {
+      activity: nextActivity,
+      date: nextDate,
+      useWeatherPrefs: nextUseWeatherPrefs,
+      rainTolerance: nextRainTolerance,
+      tempMin: nextTempMin,
+      tempMax: nextTempMax,
+      windLevel: nextWindLevel,
+    } = params;
+
+    if (!nextActivity && !nextDate && !nextUseWeatherPrefs && !nextRainTolerance && !nextTempMin && !nextTempMax && !nextWindLevel) {
+      return;
+    }
+
+    if (nextActivity) setActivity(nextActivity);
+    if (nextDate) {
+      const parsedDate = new Date(nextDate);
+      if (!Number.isNaN(parsedDate.getTime())) setDate(parsedDate);
+    }
+    if (nextUseWeatherPrefs) setUseWeatherPrefs(nextUseWeatherPrefs === 'true');
+    if (nextRainTolerance) setRainTolerance(nextRainTolerance as RainValue);
+
+    const toNumber = (value?: string) => {
+      if (!value) return undefined;
+      const parsed = Number(value);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    };
+
+    const parsedTempMin = toNumber(nextTempMin);
+    const parsedTempMax = toNumber(nextTempMax);
+    const parsedWindLevel = toNumber(nextWindLevel);
+    if (parsedTempMin != null) setTempMin(parsedTempMin);
+    if (parsedTempMax != null) setTempMax(parsedTempMax);
+    if (parsedWindLevel != null) setWindLevel(parsedWindLevel);
+
+    hydratedFromParamsRef.current = true;
+  }, [params]);
 
   const formatDate = (d: Date) =>
     d.toLocaleDateString('en-GB', {
@@ -114,9 +163,21 @@ export default function Plan() {
           onPress={() => {
             router.push({
               pathname: '/(tabs)/plan/location',
-              params: coordinates 
-                ? { initialLat: coordinates.latitude.toString(), initialLng: coordinates.longitude.toString() }
-                : undefined,
+              params: {
+                ...(coordinates
+                  ? {
+                      initialLat: coordinates.latitude.toString(),
+                      initialLng: coordinates.longitude.toString(),
+                    }
+                  : {}),
+                activity,
+                date: date.toISOString(),
+                useWeatherPrefs: useWeatherPrefs ? 'true' : 'false',
+                rainTolerance,
+                tempMin: tempMin.toString(),
+                tempMax: tempMax.toString(),
+                windLevel: windLevel.toString(),
+              },
             });
           }}
         />
