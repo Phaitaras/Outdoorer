@@ -1,3 +1,4 @@
+import { Button, ButtonIcon } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { PreviousActivities, ProfileCard, UpcomingActivities } from '@/components/user';
 import { useFadeInAnimation } from '@/features/home';
@@ -6,6 +7,8 @@ import { supabase } from '@/lib/supabase';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
+import { SettingsIcon } from '@/components/ui/icon';
+import { UsersRound } from 'lucide-react-native';
 
 export default function User() {
   const router = useRouter();
@@ -67,16 +70,23 @@ export default function User() {
   return (
     <View className="flex-1 bg-[#F6F6F7] mb-[20%]">
       <ScrollView
-        className="flex-1 p-8"
+        className="flex-1 px-8 pt-3 pb-8"
         showsVerticalScrollIndicator={false}
         scrollEnabled={false}
       >
         <View className="flex-col">
           <View className="mb-6">
+            <View className="flex-row justify-end items-center gap-3 pb-3">
+            <Button variant="link" className="self-start" onPress={() => router.push('/user/friends')}>
+              <ButtonIcon as={UsersRound} className='w-7 h-7 text-typography-600' />
+            </Button>
+            <Button variant="link" className="self-start" onPress={() => router.push('/user/settings')}>
+              <ButtonIcon as={SettingsIcon} className='w-7 h-7 text-typography-600' />
+            </Button>
+            </View>
             <ProfileCard
               profile={profile}
               isLoading={profileLoading}
-              onSettingsPress={() => router.push('/user/settings')}
               onAddFriendPress={() => router.push('/user/friends/add')}
               onFriendsPress={() => router.push('/user/friends')}
               onActivitiesPress={() => router.push('/user/previousActivities')}

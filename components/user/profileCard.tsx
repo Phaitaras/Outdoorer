@@ -77,11 +77,6 @@ export function ProfileCard({
             </Text>
           </View>
         </View>
-        {onSettingsPress && (
-          <Button variant="link" className="px-2 self-start" onPress={onSettingsPress}>
-            <ButtonIcon as={SettingsIcon} className='w-6 h-6 text-typography-600' />
-          </Button>
-        )}
       </View>
 
       {/* tags */}
