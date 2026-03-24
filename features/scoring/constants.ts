@@ -202,15 +202,15 @@ export const CRITICAL_THRESHOLDS: Record<ActivityKey, {
   maxWindGustAlt?: number; // alternative upper bound for some sports
 }> = {
   running: {
-    maxTemp: 37, // °C (with humidity consideration in safety.ts)
+    maxTemp: 37, // °C
     minTemp: -28, // °C
   },
   cycling: {
-    maxWindGust: 70, // km/h (increased from 50 - too restrictive)
+    maxWindGust: 50, // km/h
   },
   hiking: {},
   rock_climbing: {
-    maxPrecip: 2.5, // mm/h (mechanical strength drops 75% when wet)
+    maxPrecip: 3.0, // mm/h
   },
   generic_sports: {},
   kayaking: {

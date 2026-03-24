@@ -2,7 +2,8 @@ import type { Sentiment } from '@/components/home/sentiment';
 import type { WeatherData } from '@/features/weather';
 import { findRecommendedWindow, type HourBar } from '@/utils/activity';
 import { useMemo } from 'react';
-import type { ActivityKey, FilterState } from '../calculator';
+import type { ActivityKey } from '../constants';
+import type { FilterState } from '../calculator';
 import { computeHourlySentiments } from '../calculator';
 
 export type ActivityScoreResult = {
