@@ -23,8 +23,8 @@ export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boo
   // Temperature bounds
   if (thresholds.maxTemp !== undefined && hourWeather.temperature_2m > thresholds.maxTemp) {
     // Running keeps a humidity gate via dew point for high-heat critical override.
-    if (sportKey === 'running' && hourWeather.dew_point_2m > 18) {
-      return true;
+    if (sportKey === 'running') {
+      return hourWeather.dew_point_2m > 18;
     }
     return true;
   }
