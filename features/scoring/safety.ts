@@ -22,15 +22,11 @@ export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boo
 
   // Temperature bounds
   if (thresholds.maxTemp !== undefined && hourWeather.temperature_2m > thresholds.maxTemp) {
-    // For running, also check humidity via dew point
-    // If temp > 37°C AND dew point indicates high humidity (>18°C), critical
+    // Running keeps a humidity gate via dew point for high-heat critical override.
     if (sportKey === 'running' && hourWeather.dew_point_2m > 18) {
       return true;
     }
-    // For other sports with maxTemp, just check temp
-    if (sportKey !== 'running') {
-      return true;
-    }
+    return true;
   }
 
   if (thresholds.minTemp !== undefined && hourWeather.temperature_2m < thresholds.minTemp) {
