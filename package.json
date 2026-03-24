@@ -9,7 +9,12 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:core": "jest features/scoring/__tests__ utils/__tests__",
+    "test:coverage": "jest features/scoring/__tests__ utils/__tests__ --coverage",
+    "test:report": "jest features/scoring/__tests__ utils/__tests__ --json --outputFile tests/reports/core-tests.json"
   },
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.4.1",
@@ -69,10 +74,14 @@
     "tailwindcss": "^3.4.18"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.3.0",
+    "jest-expo": "^55.0.11",
+    "ts-jest": "^29.4.6",
     "typescript": "~5.9.2"
   },
   "private": true
