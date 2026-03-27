@@ -7,12 +7,12 @@ import { CRITICAL_THRESHOLDS, CRITICAL_WEATHERCODES, CRITICAL_WIND_GUST } from '
  * Returns true if conditions are critical (unsafe)
  */
 export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boolean {
-  // Global critical: severe weathercodes (thunderstorms, heavy rain/snow)
+  // Global critical: severe weathercodes
   if (CRITICAL_WEATHERCODES.includes(hourWeather.weathercode)) {
     return true;
   }
 
-  // Global critical: wind gust exceeds gale force (62 km/h, Beaufort 8)
+  // Global critical: wind gust exceeds gale force
   if (hourWeather.wind_gusts_10m > CRITICAL_WIND_GUST) {
     return true;
   }
@@ -22,7 +22,6 @@ export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boo
 
   // Temperature bounds
   if (thresholds.maxTemp !== undefined && hourWeather.temperature_2m > thresholds.maxTemp) {
-    // Running keeps a humidity gate via dew point for high-heat critical override.
     if (sportKey === 'running') {
       return hourWeather.dew_point_2m > 18;
     }
@@ -33,7 +32,7 @@ export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boo
     return true;
   }
 
-  // Precipitation (e.g., rock climbing >2.5mm)
+  // Precipitation
   if (thresholds.maxPrecip !== undefined && hourWeather.precipitation > thresholds.maxPrecip) {
     return true;
   }
@@ -43,16 +42,15 @@ export function isCritical(hourWeather: HourWeather, sportKey: ActivityKey): boo
     return true;
   }
 
-  // Wind gust lower bound (kitesurfing, windsurfing need minimum wind)
+  // Wind gust lower bound (kitesurfing, windsurfing)
   if (thresholds.minWindGust !== undefined && hourWeather.wind_gusts_10m < thresholds.minWindGust) {
     return true;
   }
 
-  // Alternative wind upper bound (for sports with a tight wind range)
+  // Alternative wind upper bound
   if (thresholds.maxWindGustAlt !== undefined && hourWeather.wind_gusts_10m > thresholds.maxWindGustAlt) {
     return true;
   }
 
-  // No critical conditions met
   return false;
 }

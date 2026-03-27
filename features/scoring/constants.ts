@@ -1,6 +1,5 @@
 import type { Sentiment } from '@/components/home/sentiment';
 
-// Activity type keys (from constants/activities.ts)
 export type ActivityKey =
   | 'running'
   | 'cycling'
@@ -105,18 +104,10 @@ export const SPORT_WEIGHTS: Record<ActivityKey, {
   },
 };
 
-// Ideal Temperature Ranges (Tlow, Thigh) in Celsius
-export const IDEAL_TEMP_RANGES: Record<ActivityKey, { low: number; high: number }> = {
-  running: { low: 5, high: 25 },
-  cycling: { low: 5, high: 30 },
-  hiking: { low: 5, high: 25 },
-  rock_climbing: { low: 10, high: 30 },
-  generic_sports: { low: 10, high: 28 },
-  kayaking: { low: 15, high: 30 },
-  sailing: { low: 10, high: 28 },
-  surfing: { low: 18, high: 32 },
-  kitesurfing: { low: 15, high: 30 },
-  windsurfing: { low: 15, high: 30 },
+// Fixed ideal temperature range used by all sports (Tlow, Thigh) in Celsius
+export const IDEAL_TEMP_RANGE = {
+  low: 10,
+  high: 25,
 };
 
 // Temperature penalty rates (points per °C)
@@ -127,34 +118,32 @@ export const TEMP_PENALTY_RATES = {
 
 // Wind Gust thresholds (km/h)
 export const WIND_GUST_THRESHOLDS = {
-  G0: 35, // gust speed where penalty begins (increased from 20 - light breeze is fine)
-  G100: 75, // gust speed where penalty reaches 100 (increased from 62)
+  G0: 35,
+  G100: 75,
 };
 
 // Precipitation amount thresholds (mm/h)
 export const PRECIP_THRESHOLDS = {
-  P0: 0.5, // light drizzle threshold (anything below is tolerable)
-  P100: 8.0, // very heavy rain (increased from 6.0)
+  P0: 0.5,
+  P100: 8.0,
 };
 
 // Precipitation probability thresholds (%)
 export const PRECIP_PROB_THRESHOLDS = {
-  PoP0: 20, // low risk threshold (increased from 10)
-  PoP100: 90, // very likely to rain (increased from 80)
+  PoP0: 20,
+  PoP100: 90,
 };
 
 // Precipitation probability penalty scaling factor
-// Reduced from 0.5 to 0.3 - give less weight to probability
 export const PRECIP_PROB_LAMBDA = 0.3;
 
 // Dew Point thresholds (°C)
 export const DEW_POINT_THRESHOLDS = {
-  DP0: 12.8, // comfortable upper bound
-  DP100: 18.3, // very muggy
+  DP0: 12.8,
+  DP100: 18.3,
 };
 
 // Daylight penalty (points when is_day = 0)
-// Reduced to 60 for moderate night penalty impact
 export const DAYLIGHT_PENALTY = 60;
 
 // Marine thresholds
@@ -162,7 +151,7 @@ export const MARINE_THRESHOLDS = {
   // Wave height (m)
   H0: 0.5,
   H100: 2.0,
-  // Wave period (s) - INVERTED: shorter periods are worse
+  // Wave period (s) - inverted
   P0: 10,
   P100: 6,
   // Wind-chop fraction (unitless)
@@ -185,12 +174,11 @@ export const MARINE_SUB_WEIGHTS = {
 export const WIND_CHOP_EPSILON = 0.1;
 
 // Critical weathercodes that trigger automatic POOR rating
-// 65: Heavy rain, 67: Heavy freezing rain, 75: Heavy snow, 77: Snow grains
-// 85/86: Snow showers, 95/96/99: Thunderstorm variants
-export const CRITICAL_WEATHERCODES = [65, 67, 75, 77, 85, 86, 95, 96, 99];
+// 65: Heavy rain, 75: Heavy snow, 86: Snow showers, 95/96/99: Thunderstorm variants
+export const CRITICAL_WEATHERCODES = [65, 75, 86, 95, 96, 99];
 
 // Global critical threshold - wind gust (km/h)
-export const CRITICAL_WIND_GUST = 62; // Beaufort 8 (gale)
+export const CRITICAL_WIND_GUST = 62;
 
 // Sport-specific critical thresholds
 export const CRITICAL_THRESHOLDS: Record<ActivityKey, {
@@ -199,7 +187,7 @@ export const CRITICAL_THRESHOLDS: Record<ActivityKey, {
   maxPrecip?: number;
   maxWindGust?: number;
   minWindGust?: number;
-  maxWindGustAlt?: number; // alternative upper bound for some sports
+  maxWindGustAlt?: number;
 }> = {
   running: {
     maxTemp: 37, // °C
@@ -239,12 +227,10 @@ export const SCORE_TO_SENTIMENT_MAP: Array<{ min: number; sentiment: Sentiment }
   { min: 0, sentiment: 'POOR' },
 ];
 
-// Filter penalty (flat penalty per violated filter)
-// Reduced from 30 to 10 - filters should refine scores, not destroy them
-// Base score already penalizes bad weather, so don't double-penalize
+// Filter penalty
 export const FILTER_PENALTY = 10;
 
-// Rain filter thresholds - mapping RainValue to max precipitation amount and probability
+// Rain filter thresholds
 export const RAIN_FILTER_MAP: Record<string, { Pmax: number; PoPmax: number }> = {
   clear: { Pmax: 0.1, PoPmax: 15 },
   drizzle: { Pmax: 0.3, PoPmax: 100 },
@@ -253,7 +239,7 @@ export const RAIN_FILTER_MAP: Record<string, { Pmax: number; PoPmax: number }> =
   heavy: { Pmax: 6.0, PoPmax: 100 },
 };
 
-// Wind filter thresholds - indexed by windLevel (0, 1, 2)
+// Wind filter thresholds
 export const WIND_FILTER_MAP = [
   25,  // Low
   40,  // Moderate

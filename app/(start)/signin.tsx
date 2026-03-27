@@ -6,7 +6,7 @@ import {
   FormControlLabelText,
 } from '@/components/ui/form-control';
 import { Image } from '@/components/ui/image';
-import { Input, InputField /*, InputIcon, InputSlot*/ } from '@/components/ui/input';
+import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';

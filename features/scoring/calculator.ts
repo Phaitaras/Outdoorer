@@ -3,7 +3,7 @@ import type { HourWeather } from '@/features/weather';
 import type { ActivityKey } from './constants';
 import {
     FILTER_PENALTY,
-    IDEAL_TEMP_RANGES,
+  IDEAL_TEMP_RANGE,
     RAIN_FILTER_MAP,
     SCORE_TO_SENTIMENT_MAP,
     SPORT_WEIGHTS,
@@ -36,13 +36,12 @@ export type FilterState = {
  */
 export function computeBaseScore(hourWeather: HourWeather, sportKey: ActivityKey): number {
   const weights = SPORT_WEIGHTS[sportKey];
-  const tempRange = IDEAL_TEMP_RANGES[sportKey];
 
   // Temperature penalty
   const tempPenalty = temperaturePenalty(
     hourWeather.temperature_2m,
-    tempRange.low,
-    tempRange.high
+    IDEAL_TEMP_RANGE.low,
+    IDEAL_TEMP_RANGE.high
   );
 
   // Wind gust penalty
@@ -81,21 +80,21 @@ export function computeBaseScore(hourWeather: HourWeather, sportKey: ActivityKey
     weights.marine * marinePen;
 
   // Debug multiple hours to see penalty breakdown across day
-  const hour = hourWeather.time.slice(11, 13);
-  if (hour === '00' || hour === '06' || hour === '12' || hour === '18') {
-    console.log(`[SCORING PENALTIES] ${sportKey} at ${hourWeather.time}:`, {
-      temp: hourWeather.temperature_2m,
-      windGust: hourWeather.wind_gusts_10m,
-      precip: hourWeather.precipitation,
-      precipProb: hourWeather.precipitation_probability,
-      isDay: hourWeather.is_day,
-      tempPenalty: tempPenalty.toFixed(1),
-      windPenalty: windPenalty.toFixed(1),
-      precipPenalty: precipPenalty.toFixed(1),
-      daylightPen: daylightPen.toFixed(1),
-      totalPenalty: totalPenalty.toFixed(1),
-    });
-  }
+  // const hour = hourWeather.time.slice(11, 13);
+  // if (hour === '00' || hour === '06' || hour === '12' || hour === '18') {
+  //   console.log(`[SCORING PENALTIES] ${sportKey} at ${hourWeather.time}:`, {
+  //     temp: hourWeather.temperature_2m,
+  //     windGust: hourWeather.wind_gusts_10m,
+  //     precip: hourWeather.precipitation,
+  //     precipProb: hourWeather.precipitation_probability,
+  //     isDay: hourWeather.is_day,
+  //     tempPenalty: tempPenalty.toFixed(1),
+  //     windPenalty: windPenalty.toFixed(1),
+  //     precipPenalty: precipPenalty.toFixed(1),
+  //     daylightPen: daylightPen.toFixed(1),
+  //     totalPenalty: totalPenalty.toFixed(1),
+  //   });
+  // }
 
   // Base score = 100 - total penalty, clamped to [0, 100]
   return Math.max(0, Math.min(100, 100 - totalPenalty));
@@ -146,11 +145,11 @@ export function computeFilterPenalty(
     violations.push(`wind(${hourWeather.wind_gusts_10m.toFixed(1)}km/h>${windMax}km/h)`);
   }
 
-  // Log violations for debugging
-  const hour = hourWeather.time.slice(11, 13);
-  if ((hour === '00' || hour === '06' || hour === '12' || hour === '18') && violations.length > 0) {
-    console.log(`[FILTER VIOLATIONS] at ${hourWeather.time}:`, violations.join(', '));
-  }
+  // // Log violations for debugging
+  // const hour = hourWeather.time.slice(11, 13);
+  // if ((hour === '00' || hour === '06' || hour === '12' || hour === '18') && violations.length > 0) {
+  //   console.log(`[FILTER VIOLATIONS] at ${hourWeather.time}:`, violations.join(', '));
+  // }
 
   return penalty;
 }
@@ -181,20 +180,20 @@ export function computeFinalScore(
   const filterPenalty = computeFilterPenalty(hourWeather, filters);
   const finalScore = Math.max(0, baseScore - filterPenalty);
 
-  // Debug multiple hours to see scores across day
-  const hour = hourWeather.time.slice(11, 13);
-  if (hour === '00' || hour === '06' || hour === '12' || hour === '18') {
-    console.log(`[SCORING] ${sportKey} at ${hourWeather.time}:`, {
-      baseScore: baseScore.toFixed(1),
-      filterPenalty,
-      finalScore: finalScore.toFixed(1),
-      temp: hourWeather.temperature_2m,
-      windGust: hourWeather.wind_gusts_10m,
-      precip: hourWeather.precipitation,
-      precipProb: hourWeather.precipitation_probability,
-      isDay: hourWeather.is_day,
-    });
-  }
+  // // Debug multiple hours to see scores across day
+  // const hour = hourWeather.time.slice(11, 13);
+  // if (hour === '00' || hour === '06' || hour === '12' || hour === '18') {
+  //   console.log(`[SCORING] ${sportKey} at ${hourWeather.time}:`, {
+  //     baseScore: baseScore.toFixed(1),
+  //     filterPenalty,
+  //     finalScore: finalScore.toFixed(1),
+  //     temp: hourWeather.temperature_2m,
+  //     windGust: hourWeather.wind_gusts_10m,
+  //     precip: hourWeather.precipitation,
+  //     precipProb: hourWeather.precipitation_probability,
+  //     isDay: hourWeather.is_day,
+  //   });
+  // }
 
   return finalScore;
 }
