@@ -1,50 +1,140 @@
-# Welcome to your Expo app 👋
+<img src="assets/images/full_icon.png" alt="Outdoorer Icon" width="400" height="300">
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Outdoorer
 
-## Get started
+**Outdoorer is an iOS mobile app for providing weather recommendations for outdoor activities based on weather forecasts.**
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- activity-specific weather suitability scoring
+- safety override rules
+- user weather preference filters
+- map-based location selection
+- social features (friends and activity sharing)
 
-2. Start the app
+## Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+- Expo and React Native
+- TypeScript
+- Expo Router
+- Supabase
+- TanStack Query
+- Apple Maps APIs
+- Jest and ts-jest for unit tests
 
-In the output, you'll find options to open the app in a
+## Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- app: Expo Router screens
+- components: reusable UI and feature-level components
+- features: domain logic (activity, weather, scoring, map, profile, friends)
+- providers: app providers (query, location)
+- lib: shared clients (for example Supabase client)
+- supabase/functions: serverless functions
+- tests: shared test fixtures and generated reports
+- assets: diagrams, documentation, media
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Prerequisites
 
-## Get a fresh project
+- Node.js 18+
+- npm 9+
+- Xcode for iOS simulator and device builds
+- Android Studio for Android emulator (optional)
+- Expo CLI (via npx is fine)
+- A Supabase project
 
-When you're ready, run:
+## Environment Variables
 
-```bash
-npm run reset-project
+Create a local environment file (for example .env) with the following keys:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_google_web_client_id
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=your_google_ios_client_id
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Notes:
 
-## Learn more
+- Supabase values are required by lib/supabase.ts.
+- Google values are required for Google Sign-In in app/(start)/signin.tsx.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Install and Run
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Install dependencies:
 
-## Join the community
+```bash
+npm install
+```
 
-Join our community of developers creating universal apps.
+For local iOS development builds (recommended workflow):
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo run:ios
+```
+
+Expo development build guide:
+
+- https://docs.expo.dev/develop/development-builds/introduction/
+
+## Scripts
+
+- npm run test: run all Jest tests
+- npm run test:watch: watch mode
+- npm run test:core: focused core logic suites
+- npm run test:coverage: core suites plus coverage output
+- npm run test:report: core suites plus JSON report at tests/reports/core-tests.json
+
+## Testing
+
+Jest is configured in jest.config.js with:
+
+- ts-jest preset
+- Node test environment
+- test matching under **tests**
+- coverage output in tests/reports/coverage
+
+Core scoring tests currently target:
+
+- safety overrides
+- base score behavior
+- preference penalties
+- recommended window selection
+
+## Backend Integration
+
+Supabase Edge Functions used by the app:
+
+- get-weather-24h
+- get-apple-maps-token
+
+The client invokes weather via features/weather/hooks/useWeather.ts and invokes map token issuance through the corresponding maps feature hooks.
+
+## Troubleshooting
+
+If TypeScript cannot find Jest globals like describe or expect:
+
+- ensure @types/jest is installed
+- ensure tsconfig.json includes jest in compilerOptions.types
+
+If weather requests fail:
+
+- verify EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+- verify the get-weather-24h edge function is deployed and reachable
+
+If Google Sign-In fails:
+
+- verify EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID and EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+- verify Google OAuth config in Supabase and platform credentials
+
+If map search fails:
+
+- verify get-apple-maps-token function setup
+- verify Apple Maps credentials on server function side
+
+## User Guide
+
+For end-user usage instructions, see MANUAL.md.
+
+## License
+
+This project is licensed under the Apache License 2.0. See LICENSE for details.

@@ -2,6 +2,7 @@
   "name": "outdoorer",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "APP_VARIANT=development npx expo start",
     "start": "expo start",
