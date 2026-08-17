@@ -100,6 +100,26 @@ Core scoring tests currently target:
 - preference penalties
 - recommended window selection
 
+## Branching and Releases
+
+- `main` is protected: no direct pushes, changes land via pull request.
+- Every change, feature or fix, gets its own short-lived branch off `main`.
+- Every PR into `main` runs lint and the Jest suite (`.github/workflows/ci.yml`)
+  as a required status check.
+- To ship a TestFlight release, run (from an `eas login`-authenticated shell):
+
+  ```bash
+  eas workflow:run .eas/workflows/release.yml --input version=1.2.0
+  ```
+
+  This runs on Expo's infrastructure (not GitHub Actions): it builds the iOS
+  `production` profile with the given version, then submits the result to
+  TestFlight. The build number is managed automatically by EAS
+  (`autoIncrement: true` in `eas.json`) — only the marketing version (the
+  `version` input) needs to be chosen deliberately.
+- Version bump convention: patch for bug fixes, minor for new
+  features/enhancements, major for a fundamental scope change.
+
 ## Backend Integration
 
 Supabase Edge Functions used by the app:
