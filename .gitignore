@@ -6,6 +6,16 @@
 # dependencies
 node_modules/
 
+# editor swap files
+*.swp
+
+# Supabase CLI local link/cache state
+supabase/.temp/
+
+# claude code / superpowers artifacts (local only)
+CLAUDE.md
+docs/superpowers/
+
 # Expo
 .expo/
 dist/

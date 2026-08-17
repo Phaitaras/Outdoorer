@@ -117,9 +117,8 @@ serve(async (req) => {
 
     let apiUrl: string;
     if (isPastDate) {
-      // for past dates, use start_date and end_date parameters
       apiUrl =
-        `https://api.open-meteo.com/v1/forecast` +
+        `https://archive-api.open-meteo.com/v1/archive` +
         `?latitude=${lat}` +
         `&longitude=${lon}` +
         `&start_date=${requestedDateStr}` +
@@ -127,7 +126,6 @@ serve(async (req) => {
         `&hourly=${hourlyVars}` +
         unitParams;
     } else {
-      // for today and future dates, use forecast_days
       apiUrl =
         `https://api.open-meteo.com/v1/forecast` +
         `?latitude=${lat}` +
