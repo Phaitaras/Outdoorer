@@ -8,34 +8,17 @@ import * as LucideIcons from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 
-export function CurrentWeatherCard({ 
-  weather, 
-  isLoading, 
+export function CurrentWeatherCard({
+  weather,
+  isLoading,
   error,
   metricSystem = 'metric'
-}: { 
+}: {
   weather?: WeatherData;
   isLoading?: boolean;
   error?: Error | null;
   metricSystem?: MetricSystem;
 }) {
-  if (error) {
-    console.error('Weather card error:', error);
-    return (
-      <View>
-        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
-          <Text className="text-typography-500">
-            Error: {error.message?.substring(0, 100) || 'Unknown error'}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (isLoading || !weather) {
-    return <CurrentWeatherCardSkeleton />;
-  }
-
   const getIconComponent = (iconName: string) => {
     const iconMap: Record<string, React.ComponentType<{ size: number }>> = {
       'sun': LucideIcons.Sun,
@@ -50,31 +33,16 @@ export function CurrentWeatherCard({
     return iconMap[iconName] || LucideIcons.Cloud;
   };
 
-  if (!weather.current) {
-    return (
-      <View>
-        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
-          <Text className="text-typography-500">Current weather not available.</Text>
-        </View>
-        <View className="mt-2 flex self-end">
-          <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
-        </View>
-      </View>
-    );
-  }
-
-  const currentIcon = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
-  const CurrentIcon = getIconComponent(currentIcon);
-  const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
-
   // use next 6hours from API, fallback to slicing dayHours from current time
   const hourlyData = useMemo(() => {
+    if (!weather || !weather.current) { return []; }
+
     // start with current hour
     const currentTime = new Date();
     const currentHour = currentTime.getHours().toString().padStart(2, '0');
-    const currentIconName = weather.current ? WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud' : 'cloud';
+    const currentIconName = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
     const CurrentIcon = getIconComponent(currentIconName);
-    const currentTempCelsius = weather.current ? weather.current.temperature_2m : 0;
+    const currentTempCelsius = weather.current.temperature_2m;
     const currentTemp = metricSystem === 'imperial' ? Math.round(celsiusToFahrenheit(currentTempCelsius)) : Math.round(currentTempCelsius);
 
     // Display as current hour
@@ -119,7 +87,41 @@ export function CurrentWeatherCard({
       });
 
     return [...result, ...hourlyItems];
-  }, [weather.current, weather.next6, weather.dayHours, weather.units, metricSystem, Math.floor(Date.now() / 3600000)]);
+  }, [weather?.current, weather?.next6, weather?.dayHours, weather?.units, metricSystem, Math.floor(Date.now() / 3600000)]);
+
+  if (error) {
+    console.error('Weather card error:', error);
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">
+            Error: {error.message?.substring(0, 100) || 'Unknown error'}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (isLoading || !weather) {
+    return <CurrentWeatherCardSkeleton />;
+  }
+
+  if (!weather.current) {
+    return (
+      <View>
+        <View className="bg-white rounded-2xl p-4 px-6 shadow-soft-1">
+          <Text className="text-typography-500">Current weather not available.</Text>
+        </View>
+        <View className="mt-2 flex self-end">
+          <Text className="text-xs text-typography-500" style={{fontFamily: 'Roboto-Regular'}}>Weather data by Open-Meteo.com</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const currentIcon = WEATHER_CODE_TO_ICON[weather.current.weathercode] || 'cloud';
+  const CurrentIcon = getIconComponent(currentIcon);
+  const currentDescription = WEATHER_CODE_TO_DESCRIPTION[weather.current.weathercode] || 'Unknown';
 
   return (
     <View>
