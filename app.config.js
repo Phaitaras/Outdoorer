@@ -1,6 +1,7 @@
 export default ({ config }) => ({
   ...config,
   name: getAppName(),
+  version: process.env.RELEASE_VERSION || config.version,
   ios: {
     ...config.ios,
     bundleIdentifier: getUniqueIdentifier(),
