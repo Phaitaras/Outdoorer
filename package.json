@@ -15,7 +15,8 @@
     "test:watch": "jest --watch",
     "test:core": "jest features/scoring/__tests__ utils/__tests__",
     "test:coverage": "jest features/scoring/__tests__ utils/__tests__ --coverage",
-    "test:report": "jest features/scoring/__tests__ utils/__tests__ --json --outputFile tests/reports/core-tests.json"
+    "test:report": "jest features/scoring/__tests__ utils/__tests__ --json --outputFile tests/reports/core-tests.json",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.4.1",
@@ -82,6 +83,7 @@
     "eslint-config-expo": "~10.0.0",
     "jest": "^30.3.0",
     "jest-expo": "^55.0.11",
+    "patch-package": "^8.0.1",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2"
   },

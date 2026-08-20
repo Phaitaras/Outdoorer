@@ -1,4 +1,5 @@
-import { CustomMarker, getActivityEmoji } from '@/components/map/customMarker';
+import { ActivityMarker } from '@/components/map/activityMarker';
+import { getActivityEmoji } from '@/components/map/customMarker';
 import { LocationModal } from '@/components/map/locationModal';
 import { ToggleButton } from '@/components/map/toggleButton';
 import LocationSearchBar from '@/components/plan/locationSearchBar';
@@ -13,7 +14,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Keyboard, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-map-clustering';
-import { Marker } from 'react-native-maps';
 
 type FilterType = 'plans' | 'activities' | 'friends';
 
@@ -184,7 +184,7 @@ export default function Map() {
         clusterColor="#FFAE00"
         clusterTextColor="#FFFFFF"
         radius={10}
-        maxZoom={100}
+        maxZoom={20}
         showsUserLocation={true}
         showsMyLocationButton={true}
         onPress={(e) => {
@@ -197,17 +197,15 @@ export default function Map() {
           const emoji = getActivityEmoji(loc.activity.activity_type || '');
 
           return (
-            <Marker
+            <ActivityMarker
               key={`${loc.type}-${loc.activity.id}`}
               coordinate={{
                 latitude: loc.latitude,
                 longitude: loc.longitude,
               }}
+              emoji={emoji}
               onPress={() => handleMarkerPress(loc)}
-              tracksViewChanges={true}
-            >
-              <CustomMarker emoji={emoji} />
-            </Marker>
+            />
           );
         })}
       </MapView>

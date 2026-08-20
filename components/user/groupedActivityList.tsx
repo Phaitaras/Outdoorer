@@ -45,7 +45,7 @@ export function GroupedActivityList({
   }
 
   return (
-    <View className="flex-col gap-6">
+    <View className="flex-col gap-6 mb-24">
       {groups.map((group) => (
         <View key={group}>
           <Text className="text-lg text-typography-700 mb-3" style={{ fontFamily: 'Roboto-Medium' }}>
