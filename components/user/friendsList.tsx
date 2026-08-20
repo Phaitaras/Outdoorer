@@ -5,7 +5,7 @@ import { Text } from '@/components/ui/text';
 import { AVATAR_COLOR_HEX } from '@/constants/user';
 import type { Profile } from '@/features/profile/types';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 interface FriendsListProps {
   friends: Profile[];
@@ -16,10 +16,13 @@ export function FriendsList({ friends, onViewProfile }: FriendsListProps) {
   if (!friends || friends.length === 0) return null;
 
   return (
-    <View className="bg-white rounded-2xl shadow-soft-1 overflow-hidden">
+    <View className="bg-white rounded-2xl shadow-soft-1 overflow-hidden mb-24">
       {friends.map((friend, index) => (
         <React.Fragment key={friend.id}>
-          <View className="flex-row items-center justify-between p-4">
+          <Pressable
+            className="flex-row items-center justify-between p-4"
+            onPress={() => onViewProfile(friend)}
+          >
             <View className="flex-row items-center gap-4 flex-1">
               <Avatar size="md" style={{ backgroundColor: AVATAR_COLOR_HEX['blue'] }}>
                 <AvatarFallbackText>{friend.username}</AvatarFallbackText>
@@ -47,7 +50,7 @@ export function FriendsList({ friends, onViewProfile }: FriendsListProps) {
                 View Profile
               </ButtonText>
             </Button>
-          </View>
+          </Pressable>
           {index < friends.length - 1 && <Divider className="mx-4" />}
         </React.Fragment>
       ))}

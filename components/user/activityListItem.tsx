@@ -24,7 +24,7 @@ export function ActivityListItem({
     <>
       <Pressable
         onPress={onPress}
-        className="flex-row items-center justify-between p-5 active:bg-background-50"
+        className="flex-row items-center justify-between px-6 py-4 active:bg-background-50"
       >
         <View className="flex-col">
           <Text className="text-base text-typography-900 mb-1" style={{ fontFamily: 'Roboto-Medium' }}>
